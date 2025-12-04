@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
+import { useGuest } from '@/contexts/GuestContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { ChevronRight, ChevronLeft, User, Activity, Target, FileText, Check, Loader2 } from 'lucide-react';
+import { ChevronRight, ChevronLeft, User, Activity, Target, FileText, Check, Loader2, ArrowLeft } from 'lucide-react';
 
 const steps = [
   { id: 'basic', icon: User },
@@ -23,6 +24,7 @@ const Onboarding: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isGuest, guestOnboarding, setGuestOnboarding, setShowUpgradePrompt } = useGuest();
   const { toast } = useToast();
   
   const [currentStep, setCurrentStep] = useState(0);
@@ -43,10 +45,10 @@ const Onboarding: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!user) {
+    if (!user && !isGuest) {
       navigate('/auth');
     }
-  }, [user, navigate]);
+  }, [user, isGuest, navigate]);
 
   const updateData = (field: string, value: any) => {
     setData(prev => ({ ...prev, [field]: value }));
@@ -62,10 +64,36 @@ const Onboarding: React.FC = () => {
   };
 
   const handleComplete = async () => {
-    if (!user) return;
     setLoading(true);
 
     try {
+      if (isGuest) {
+        setGuestOnboarding({
+          age: parseInt(data.age) || null,
+          biological_sex: data.biological_sex || null,
+          weight: parseFloat(data.weight) || null,
+          height: parseFloat(data.height) || null,
+          training_frequency: data.training_frequency || null,
+          sleep_quality: data.sleep_quality || null,
+          alcohol_consumption: data.alcohol_consumption || null,
+          daily_water_intake: parseFloat(data.daily_water_intake) || null,
+          mental_health_level: data.mental_health_level,
+          health_goals: data.health_goals,
+          current_medications: data.current_medications || null,
+          medical_history: data.medical_history || null,
+          completed: true,
+        });
+        setShowUpgradePrompt(true);
+        toast({
+          title: t('success'),
+          description: t('profileSaved'),
+        });
+        navigate('/dashboard');
+        return;
+      }
+
+      if (!user) return;
+
       const { error } = await supabase
         .from('onboarding_data')
         .update({
@@ -82,7 +110,7 @@ const Onboarding: React.FC = () => {
 
       toast({
         title: t('success'),
-        description: "Your profile has been saved!",
+        description: t('profileSaved'),
       });
       navigate('/dashboard');
     } catch (error: any) {
@@ -145,6 +173,16 @@ const Onboarding: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10" />
+      
+      {/* Back Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-4 left-4 z-20"
+        onClick={() => navigate(isGuest ? '/auth' : -1)}
+      >
+        <ArrowLeft className="w-5 h-5" />
+      </Button>
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -300,8 +338,8 @@ const Onboarding: React.FC = () => {
                         <Label>{t('mentalHealth')}</Label>
                         <Input
                           type="number"
-                          min="1"
-                          max="10"
+                          min={1}
+                          max={10}
                           value={data.mental_health_level}
                           onChange={(e) => updateData('mental_health_level', parseInt(e.target.value))}
                         />
