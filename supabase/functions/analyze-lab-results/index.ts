@@ -22,7 +22,6 @@ serve(async (req) => {
     console.log('Analyzing lab results for user:', userId);
     console.log('File type:', fileType);
 
-    // Use Gemini for multimodal analysis
     const systemPrompt = `You are a medical lab results analyzer specialized in longevity and health biomarkers. 
     
 Your task is to:
@@ -77,7 +76,7 @@ Respond ONLY with valid JSON in this exact format:
   ]
 }`;
 
-    const messages: any[] = [
+    const messages: Array<{ role: string; content: Array<{ type: string; text?: string; image_url?: { url: string } }> }> = [
       {
         role: "user",
         content: [
@@ -136,10 +135,8 @@ Respond ONLY with valid JSON in this exact format:
     
     console.log('AI Response:', content);
 
-    // Parse the JSON response
     let analysisResult;
     try {
-      // Extract JSON from the response (in case there's extra text)
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         analysisResult = JSON.parse(jsonMatch[0]);
@@ -148,7 +145,6 @@ Respond ONLY with valid JSON in this exact format:
       }
     } catch (parseError) {
       console.error('Failed to parse AI response:', parseError);
-      // Return default values if parsing fails
       analysisResult = {
         biomarkers: {},
         biological_age: null,
@@ -158,7 +154,6 @@ Respond ONLY with valid JSON in this exact format:
       };
     }
 
-    // Save to database
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -188,9 +183,10 @@ Respond ONLY with valid JSON in this exact format:
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error in analyze-lab-results:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
