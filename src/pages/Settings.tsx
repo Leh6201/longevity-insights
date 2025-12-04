@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
+import { useGuest } from '@/contexts/GuestContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/layout/Navbar';
@@ -11,13 +12,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { User, Palette, Globe, Loader2, Sun, Moon } from 'lucide-react';
+import { 
+  User, Palette, Globe, Loader2, Sun, Moon, LogOut, Trash2, 
+  Diamond, MessageSquare, FileText, Shield, ChevronRight, KeyRound, Edit
+} from 'lucide-react';
 import i18n from '@/lib/i18n';
 
 const Settings: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
+  const { isGuest, exitGuestMode } = useGuest();
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
 
@@ -27,7 +32,7 @@ const Settings: React.FC = () => {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!authLoading && !user && !isGuest) {
       navigate('/auth');
       return;
     }
@@ -36,7 +41,7 @@ const Settings: React.FC = () => {
       setEmail(user.email || '');
       fetchProfile();
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, isGuest, navigate]);
 
   const fetchProfile = async () => {
     if (!user) return;
@@ -81,7 +86,7 @@ const Settings: React.FC = () => {
 
       toast({
         title: t('success'),
-        description: "Settings saved successfully!",
+        description: t('settingsSaved'),
       });
     } catch (error: any) {
       toast({
@@ -92,6 +97,42 @@ const Settings: React.FC = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleLogout = async () => {
+    if (isGuest) {
+      exitGuestMode();
+      navigate('/auth');
+    } else {
+      await signOut();
+      navigate('/auth');
+    }
+  };
+
+  const handleDeleteAccount = () => {
+    toast({
+      title: t('deleteAccount'),
+      description: t('featureComingSoon'),
+    });
+  };
+
+  const handleChangePassword = () => {
+    toast({
+      title: t('changePassword'),
+      description: t('featureComingSoon'),
+    });
+  };
+
+  const handleFeedback = () => {
+    toast({
+      title: t('sendFeedback'),
+      description: t('featureComingSoon'),
+    });
+  };
+
+  const getUserStatus = () => {
+    if (isGuest) return t('guest');
+    return t('free');
   };
 
   if (authLoading) {
@@ -114,93 +155,217 @@ const Settings: React.FC = () => {
         >
           <h1 className="text-3xl font-display font-bold text-foreground">{t('settings')}</h1>
 
-          {/* Profile */}
+          {/* Account */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="w-5 h-5" />
-                {t('profile')}
+                {t('account')}
               </CardTitle>
-              <CardDescription>{t('editProfile')}</CardDescription>
+              <CardDescription>{t('manageAccount')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>{t('name')}</Label>
-                <Input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="John Doe"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>{t('email')}</Label>
-                <Input value={email} disabled className="opacity-60" />
-              </div>
+              {!isGuest ? (
+                <>
+                  <div className="space-y-2">
+                    <Label>{t('name')}</Label>
+                    <Input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="John Doe"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t('email')}</Label>
+                    <Input value={email} disabled className="opacity-60" />
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => navigate('/edit-profile')}
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      {t('editHealthData')}
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={handleChangePassword}
+                    >
+                      <KeyRound className="w-4 h-4 mr-2" />
+                      {t('changePassword')}
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-muted-foreground mb-4">{t('guestAccountMessage')}</p>
+                  <Button onClick={() => navigate('/auth?mode=signup')}>
+                    {t('createAccount')}
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
 
-          {/* Language */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Globe className="w-5 h-5" />
-                {t('language')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-3">
-                <Button
-                  variant={language === 'en' ? 'default' : 'outline'}
-                  onClick={() => setLanguage('en')}
-                  className="flex-1"
-                >
-                  English
-                </Button>
-                <Button
-                  variant={language === 'pt' ? 'default' : 'outline'}
-                  onClick={() => setLanguage('pt')}
-                  className="flex-1"
-                >
-                  Português
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Theme */}
+          {/* App Preferences */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Palette className="w-5 h-5" />
-                {t('theme')}
+                {t('appPreferences')}
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="flex gap-3">
-                <Button
-                  variant={theme === 'light' ? 'default' : 'outline'}
-                  onClick={() => setTheme('light')}
-                  className="flex-1"
-                >
-                  <Sun className="w-4 h-4 mr-2" />
-                  {t('lightMode')}
-                </Button>
-                <Button
-                  variant={theme === 'dark' ? 'default' : 'outline'}
-                  onClick={() => setTheme('dark')}
-                  className="flex-1"
-                >
-                  <Moon className="w-4 h-4 mr-2" />
-                  {t('darkMode')}
-                </Button>
+            <CardContent className="space-y-6">
+              {/* Language */}
+              <div className="space-y-3">
+                <Label className="flex items-center gap-2">
+                  <Globe className="w-4 h-4" />
+                  {t('language')}
+                </Label>
+                <div className="flex gap-3">
+                  <Button
+                    variant={language === 'en' ? 'default' : 'outline'}
+                    onClick={() => {
+                      setLanguage('en');
+                      i18n.changeLanguage('en');
+                    }}
+                    className="flex-1"
+                  >
+                    English
+                  </Button>
+                  <Button
+                    variant={language === 'pt' ? 'default' : 'outline'}
+                    onClick={() => {
+                      setLanguage('pt');
+                      i18n.changeLanguage('pt');
+                    }}
+                    className="flex-1"
+                  >
+                    Português
+                  </Button>
+                </div>
+              </div>
+
+              {/* Theme */}
+              <div className="space-y-3">
+                <Label>{t('theme')}</Label>
+                <div className="flex gap-3">
+                  <Button
+                    variant={theme === 'light' ? 'default' : 'outline'}
+                    onClick={() => setTheme('light')}
+                    className="flex-1"
+                  >
+                    <Sun className="w-4 h-4 mr-2" />
+                    {t('lightMode')}
+                  </Button>
+                  <Button
+                    variant={theme === 'dark' ? 'default' : 'outline'}
+                    onClick={() => setTheme('dark')}
+                    className="flex-1"
+                  >
+                    <Moon className="w-4 h-4 mr-2" />
+                    {t('darkMode')}
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Button onClick={handleSave} className="w-full" size="lg" disabled={saving}>
-            {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-            {t('saveChanges')}
-          </Button>
+          {/* Premium */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Diamond className="w-5 h-5" />
+                {t('premium')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted">
+                <span className="text-sm">{t('currentStatus')}</span>
+                <span className="font-semibold">{getUserStatus()}</span>
+              </div>
+              <Button 
+                variant="outline" 
+                className="w-full justify-between"
+                onClick={() => navigate('/premium')}
+              >
+                {t('viewPremiumPlans')}
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Support & Legal */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="w-5 h-5" />
+                {t('supportLegal')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button 
+                variant="ghost" 
+                className="w-full justify-between"
+                onClick={handleFeedback}
+              >
+                <span className="flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4" />
+                  {t('sendFeedback')}
+                </span>
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                className="w-full justify-between"
+                onClick={() => toast({ title: t('termsOfUse'), description: t('featureComingSoon') })}
+              >
+                <span className="flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  {t('termsOfUse')}
+                </span>
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                className="w-full justify-between"
+                onClick={() => toast({ title: t('privacyPolicy'), description: t('featureComingSoon') })}
+              >
+                <span className="flex items-center gap-2">
+                  <Shield className="w-4 h-4" />
+                  {t('privacyPolicy')}
+                </span>
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Actions */}
+          {!isGuest && (
+            <Button onClick={handleSave} className="w-full" size="lg" disabled={saving}>
+              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              {t('saveChanges')}
+            </Button>
+          )}
+
+          <div className="flex flex-col gap-3">
+            <Button variant="outline" onClick={handleLogout} className="w-full">
+              <LogOut className="w-4 h-4 mr-2" />
+              {t('logout')}
+            </Button>
+            {!isGuest && (
+              <Button 
+                variant="ghost" 
+                onClick={handleDeleteAccount} 
+                className="w-full text-destructive hover:text-destructive"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                {t('deleteAccount')}
+              </Button>
+            )}
+          </div>
         </motion.div>
       </main>
     </div>
