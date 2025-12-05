@@ -16,6 +16,7 @@ import {
   User, Palette, Globe, Loader2, Sun, Moon, LogOut, Trash2, 
   Diamond, MessageSquare, FileText, Shield, ChevronRight, KeyRound, Edit
 } from 'lucide-react';
+import { changeLanguage } from '@/lib/i18n';
 import i18n from '@/lib/i18n';
 
 const Settings: React.FC = () => {
@@ -28,7 +29,7 @@ const Settings: React.FC = () => {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguageState] = useState(i18n.language || 'en');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -54,14 +55,19 @@ const Settings: React.FC = () => {
 
     if (data) {
       setName(data.name || '');
-      setLanguage(data.language || 'en');
+      if (data.language) {
+        setLanguageState(data.language);
+        i18n.changeLanguage(data.language);
+      }
       if (data.theme) {
         setTheme(data.theme as 'light' | 'dark');
       }
-      if (data.language) {
-        i18n.changeLanguage(data.language);
-      }
     }
+  };
+
+  const handleLanguageChange = (lang: string) => {
+    setLanguageState(lang);
+    changeLanguage(lang, isGuest);
   };
 
   const handleSave = async () => {
@@ -73,16 +79,13 @@ const Settings: React.FC = () => {
         .from('profiles')
         .update({
           name,
-          language,
+          language: language,
           theme,
           updated_at: new Date().toISOString(),
         })
         .eq('user_id', user.id);
 
       if (error) throw error;
-
-      i18n.changeLanguage(language);
-      localStorage.setItem('longlife-language', language);
 
       toast({
         title: t('success'),
@@ -227,20 +230,14 @@ const Settings: React.FC = () => {
                 <div className="flex gap-3">
                   <Button
                     variant={language === 'en' ? 'default' : 'outline'}
-                    onClick={() => {
-                      setLanguage('en');
-                      i18n.changeLanguage('en');
-                    }}
+                    onClick={() => handleLanguageChange('en')}
                     className="flex-1"
                   >
                     English
                   </Button>
                   <Button
                     variant={language === 'pt' ? 'default' : 'outline'}
-                    onClick={() => {
-                      setLanguage('pt');
-                      i18n.changeLanguage('pt');
-                    }}
+                    onClick={() => handleLanguageChange('pt')}
                     className="flex-1"
                   >
                     Português

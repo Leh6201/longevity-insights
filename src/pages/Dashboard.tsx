@@ -176,21 +176,21 @@ const Dashboard: React.FC = () => {
   };
 
   const lipidData = [
-    { name: t('totalCholesterol'), value: labResult?.total_cholesterol, reference: { min: 0, max: 200 } },
-    { name: t('hdl'), value: labResult?.hdl, reference: { min: 40, max: 60 } },
-    { name: t('ldl'), value: labResult?.ldl, reference: { min: 0, max: 100 } },
-    { name: t('triglycerides'), value: labResult?.triglycerides, reference: { min: 0, max: 150 } },
+    { name: t('totalCholesterol'), value: labResult?.total_cholesterol, reference: { min: 0, max: 200 }, tooltipKey: 'totalCholesterolTooltip' },
+    { name: t('hdl'), value: labResult?.hdl, reference: { min: 40, max: 60 }, tooltipKey: 'hdlTooltip' },
+    { name: t('ldl'), value: labResult?.ldl, reference: { min: 0, max: 100 }, tooltipKey: 'ldlTooltip' },
+    { name: t('triglycerides'), value: labResult?.triglycerides, reference: { min: 0, max: 150 }, tooltipKey: 'triglycericesTooltip' },
   ];
 
   const glucoseData = [
-    { name: t('glucose'), value: labResult?.glucose, reference: { min: 70, max: 100 } },
-    { name: t('hemoglobin'), value: labResult?.hemoglobin, reference: { min: 12, max: 17 } },
+    { name: t('glucose'), value: labResult?.glucose, reference: { min: 70, max: 100 }, tooltipKey: 'glucoseTooltip' },
+    { name: t('hemoglobin'), value: labResult?.hemoglobin, reference: { min: 12, max: 17 }, tooltipKey: 'hemoglobinTooltip' },
   ];
 
   const liverData = [
-    { name: t('ast'), value: labResult?.ast, reference: { min: 0, max: 40 } },
-    { name: t('alt'), value: labResult?.alt, reference: { min: 0, max: 40 } },
-    { name: t('ggt'), value: labResult?.ggt, reference: { min: 0, max: 60 } },
+    { name: t('ast'), value: labResult?.ast, reference: { min: 0, max: 40 }, tooltipKey: 'astTooltip' },
+    { name: t('alt'), value: labResult?.alt, reference: { min: 0, max: 40 }, tooltipKey: 'altTooltip' },
+    { name: t('ggt'), value: labResult?.ggt, reference: { min: 0, max: 60 }, tooltipKey: 'ggtTooltip' },
   ];
 
   if (authLoading || loading) {

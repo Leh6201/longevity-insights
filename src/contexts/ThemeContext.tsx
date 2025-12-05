@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 type Theme = 'light' | 'dark';
 
@@ -12,26 +13,98 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>('dark');
+  const [userId, setUserId] = useState<string | null>(null);
 
+  // Get initial theme on mount
   useEffect(() => {
-    const savedTheme = localStorage.getItem('longlife-theme') as Theme;
-    if (savedTheme) {
-      setThemeState(savedTheme);
-      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+    const initTheme = async () => {
+      // Check for logged-in user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        setUserId(user.id);
+        // Try to get theme from profile
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('theme')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (profile?.theme) {
+          setThemeState(profile.theme as Theme);
+          document.documentElement.classList.toggle('dark', profile.theme === 'dark');
+          return;
+        }
+      }
+      
+      // Check sessionStorage for guest
+      const sessionTheme = sessionStorage.getItem('longlife-theme-guest') as Theme;
+      if (sessionTheme) {
+        setThemeState(sessionTheme);
+        document.documentElement.classList.toggle('dark', sessionTheme === 'dark');
+        return;
+      }
+      
+      // Fallback to localStorage
+      const savedTheme = localStorage.getItem('longlife-theme') as Theme;
+      if (savedTheme) {
+        setThemeState(savedTheme);
+        document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+      } else {
+        // Default to dark
+        document.documentElement.classList.add('dark');
+      }
+    };
+
+    initTheme();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        setUserId(session.user.id);
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('theme')
+          .eq('user_id', session.user.id)
+          .single();
+        
+        if (profile?.theme) {
+          setThemeState(profile.theme as Theme);
+          document.documentElement.classList.toggle('dark', profile.theme === 'dark');
+        }
+      } else {
+        setUserId(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const setTheme = useCallback(async (newTheme: Theme) => {
+    setThemeState(newTheme);
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    
+    // Save to localStorage always (fallback)
+    localStorage.setItem('longlife-theme', newTheme);
+    
+    // Check if user is logged in
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (user) {
+      // Save to profile for logged-in users
+      await supabase
+        .from('profiles')
+        .update({ theme: newTheme, updated_at: new Date().toISOString() })
+        .eq('user_id', user.id);
     } else {
-      document.documentElement.classList.add('dark');
+      // Save to sessionStorage for guests
+      sessionStorage.setItem('longlife-theme-guest', newTheme);
     }
   }, []);
 
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
-    localStorage.setItem('longlife-theme', newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
-  };
-
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
+  }, [theme, setTheme]);
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
