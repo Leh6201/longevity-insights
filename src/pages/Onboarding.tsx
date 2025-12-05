@@ -179,7 +179,7 @@ const Onboarding: React.FC = () => {
         variant="ghost"
         size="icon"
         className="absolute top-4 left-4 z-20"
-        onClick={() => navigate(isGuest ? '/auth' : -1)}
+        onClick={() => isGuest ? navigate('/auth') : navigate(-1)}
       >
         <ArrowLeft className="w-5 h-5" />
       </Button>
