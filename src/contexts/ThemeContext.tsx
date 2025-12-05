@@ -77,7 +77,21 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     });
 
-    return () => subscription.unsubscribe();
+    // Listen for storage events (from AuthContext)
+    const handleStorageChange = () => {
+      const savedTheme = localStorage.getItem('longlife-theme') as Theme;
+      if (savedTheme && savedTheme !== theme) {
+        setThemeState(savedTheme);
+        document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   const setTheme = useCallback(async (newTheme: Theme) => {
