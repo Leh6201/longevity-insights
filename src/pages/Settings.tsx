@@ -32,6 +32,18 @@ const Settings: React.FC = () => {
   const [language, setLanguageState] = useState(i18n.language || 'en');
   const [saving, setSaving] = useState(false);
 
+  // Sync language state with i18n
+  useEffect(() => {
+    const handleLanguageChanged = (lng: string) => {
+      setLanguageState(lng);
+    };
+    
+    i18n.on('languageChanged', handleLanguageChanged);
+    return () => {
+      i18n.off('languageChanged', handleLanguageChanged);
+    };
+  }, []);
+
   useEffect(() => {
     if (!authLoading && !user && !isGuest) {
       navigate('/auth');
