@@ -2,10 +2,12 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { HelpCircle } from 'lucide-react';
 
 interface BiomarkerChartProps {
   title: string;
-  data: { name: string; value: number | null; reference: { min: number; max: number } }[];
+  data: { name: string; value: number | null; reference: { min: number; max: number }; tooltipKey?: string }[];
 }
 
 const BiomarkerChart: React.FC<BiomarkerChartProps> = ({ title, data }) => {
@@ -21,6 +23,7 @@ const BiomarkerChart: React.FC<BiomarkerChartProps> = ({ title, data }) => {
     name: item.name,
     value: item.value || 0,
     color: getBarColor(item.value, item.reference),
+    tooltipKey: item.tooltipKey,
   }));
 
   return (
@@ -29,7 +32,33 @@ const BiomarkerChart: React.FC<BiomarkerChartProps> = ({ title, data }) => {
         <CardTitle className="text-lg">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="h-48">
+        {/* Biomarker list with tooltips */}
+        <div className="space-y-2 mb-4">
+          {data.map((item, index) => (
+            <div key={index} className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-1">
+                <span className="text-muted-foreground">{item.name}</span>
+                {item.tooltipKey && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="text-muted-foreground hover:text-foreground transition-colors">
+                        <HelpCircle className="w-3.5 h-3.5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-xs">
+                      <p className="text-xs">{t(item.tooltipKey)}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
+              <span className="font-medium">
+                {item.value !== null ? item.value : t('notAvailable')}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <div className="h-32">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} layout="vertical" margin={{ left: 0, right: 20 }}>
               <XAxis type="number" hide />
@@ -37,11 +66,11 @@ const BiomarkerChart: React.FC<BiomarkerChartProps> = ({ title, data }) => {
                 type="category" 
                 dataKey="name" 
                 width={80}
-                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
                 axisLine={false}
                 tickLine={false}
               />
-              <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={24}>
+              <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
                 {chartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}

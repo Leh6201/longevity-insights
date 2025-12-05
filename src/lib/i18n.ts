@@ -1,5 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import { supabase } from '@/integrations/supabase/client';
 
 const resources = {
   en: {
@@ -199,6 +200,21 @@ const resources = {
       tsh: "TSH",
       crp: "CRP",
       notAvailable: "Not Available",
+      
+      // Biomarker Tooltips
+      totalCholesterolTooltip: "Total cholesterol measures all cholesterol in your blood. High levels may increase risk of heart disease.",
+      hdlTooltip: "HDL is 'good' cholesterol that helps remove other forms of cholesterol from your bloodstream.",
+      ldlTooltip: "LDL is 'bad' cholesterol that can build up in arteries and increase heart disease risk.",
+      triglycericesTooltip: "Triglycerides are fats in your blood. High levels may increase risk of heart disease.",
+      glucoseTooltip: "Blood glucose measures sugar levels. High levels may indicate diabetes risk.",
+      hemoglobinTooltip: "Hemoglobin carries oxygen in your blood. Low levels may indicate anemia.",
+      creatinineTooltip: "Creatinine is a waste product filtered by kidneys. High levels may indicate kidney issues.",
+      astTooltip: "AST is an enzyme found in the liver. Elevated levels may indicate liver damage.",
+      altTooltip: "ALT is a liver enzyme. High levels often indicate liver inflammation or damage.",
+      ggtTooltip: "GGT is a liver enzyme that can indicate liver or bile duct problems when elevated.",
+      vitaminDTooltip: "Vitamin D is essential for bone health and immune function. Low levels are common.",
+      tshTooltip: "TSH controls thyroid hormone production. Abnormal levels may indicate thyroid issues.",
+      crpTooltip: "CRP indicates inflammation in the body. High levels may signal infection or chronic conditions.",
       
       // Disclaimer
       disclaimer: "This application does not provide medical diagnosis. Always consult a healthcare professional.",
@@ -411,6 +427,21 @@ const resources = {
       crp: "PCR",
       notAvailable: "Não Disponível",
       
+      // Biomarker Tooltips
+      totalCholesterolTooltip: "O colesterol total mede todo o colesterol no sangue. Níveis altos podem aumentar o risco de doenças cardíacas.",
+      hdlTooltip: "HDL é o colesterol 'bom' que ajuda a remover outras formas de colesterol da corrente sanguínea.",
+      ldlTooltip: "LDL é o colesterol 'ruim' que pode se acumular nas artérias e aumentar o risco de doenças cardíacas.",
+      triglycericesTooltip: "Triglicerídeos são gorduras no sangue. Níveis altos podem aumentar o risco de doenças cardíacas.",
+      glucoseTooltip: "A glicose no sangue mede os níveis de açúcar. Níveis altos podem indicar risco de diabetes.",
+      hemoglobinTooltip: "A hemoglobina transporta oxigênio no sangue. Níveis baixos podem indicar anemia.",
+      creatinineTooltip: "A creatinina é um produto residual filtrado pelos rins. Níveis altos podem indicar problemas renais.",
+      astTooltip: "AST é uma enzima encontrada no fígado. Níveis elevados podem indicar dano hepático.",
+      altTooltip: "ALT é uma enzima hepática. Níveis altos frequentemente indicam inflamação ou dano no fígado.",
+      ggtTooltip: "GGT é uma enzima hepática que pode indicar problemas no fígado ou nas vias biliares quando elevada.",
+      vitaminDTooltip: "A vitamina D é essencial para a saúde óssea e função imunológica. Níveis baixos são comuns.",
+      tshTooltip: "O TSH controla a produção de hormônios da tireoide. Níveis anormais podem indicar problemas na tireoide.",
+      crpTooltip: "A PCR indica inflamação no corpo. Níveis altos podem sinalizar infecção ou condições crônicas.",
+      
       // Disclaimer
       disclaimer: "Este aplicativo não fornece diagnóstico médico. Sempre consulte um profissional de saúde.",
       
@@ -426,13 +457,45 @@ const resources = {
   },
 };
 
+// Function to get initial language
+const getInitialLanguage = (): string => {
+  // Check sessionStorage for guest
+  const sessionLang = sessionStorage.getItem('longlife-language-guest');
+  if (sessionLang) return sessionLang;
+  
+  // Check localStorage
+  const storedLang = localStorage.getItem('longlife-language');
+  if (storedLang) return storedLang;
+  
+  return 'en';
+};
+
 i18n.use(initReactI18next).init({
   resources,
-  lng: localStorage.getItem('longlife-language') || 'en',
+  lng: getInitialLanguage(),
   fallbackLng: 'en',
   interpolation: {
     escapeValue: false,
   },
 });
+
+// Helper function to change language and persist it
+export const changeLanguage = async (lang: string, isGuest: boolean = false) => {
+  i18n.changeLanguage(lang);
+  localStorage.setItem('longlife-language', lang);
+  
+  if (isGuest) {
+    sessionStorage.setItem('longlife-language-guest', lang);
+  } else {
+    // Try to save to profile if logged in
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase
+        .from('profiles')
+        .update({ language: lang, updated_at: new Date().toISOString() })
+        .eq('user_id', user.id);
+    }
+  }
+};
 
 export default i18n;
