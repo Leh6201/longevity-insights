@@ -130,7 +130,10 @@ const Dashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!authLoading && !user && !isGuest) {
+    // Wait for auth to finish loading
+    if (authLoading) return;
+    
+    if (!user && !isGuest) {
       navigate('/auth');
       return;
     }
