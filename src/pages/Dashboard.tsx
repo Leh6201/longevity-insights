@@ -17,9 +17,10 @@ import PremiumOverlay from '@/components/PremiumOverlay';
 import PremiumBadge from '@/components/PremiumBadge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, AlertCircle, Upload, RefreshCw, Share2, Calendar, Clock, Sparkles, Target } from 'lucide-react';
+import { FileText, AlertCircle, Upload, RefreshCw, Share2, Calendar, Clock, Sparkles, Target, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import { generateHealthReport } from '@/lib/generateHealthReport';
 
 interface LabResult {
   id: string;
@@ -173,10 +174,28 @@ const Dashboard: React.FC = () => {
   };
 
   const handleShare = () => {
-    toast({
-      title: t('shareWithDoctor'),
-      description: t('featureComingSoon'),
-    });
+    if (!labResult) {
+      toast({
+        title: t('error'),
+        description: t('noLabResults'),
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    try {
+      generateHealthReport(labResult, onboarding);
+      toast({
+        title: t('success'),
+        description: t('reportGenerated'),
+      });
+    } catch (error) {
+      toast({
+        title: t('error'),
+        description: t('reportError'),
+        variant: 'destructive',
+      });
+    }
   };
 
   const lipidData = [
