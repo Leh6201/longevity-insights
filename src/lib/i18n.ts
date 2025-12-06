@@ -116,6 +116,8 @@ const resources = {
       greatJob: "Great Job!",
       bioAgeImproved: "Your biological age improved by {{years}} years!",
       noFileToReanalyze: "No file available to reanalyze",
+      reportGenerated: "Health report downloaded successfully!",
+      reportError: "Failed to generate report. Please try again.",
       
       // Lab Upload
       uploadLabTitle: "Upload Your Lab Test",
@@ -343,6 +345,8 @@ const resources = {
       greatJob: "Parabéns!",
       bioAgeImproved: "Sua idade biológica melhorou em {{years}} anos!",
       noFileToReanalyze: "Nenhum arquivo disponível para reanalisar",
+      reportGenerated: "Relatório de saúde baixado com sucesso!",
+      reportError: "Falha ao gerar relatório. Tente novamente.",
       
       // Lab Upload
       uploadLabTitle: "Envie Seu Exame",
