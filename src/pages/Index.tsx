@@ -1,20 +1,22 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useGuest } from '@/contexts/GuestContext';
 
 const Index: React.FC = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
+  const { isGuest } = useGuest();
 
   useEffect(() => {
     if (!loading) {
-      if (user) {
-        navigate('/dashboard');
+      if (user || isGuest) {
+        navigate('/dashboard', { replace: true });
       } else {
-        navigate('/auth');
+        navigate('/auth', { replace: true });
       }
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, isGuest, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
