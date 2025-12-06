@@ -36,6 +36,10 @@ interface LabResult {
   ast: number | null;
   alt: number | null;
   ggt: number | null;
+  creatinine: number | null;
+  vitamin_d: number | null;
+  tsh: number | null;
+  crp: number | null;
   upload_date: string;
   file_url?: string;
 }
@@ -193,6 +197,13 @@ const Dashboard: React.FC = () => {
     { name: t('ggt'), value: labResult?.ggt, reference: { min: 0, max: 60 }, tooltipKey: 'ggtTooltip' },
   ];
 
+  const otherMarkersData = [
+    { name: t('creatinine'), value: labResult?.creatinine, reference: { min: 0.6, max: 1.2 }, tooltipKey: 'creatinineTooltip' },
+    { name: t('vitaminD'), value: labResult?.vitamin_d, reference: { min: 30, max: 100 }, tooltipKey: 'vitaminDTooltip' },
+    { name: t('tsh'), value: labResult?.tsh, reference: { min: 0.4, max: 4.0 }, tooltipKey: 'tshTooltip' },
+    { name: t('crp'), value: labResult?.crp, reference: { min: 0, max: 3 }, tooltipKey: 'crpTooltip' },
+  ];
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -332,10 +343,11 @@ const Dashboard: React.FC = () => {
               </div>
 
               {/* Charts */}
-              <div className="grid lg:grid-cols-3 gap-6">
+              <div className="grid lg:grid-cols-2 gap-6">
                 <BiomarkerChart title={t('lipidProfile')} data={lipidData} />
                 <BiomarkerChart title={t('glucoseMarkers')} data={glucoseData} />
                 <BiomarkerChart title={t('liverFunction')} data={liverData} />
+                <BiomarkerChart title={t('otherMarkers')} data={otherMarkersData} />
               </div>
 
               {/* Recommendations & Upload */}
