@@ -48,27 +48,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { toast } = useToast();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
-      // Apply user preferences when signing in
-      if (session?.user && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
-        await applyUserPreferences(session.user.id);
-      }
-      
       setLoading(false);
+      
+      // Defer Supabase calls with setTimeout to prevent deadlock
+      if (session?.user && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+        setTimeout(() => {
+          applyUserPreferences(session.user.id);
+        }, 0);
+      }
     });
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      setLoading(false);
       
       if (session?.user) {
-        await applyUserPreferences(session.user.id);
+        setTimeout(() => {
+          applyUserPreferences(session.user.id);
+        }, 0);
       }
-      
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
