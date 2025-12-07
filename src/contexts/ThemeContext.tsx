@@ -17,26 +17,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Get initial theme on mount
   useEffect(() => {
-    const initTheme = async () => {
-      // Check for logged-in user
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
-        setUserId(user.id);
-        // Try to get theme from profile
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('theme')
-          .eq('user_id', user.id)
-          .single();
-        
-        if (profile?.theme) {
-          setThemeState(profile.theme as Theme);
-          document.documentElement.classList.toggle('dark', profile.theme === 'dark');
-          return;
-        }
-      }
-      
+    const initTheme = () => {
       // Check sessionStorage for guest
       const sessionTheme = sessionStorage.getItem('longlife-theme-guest') as Theme;
       if (sessionTheme) {
@@ -58,20 +39,27 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     initTheme();
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    // Listen for auth changes - defer Supabase calls to avoid deadlock
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
         setUserId(session.user.id);
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('theme')
-          .eq('user_id', session.user.id)
-          .single();
-        
-        if (profile?.theme) {
-          setThemeState(profile.theme as Theme);
-          document.documentElement.classList.toggle('dark', profile.theme === 'dark');
-        }
+        // Defer profile fetch to avoid deadlock
+        setTimeout(async () => {
+          try {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('theme')
+              .eq('user_id', session.user.id)
+              .single();
+            
+            if (profile?.theme) {
+              setThemeState(profile.theme as Theme);
+              document.documentElement.classList.toggle('dark', profile.theme === 'dark');
+            }
+          } catch (e) {
+            console.log('Theme profile fetch error:', e);
+          }
+        }, 0);
       } else {
         setUserId(null);
       }
