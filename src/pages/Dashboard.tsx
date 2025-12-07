@@ -133,8 +133,9 @@ const Dashboard: React.FC = () => {
     // Wait for auth to finish loading
     if (authLoading) return;
     
+    // If no user and not a guest, redirect to auth
     if (!user && !isGuest) {
-      navigate('/auth');
+      navigate('/auth', { replace: true });
       return;
     }
     
@@ -144,7 +145,7 @@ const Dashboard: React.FC = () => {
     }
 
     fetchData();
-  }, [user, authLoading, isGuest, navigate]);
+  }, [user, authLoading, isGuest]);
 
   const handleTutorialComplete = () => {
     localStorage.setItem('longlife-tutorial-seen', 'true');
