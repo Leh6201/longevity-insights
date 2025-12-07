@@ -67,28 +67,27 @@ const Dashboard: React.FC = () => {
   const [improvementYears, setImprovementYears] = useState(0);
 
   const fetchData = async () => {
-    if (isGuest) {
-      if (guestOnboarding) {
-        setOnboarding({ 
-          age: guestOnboarding.age, 
-          completed: guestOnboarding.completed,
-          health_goals: guestOnboarding.health_goals 
-        });
-        if (!guestOnboarding.completed) {
-          navigate('/onboarding');
-          return;
-        }
-      }
-      if (guestLabResult) {
-        setLabResult(guestLabResult);
-      }
-      setLoading(false);
-      return;
-    }
-
-    if (!user) return;
-
     try {
+      if (isGuest) {
+        if (guestOnboarding) {
+          setOnboarding({ 
+            age: guestOnboarding.age, 
+            completed: guestOnboarding.completed,
+            health_goals: guestOnboarding.health_goals 
+          });
+          if (!guestOnboarding.completed) {
+            navigate('/onboarding', { replace: true });
+            return;
+          }
+        }
+        if (guestLabResult) {
+          setLabResult(guestLabResult);
+        }
+        return;
+      }
+
+      if (!user) return;
+
       const { data: labData } = await supabase
         .from('lab_results')
         .select('*')
@@ -118,7 +117,7 @@ const Dashboard: React.FC = () => {
       if (onboardingData) {
         setOnboarding(onboardingData);
         if (!onboardingData.completed) {
-          navigate('/onboarding');
+          navigate('/onboarding', { replace: true });
           return;
         }
       }
@@ -135,6 +134,7 @@ const Dashboard: React.FC = () => {
     
     // If no user and not a guest, redirect to auth
     if (!user && !isGuest) {
+      setLoading(false);
       navigate('/auth', { replace: true });
       return;
     }
