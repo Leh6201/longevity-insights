@@ -43,7 +43,7 @@ const Premium: React.FC = () => {
             <p className="text-muted-foreground max-w-lg mx-auto">{t('premiumDescription')}</p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Monthly Plan */}
             <Card className="relative overflow-hidden border-2 border-primary">
               <div className="absolute top-4 right-4">
