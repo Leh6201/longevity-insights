@@ -473,13 +473,14 @@ const getInitialLanguage = (): string => {
   const storedLang = localStorage.getItem('longlife-language');
   if (storedLang) return storedLang;
   
-  return 'en';
+  // Default to Portuguese (Brazil)
+  return 'pt';
 };
 
 i18n.use(initReactI18next).init({
   resources,
   lng: getInitialLanguage(),
-  fallbackLng: 'en',
+  fallbackLng: 'pt',
   interpolation: {
     escapeValue: false,
   },
