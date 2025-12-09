@@ -3,28 +3,30 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useGuest } from '@/contexts/GuestContext';
 import { Button } from '@/components/ui/button';
-import { useTranslation } from 'react-i18next';
 import { 
   Zap, 
   BarChart3, 
   TrendingUp, 
   FileText, 
   Heart,
+  Activity,
+  Brain,
+  Dna,
   Shield,
-  Clock,
-  Sparkles,
   ArrowRight,
-  ChevronDown
+  ChevronDown,
+  Sparkles,
+  Clock,
+  Target,
+  LineChart
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 
 const Index: React.FC = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const { isGuest, enterGuestMode } = useGuest();
-  const { t } = useTranslation();
 
-  // Redirect if already authenticated
   React.useEffect(() => {
     if (!loading && (user || isGuest)) {
       navigate('/dashboard', { replace: true });
@@ -44,351 +46,667 @@ const Index: React.FC = () => {
     );
   }
 
+  // Animation variants
+  const fadeInUp: Variants = {
+    hidden: { opacity: 0, y: 40 },
+    visible: { opacity: 1, y: 0 }
+  };
+
+  const staggerChildren: Variants = {
+    visible: { transition: { staggerChildren: 0.15 } }
+  };
+
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center px-4 py-20">
-        {/* Background decoration */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-float" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+      <section className="relative min-h-screen flex items-center justify-center px-4 py-20 overflow-hidden">
+        {/* Premium background with multiple layers */}
+        <div className="absolute inset-0">
+          {/* Gradient mesh background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />
+          
+          {/* Animated orbs */}
+          <motion.div 
+            animate={{ 
+              scale: [1, 1.2, 1],
+              opacity: [0.3, 0.5, 0.3]
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-20 left-[10%] w-[500px] h-[500px] bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-3xl"
+          />
+          <motion.div 
+            animate={{ 
+              scale: [1.2, 1, 1.2],
+              opacity: [0.2, 0.4, 0.2]
+            }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute bottom-0 right-[5%] w-[600px] h-[600px] bg-gradient-to-tl from-accent/15 to-transparent rounded-full blur-3xl"
+          />
+          
+          {/* Subtle grid pattern */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.3)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.3)_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
         </div>
 
-        <div className="container mx-auto max-w-6xl relative z-10">
+        <div className="container mx-auto max-w-7xl relative z-10">
           <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center space-y-8"
+            initial="hidden"
+            animate="visible"
+            variants={staggerChildren}
+            className="text-center space-y-10"
           >
-            {/* Logo */}
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center shadow-glow">
-                <Heart className="w-8 h-8 text-primary-foreground" />
+            {/* Logo with glow effect */}
+            <motion.div variants={fadeInUp} className="flex items-center justify-center gap-4 mb-8">
+              <div className="relative">
+                <div className="absolute inset-0 bg-primary/30 rounded-2xl blur-xl animate-pulse" />
+                <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-2xl">
+                  <Heart className="w-9 h-9 text-primary-foreground" />
+                </div>
               </div>
-              <span className="text-3xl font-bold text-foreground">LongLife<span className="text-primary">AI</span></span>
-            </div>
+              <span className="text-4xl font-bold tracking-tight">
+                <span className="text-foreground">LongLife</span>
+                <span className="text-gradient">AI</span>
+              </span>
+            </motion.div>
 
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight">
-              Descubra sua{' '}
-              <span className="text-gradient">Idade Biológica</span>
+            <motion.h1 
+              variants={fadeInUp}
+              className="text-5xl md:text-7xl lg:text-8xl font-bold text-foreground leading-[1.1] tracking-tight"
+            >
+              Descubra sua
               <br />
-              em Segundos
-            </h1>
+              <span className="relative inline-block">
+                <span className="text-gradient">Idade Biológica</span>
+                <motion.span 
+                  animate={{ scaleX: [0, 1] }}
+                  transition={{ delay: 1, duration: 0.8, ease: "easeOut" }}
+                  className="absolute -bottom-2 left-0 right-0 h-1.5 bg-gradient-to-r from-primary via-accent to-primary rounded-full origin-left"
+                />
+              </span>
+            </motion.h1>
 
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Faça upload do seu exame de sangue e receba análises inteligentes com 
-              recomendações personalizadas para uma vida mais longa e saudável.
-            </p>
+            <motion.p 
+              variants={fadeInUp}
+              className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-light"
+            >
+              Envie seus exames e receba análises inteligentes com
+              <span className="text-foreground font-medium"> recomendações personalizadas </span>
+              para viver mais e melhor.
+            </motion.p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+            <motion.div 
+              variants={fadeInUp}
+              className="flex flex-col sm:flex-row gap-5 justify-center pt-6"
+            >
               <Button 
                 size="xl" 
                 onClick={() => navigate('/auth')}
-                className="group"
+                className="group relative overflow-hidden shadow-2xl shadow-primary/25 hover:shadow-primary/40 transition-all duration-500"
               >
-                Começar Agora
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                <span className="relative z-10 flex items-center gap-2">
+                  Começar Agora
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </span>
               </Button>
               <Button 
                 size="xl" 
-                variant="outline"
+                variant="glass"
                 onClick={handleGuestAccess}
+                className="backdrop-blur-xl"
               >
                 Experimentar Grátis
               </Button>
-            </div>
+            </motion.div>
+
+            {/* Stats bar */}
+            <motion.div 
+              variants={fadeInUp}
+              className="flex flex-wrap justify-center gap-8 md:gap-16 pt-16"
+            >
+              {[
+                { value: "13", label: "Biomarcadores" },
+                { value: "<1min", label: "Análise" },
+                { value: "100%", label: "Personalizado" }
+              ].map((stat, i) => (
+                <div key={i} className="text-center">
+                  <div className="text-3xl md:text-4xl font-bold text-gradient">{stat.value}</div>
+                  <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
+                </div>
+              ))}
+            </motion.div>
 
             {/* Scroll indicator */}
             <motion.div 
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="pt-16"
+              animate={{ y: [0, 12, 0] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+              className="pt-12"
             >
-              <ChevronDown className="w-8 h-8 text-muted-foreground mx-auto" />
+              <div className="w-8 h-14 rounded-full border-2 border-muted-foreground/30 mx-auto flex items-start justify-center p-2">
+                <motion.div 
+                  animate={{ y: [0, 16, 0] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                  className="w-1.5 h-3 bg-primary rounded-full"
+                />
+              </div>
             </motion.div>
           </motion.div>
         </div>
       </section>
 
-      {/* Feature Section 1 - Análise Rápida */}
-      <section className="py-20 md:py-32 px-4 bg-secondary/30">
-        <div className="container mx-auto max-w-6xl">
-          <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+      {/* Feature Section 1 - Análise Instantânea */}
+      <section className="py-24 md:py-40 px-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-secondary/50 to-background" />
+        <div className="container mx-auto max-w-7xl relative z-10">
+          <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
             <motion.div 
-              initial={{ opacity: 0, x: -40 }}
+              initial={{ opacity: 0, x: -60 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="space-y-6"
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              className="space-y-8"
             >
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <Zap className="w-8 h-8 text-primary" />
+              {/* Icon badge */}
+              <div className="inline-flex items-center gap-3 bg-primary/10 rounded-full pl-2 pr-5 py-2">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-primary-foreground" />
+                </div>
+                <span className="text-sm font-medium text-primary">Análise Instantânea</span>
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                Menos de um minuto
+
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1]">
+                Resultados em
+                <br />
+                <span className="text-gradient">segundos</span>
               </h2>
-              <p className="text-muted-foreground text-lg leading-relaxed">
-                O painel LongLife AI oferece uma compreensão abrangente da sua saúde, 
-                de forma mais eficiente do que nunca.
+              
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-lg">
+                O painel LongLife AI transforma seus exames laboratoriais em 
+                insights compreensíveis, oferecendo uma visão completa da sua saúde 
+                de forma nunca antes vista.
               </p>
-              <p className="text-muted-foreground leading-relaxed">
-                Nossa página de visão geral completa fornece tudo o que você precisa 
-                para tomar as melhores decisões sobre sua saúde e longevidade.
-              </p>
-            </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, x: 40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative"
-            >
-              <div className="bg-card rounded-3xl shadow-card p-6 border border-border/50">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between pb-4 border-b border-border">
-                    <span className="font-semibold text-foreground">Dashboard LongLife</span>
-                    <span className="text-xs text-muted-foreground">Atualizado agora</span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="bg-secondary/50 rounded-xl p-4 text-center">
-                      <div className="text-2xl font-bold text-primary">32</div>
-                      <div className="text-xs text-muted-foreground">Idade Bio</div>
-                    </div>
-                    <div className="bg-secondary/50 rounded-xl p-4 text-center">
-                      <div className="text-2xl font-bold text-success">Baixo</div>
-                      <div className="text-xs text-muted-foreground">Risco</div>
-                    </div>
-                    <div className="bg-secondary/50 rounded-xl p-4 text-center">
-                      <div className="text-2xl font-bold text-warning">5</div>
-                      <div className="text-xs text-muted-foreground">Dicas</div>
-                    </div>
-                  </div>
-                  <div className="space-y-2 pt-2">
-                    {['Glicose', 'Colesterol', 'Hemoglobina'].map((item, i) => (
-                      <div key={item} className="flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full bg-success" />
-                        <span className="text-sm text-muted-foreground">{item}</span>
-                        <div className="flex-1 h-2 bg-secondary rounded-full">
-                          <div 
-                            className="h-full bg-primary rounded-full" 
-                            style={{ width: `${70 + i * 10}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Feature Section 2 - Monitoramento */}
-      <section className="py-20 md:py-32 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
-            <motion.div 
-              initial={{ opacity: 0, x: -40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="order-2 md:order-1"
-            >
-              <div className="space-y-4">
-                <div className="bg-card rounded-2xl shadow-card p-5 border border-border/50">
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="text-sm font-medium text-foreground">Glicose em Jejum</span>
-                    <span className="text-sm text-primary font-semibold">92 mg/dL</span>
-                  </div>
-                  <div className="h-3 bg-gradient-to-r from-success via-warning to-destructive rounded-full relative">
-                    <div className="absolute left-[30%] top-1/2 -translate-y-1/2 w-4 h-4 bg-card border-2 border-primary rounded-full shadow-md" />
-                  </div>
-                  <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                    <span>70</span>
-                    <span>100</span>
-                    <span>126</span>
-                  </div>
-                </div>
-
-                <div className="bg-card rounded-2xl shadow-card p-5 border border-border/50">
-                  <div className="text-sm font-medium text-foreground mb-3">Tendência - ALT</div>
-                  <div className="h-24 flex items-end gap-1">
-                    {[40, 55, 70, 65, 50, 45, 35, 30, 28].map((h, i) => (
-                      <div 
-                        key={i}
-                        className="flex-1 bg-primary/20 rounded-t"
-                        style={{ height: `${h}%` }}
-                      >
-                        <div 
-                          className="w-full bg-primary rounded-t transition-all"
-                          style={{ height: `${h * 0.7}%` }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, x: 40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="space-y-6 order-1 md:order-2"
-            >
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <BarChart3 className="w-8 h-8 text-primary" />
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                Monitoramento inteligente
-              </h2>
-              <p className="text-muted-foreground text-lg leading-relaxed">
-                Nosso painel permite que você acompanhe as mudanças ao longo do tempo 
-                e obtenha informações detalhadas sobre as tendências dos seus biomarcadores.
-              </p>
-              <p className="text-muted-foreground leading-relaxed">
-                Fornecemos comparações inteligentes e intervenções de estilo de vida 
-                cientificamente comprovadas para melhorar sua saúde.
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Feature Section 3 - Prevenção */}
-      <section className="py-20 md:py-32 px-4 bg-gradient-to-br from-primary/5 via-transparent to-accent/5">
-        <div className="container mx-auto max-w-6xl">
-          <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
-            <motion.div 
-              initial={{ opacity: 0, x: -40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              <div className="space-y-3">
+              
+              <div className="flex flex-col gap-4 pt-4">
                 {[
-                  { name: 'Risco Metabólico', value: 'Baixo', color: 'success', percent: 15 },
-                  { name: 'Risco Cardiovascular', value: 'Moderado', color: 'warning', percent: 32 },
-                  { name: 'Inflamação', value: 'Baixa', color: 'success', percent: 8 },
-                  { name: 'Função Hepática', value: 'Normal', color: 'success', percent: 12 },
+                  { icon: Clock, text: "Upload rápido e processamento automático" },
+                  { icon: Brain, text: "Inteligência artificial de última geração" },
+                  { icon: Shield, text: "Dados protegidos com criptografia" }
                 ].map((item, i) => (
                   <motion.div 
-                    key={item.name}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
+                    key={i}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
-                    className="bg-card rounded-xl shadow-card p-4 border border-border/50 flex items-center gap-4"
+                    transition={{ delay: i * 0.15 }}
+                    className="flex items-center gap-4"
                   >
-                    <div className={`w-12 h-12 rounded-full border-4 flex items-center justify-center border-${item.color}`}>
-                      <Heart className={`w-5 h-5 text-${item.color}`} />
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <item.icon className="w-5 h-5 text-primary" />
                     </div>
-                    <div className="flex-1">
-                      <div className="font-medium text-foreground">{item.name}</div>
-                      <div className="text-sm text-muted-foreground">Próximos 10 anos</div>
-                    </div>
-                    <div className="text-right">
-                      <div className={`font-semibold text-${item.color}`}>{item.percent}%</div>
-                      <div className="text-xs text-muted-foreground">{item.value}</div>
-                    </div>
+                    <span className="text-muted-foreground">{item.text}</span>
                   </motion.div>
                 ))}
               </div>
             </motion.div>
 
             <motion.div 
-              initial={{ opacity: 0, x: 40 }}
+              initial={{ opacity: 0, x: 60 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="space-y-6"
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              className="relative"
             >
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <TrendingUp className="w-8 h-8 text-primary" />
+              {/* Dashboard mockup */}
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 rounded-[2rem] blur-2xl" />
+                <div className="relative bg-card rounded-3xl shadow-2xl border border-border/50 p-8 backdrop-blur-sm">
+                  {/* Header */}
+                  <div className="flex items-center justify-between pb-6 mb-6 border-b border-border/50">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+                        <Activity className="w-5 h-5 text-primary-foreground" />
+                      </div>
+                      <div>
+                        <div className="font-semibold text-foreground">Dashboard</div>
+                        <div className="text-xs text-muted-foreground">Atualizado agora</div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="w-3 h-3 rounded-full bg-success" />
+                      <div className="w-3 h-3 rounded-full bg-warning" />
+                      <div className="w-3 h-3 rounded-full bg-primary" />
+                    </div>
+                  </div>
+                  
+                  {/* Stats grid */}
+                  <div className="grid grid-cols-3 gap-4 mb-6">
+                    <motion.div 
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-5 text-center border border-primary/20"
+                    >
+                      <div className="text-3xl font-bold text-primary">32</div>
+                      <div className="text-xs text-muted-foreground mt-1">Idade Bio</div>
+                    </motion.div>
+                    <motion.div 
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      className="bg-gradient-to-br from-success/10 to-success/5 rounded-2xl p-5 text-center border border-success/20"
+                    >
+                      <div className="text-3xl font-bold text-success">Baixo</div>
+                      <div className="text-xs text-muted-foreground mt-1">Risco</div>
+                    </motion.div>
+                    <motion.div 
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      className="bg-gradient-to-br from-warning/10 to-warning/5 rounded-2xl p-5 text-center border border-warning/20"
+                    >
+                      <div className="text-3xl font-bold text-warning">5</div>
+                      <div className="text-xs text-muted-foreground mt-1">Dicas</div>
+                    </motion.div>
+                  </div>
+
+                  {/* Biomarkers */}
+                  <div className="space-y-3">
+                    {[
+                      { name: 'Glicose', value: 92, status: 'success', max: 100 },
+                      { name: 'Colesterol Total', value: 78, status: 'success', max: 100 },
+                      { name: 'Hemoglobina', value: 85, status: 'success', max: 100 }
+                    ].map((item, i) => (
+                      <motion.div 
+                        key={item.name}
+                        initial={{ opacity: 0, x: 20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: i * 0.1 }}
+                        className="bg-secondary/50 rounded-xl p-4"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full bg-${item.status}`} />
+                            <span className="text-sm font-medium text-foreground">{item.name}</span>
+                          </div>
+                          <span className="text-sm font-semibold text-primary">{item.value}%</span>
+                        </div>
+                        <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            whileInView={{ width: `${item.value}%` }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.5 + i * 0.1, duration: 1, ease: "easeOut" }}
+                            className="h-full bg-gradient-to-r from-primary to-primary/70 rounded-full"
+                          />
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                Prevenção simplificada
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature Section 2 - Monitoramento Inteligente */}
+      <section className="py-24 md:py-40 px-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-background to-accent/3" />
+        <div className="container mx-auto max-w-7xl relative z-10">
+          <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+            {/* Chart mockups */}
+            <motion.div 
+              initial={{ opacity: 0, x: -60 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              className="order-2 lg:order-1 space-y-6"
+            >
+              {/* Biomarker range card */}
+              <motion.div 
+                whileHover={{ y: -4 }}
+                transition={{ duration: 0.3 }}
+                className="bg-card rounded-2xl shadow-xl border border-border/50 p-6"
+              >
+                <div className="flex justify-between items-center mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Activity className="w-4 h-4 text-primary" />
+                    </div>
+                    <span className="font-medium text-foreground">Glicose em Jejum</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold text-primary">92</span>
+                    <span className="text-sm text-muted-foreground">mg/dL</span>
+                  </div>
+                </div>
+                <div className="relative h-4 rounded-full overflow-hidden bg-gradient-to-r from-success via-warning to-destructive">
+                  <motion.div 
+                    initial={{ left: "0%" }}
+                    whileInView={{ left: "30%" }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.5, duration: 1 }}
+                    className="absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-card border-3 border-primary rounded-full shadow-lg"
+                    style={{ left: "30%" }}
+                  />
+                </div>
+                <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                  <span>70 mg/dL</span>
+                  <span className="text-success font-medium">Normal</span>
+                  <span>126 mg/dL</span>
+                </div>
+              </motion.div>
+
+              {/* Trend chart card */}
+              <motion.div 
+                whileHover={{ y: -4 }}
+                transition={{ duration: 0.3 }}
+                className="bg-card rounded-2xl shadow-xl border border-border/50 p-6"
+              >
+                <div className="flex justify-between items-center mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center">
+                      <TrendingUp className="w-4 h-4 text-success" />
+                    </div>
+                    <span className="font-medium text-foreground">Tendência ALT</span>
+                  </div>
+                  <span className="text-xs text-success bg-success/10 px-2 py-1 rounded-full">-15% ↓</span>
+                </div>
+                <div className="h-32 flex items-end gap-2 pt-4">
+                  {[45, 60, 75, 70, 55, 50, 40, 35, 30].map((h, i) => (
+                    <motion.div 
+                      key={i}
+                      initial={{ height: 0 }}
+                      whileInView={{ height: `${h}%` }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.3 + i * 0.08, duration: 0.6, ease: "easeOut" }}
+                      className="flex-1 rounded-t-lg bg-gradient-to-t from-primary to-primary/50 relative group"
+                    >
+                      <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-foreground text-background text-xs px-2 py-1 rounded whitespace-nowrap">
+                        {h} U/L
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+                <div className="flex justify-between text-xs text-muted-foreground mt-3">
+                  <span>Jan</span>
+                  <span>Set</span>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, x: 60 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              className="space-y-8 order-1 lg:order-2"
+            >
+              {/* Icon badge */}
+              <div className="inline-flex items-center gap-3 bg-primary/10 rounded-full pl-2 pr-5 py-2">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+                  <BarChart3 className="w-5 h-5 text-primary-foreground" />
+                </div>
+                <span className="text-sm font-medium text-primary">Monitoramento Contínuo</span>
+              </div>
+
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1]">
+                Acompanhe sua
+                <br />
+                <span className="text-gradient">evolução</span>
               </h2>
-              <p className="text-muted-foreground text-lg leading-relaxed">
-                Nossa plataforma gera previsões de risco utilizando as mais recentes 
-                descobertas científicas e dados de saúde personalizados.
+              
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-lg">
+                Visualize tendências dos seus biomarcadores ao longo do tempo. 
+                Identifique padrões e tome decisões informadas sobre sua saúde 
+                com dados claros e objetivos.
               </p>
-              <p className="text-muted-foreground leading-relaxed">
-                As informações do painel ajudam você a identificar as mudanças de 
-                estilo de vida que podem ter o maior impacto na sua longevidade.
+              
+              <p className="text-muted-foreground leading-relaxed max-w-lg">
+                Comparações inteligentes e intervenções de estilo de vida baseadas 
+                em evidências científicas para resultados reais.
               </p>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Feature Section 4 - Compartilhamento */}
-      <section className="py-20 md:py-32 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+      {/* Feature Section 3 - Prevenção Simplificada */}
+      <section className="py-24 md:py-40 px-4 relative overflow-hidden">
+        {/* Background with subtle pattern */}
+        <div className="absolute inset-0 bg-gradient-to-b from-secondary/30 via-background to-secondary/30" />
+        <div className="absolute inset-0 opacity-30">
+          <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <pattern id="dots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="1" fill="hsl(var(--primary)/0.3)" />
+            </pattern>
+            <rect fill="url(#dots)" width="100%" height="100%" />
+          </svg>
+        </div>
+        
+        <div className="container mx-auto max-w-7xl relative z-10">
+          <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+            {/* Risk cards */}
             <motion.div 
-              initial={{ opacity: 0, x: -40 }}
+              initial={{ opacity: 0, x: -60 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="space-y-6"
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              className="space-y-4"
             >
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <FileText className="w-8 h-8 text-primary" />
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                Compartilhe com seu médico
-              </h2>
-              <p className="text-muted-foreground text-lg leading-relaxed">
-                Nosso painel facilita a comunicação significativa entre você e 
-                seus profissionais de saúde.
-              </p>
-              <p className="text-muted-foreground leading-relaxed">
-                Gere relatórios de saúde completos em PDF após cada análise e 
-                compartilhe informações valiosas sobre seus hábitos e biomarcadores.
-              </p>
+              {[
+                { name: 'Risco Metabólico', percent: 12, trend: -3, icon: Activity, color: 'success' },
+                { name: 'Saúde Cardiovascular', percent: 18, trend: -5, icon: Heart, color: 'warning' },
+                { name: 'Marcadores Inflamatórios', percent: 8, trend: -2, icon: Shield, color: 'success' },
+                { name: 'Função Hepática', percent: 15, trend: -4, icon: Dna, color: 'success' },
+                { name: 'Longevidade Geral', percent: -8, trend: 8, icon: Sparkles, color: 'primary' }
+              ].map((item, i) => (
+                <motion.div 
+                  key={item.name}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.12 }}
+                  whileHover={{ x: 8, scale: 1.01 }}
+                  className="bg-card rounded-2xl shadow-lg border border-border/50 p-5 flex items-center gap-5 cursor-pointer group"
+                >
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center relative overflow-hidden`}>
+                    <div className={`absolute inset-0 bg-${item.color}/20`} />
+                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 56 56">
+                      <circle 
+                        cx="28" cy="28" r="24" 
+                        fill="none" 
+                        stroke="hsl(var(--border))" 
+                        strokeWidth="4"
+                      />
+                      <motion.circle 
+                        cx="28" cy="28" r="24" 
+                        fill="none" 
+                        stroke={`hsl(var(--${item.color}))`}
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                        strokeDasharray="150.8"
+                        initial={{ strokeDashoffset: 150.8 }}
+                        whileInView={{ strokeDashoffset: 150.8 - (150.8 * Math.abs(item.percent) / 100) }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.5 + i * 0.1, duration: 1 }}
+                        transform="rotate(-90 28 28)"
+                      />
+                    </svg>
+                    <item.icon className={`w-6 h-6 text-${item.color} relative z-10`} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold text-foreground group-hover:text-primary transition-colors">{item.name}</div>
+                    <div className="text-sm text-muted-foreground">Projeção próximos 10 anos</div>
+                  </div>
+                  <div className="text-right">
+                    <div className={`text-xl font-bold text-${item.color}`}>
+                      {item.percent > 0 ? '+' : ''}{item.percent}%
+                    </div>
+                    <div className={`text-xs ${item.trend > 0 ? 'text-success' : 'text-muted-foreground'} flex items-center justify-end gap-1`}>
+                      <TrendingUp className="w-3 h-3" />
+                      {item.trend > 0 ? '+' : ''}{item.trend}% mês
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
             </motion.div>
 
             <motion.div 
-              initial={{ opacity: 0, x: 40 }}
+              initial={{ opacity: 0, x: 60 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              className="space-y-8"
+            >
+              {/* Icon badge */}
+              <div className="inline-flex items-center gap-3 bg-primary/10 rounded-full pl-2 pr-5 py-2">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+                  <Target className="w-5 h-5 text-primary-foreground" />
+                </div>
+                <span className="text-sm font-medium text-primary">Prevenção Inteligente</span>
+              </div>
+
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1]">
+                Antecipe
+                <br />
+                <span className="text-gradient">riscos à saúde</span>
+              </h2>
+              
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-lg">
+                Nossa plataforma utiliza algoritmos avançados e as mais recentes 
+                descobertas científicas para gerar previsões de risco personalizadas.
+              </p>
+              
+              <p className="text-muted-foreground leading-relaxed max-w-lg">
+                Identifique as mudanças de estilo de vida com maior impacto 
+                potencial na sua longevidade e qualidade de vida.
+              </p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature Section 4 - Relatórios */}
+      <section className="py-24 md:py-40 px-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-accent/3 via-background to-primary/3" />
+        <div className="container mx-auto max-w-7xl relative z-10">
+          <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+            <motion.div 
+              initial={{ opacity: 0, x: -60 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              className="space-y-8"
+            >
+              {/* Icon badge */}
+              <div className="inline-flex items-center gap-3 bg-primary/10 rounded-full pl-2 pr-5 py-2">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-primary-foreground" />
+                </div>
+                <span className="text-sm font-medium text-primary">Relatórios Profissionais</span>
+              </div>
+
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1]">
+                Compartilhe com
+                <br />
+                <span className="text-gradient">seu médico</span>
+              </h2>
+              
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-lg">
+                Gere relatórios detalhados em PDF prontos para compartilhar com 
+                profissionais de saúde. Facilite conversas significativas sobre 
+                sua saúde.
+              </p>
+              
+              <div className="flex flex-col gap-4 pt-4">
+                {[
+                  { icon: FileText, text: "Relatórios PDF completos e profissionais" },
+                  { icon: LineChart, text: "Histórico de biomarcadores incluído" },
+                  { icon: Sparkles, text: "Recomendações personalizadas anexadas" }
+                ].map((item, i) => (
+                  <motion.div 
+                    key={i}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.15 }}
+                    className="flex items-center gap-4"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <item.icon className="w-5 h-5 text-primary" />
+                    </div>
+                    <span className="text-muted-foreground">{item.text}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Report mockup */}
+            <motion.div 
+              initial={{ opacity: 0, x: 60 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
               className="relative"
             >
               <div className="relative">
-                <div className="absolute -top-4 -left-4 w-full h-full bg-primary/10 rounded-2xl transform rotate-3" />
-                <div className="absolute -top-2 -left-2 w-full h-full bg-primary/5 rounded-2xl transform rotate-1" />
-                <div className="relative bg-card rounded-2xl shadow-card p-6 border border-border/50">
-                  <div className="flex items-center gap-3 mb-4 pb-4 border-b border-border">
-                    <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center">
-                      <Heart className="w-5 h-5 text-primary-foreground" />
+                {/* Stacked papers effect */}
+                <motion.div 
+                  animate={{ rotate: [4, 5, 4] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute -top-3 -left-3 w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl border border-primary/20"
+                />
+                <motion.div 
+                  animate={{ rotate: [1, 2, 1] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute -top-1.5 -left-1.5 w-full h-full bg-gradient-to-br from-primary/10 to-transparent rounded-2xl border border-primary/10"
+                />
+                
+                <div className="relative bg-card rounded-2xl shadow-2xl border border-border/50 p-8 backdrop-blur-sm">
+                  {/* Header */}
+                  <div className="flex items-center gap-4 pb-6 mb-6 border-b border-border/50">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+                      <Heart className="w-6 h-6 text-primary-foreground" />
                     </div>
                     <div>
-                      <div className="font-semibold text-foreground">Relatório LongLife AI</div>
-                      <div className="text-xs text-muted-foreground">Gerado em 09/12/2024</div>
+                      <div className="font-bold text-lg text-foreground">Relatório LongLife AI</div>
+                      <div className="text-sm text-muted-foreground">Gerado em 09/12/2024</div>
                     </div>
                   </div>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Idade Biológica</span>
-                      <span className="font-medium text-foreground">32 anos</span>
+                  
+                  {/* Content */}
+                  <div className="space-y-5">
+                    {[
+                      { label: 'Idade Biológica', value: '32 anos', badge: '-3 anos', badgeColor: 'success' },
+                      { label: 'Risco Metabólico', value: 'Baixo', badge: 'Ótimo', badgeColor: 'success' },
+                      { label: 'Inflamação', value: 'Controlada', badge: 'Normal', badgeColor: 'primary' },
+                      { label: 'Biomarcadores Analisados', value: '13', badge: 'Completo', badgeColor: 'primary' }
+                    ].map((item, i) => (
+                      <motion.div 
+                        key={item.label}
+                        initial={{ opacity: 0, y: 10 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.4 + i * 0.1 }}
+                        className="flex items-center justify-between py-2"
+                      >
+                        <span className="text-muted-foreground">{item.label}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="font-semibold text-foreground">{item.value}</span>
+                          <span className={`text-xs px-2 py-1 rounded-full bg-${item.badgeColor}/10 text-${item.badgeColor}`}>
+                            {item.badge}
+                          </span>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {/* QR Code area */}
+                  <div className="mt-6 pt-6 border-t border-border/50 flex items-center justify-between">
+                    <div className="text-xs text-muted-foreground">
+                      <div>Verificação digital</div>
+                      <div className="font-mono mt-1">LLA-2024-12-09-32F8</div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Risco Metabólico</span>
-                      <span className="font-medium text-success">Baixo</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Inflamação</span>
-                      <span className="font-medium text-success">Baixa</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Biomarcadores</span>
-                      <span className="font-medium text-foreground">13 analisados</span>
+                    <div className="w-16 h-16 bg-secondary rounded-lg flex items-center justify-center">
+                      <div className="w-12 h-12 grid grid-cols-4 gap-0.5">
+                        {Array(16).fill(0).map((_, i) => (
+                          <div key={i} className={`${Math.random() > 0.4 ? 'bg-foreground' : 'bg-transparent'}`} />
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -399,62 +717,90 @@ const Index: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 md:py-32 px-4">
-        <div className="container mx-auto max-w-4xl">
+      <section className="py-24 md:py-40 px-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/5 to-background" />
+        
+        <div className="container mx-auto max-w-5xl relative z-10">
           <motion.div 
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 60 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center space-y-8 bg-gradient-to-br from-primary/10 via-accent/5 to-primary/10 rounded-3xl p-8 md:p-16 border border-primary/20"
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="relative"
           >
-            <div className="w-20 h-20 rounded-3xl gradient-primary flex items-center justify-center mx-auto shadow-glow">
-              <Sparkles className="w-10 h-10 text-primary-foreground" />
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-              Comece sua jornada de longevidade hoje
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Descubra sua idade biológica, receba recomendações personalizadas e 
-              tome controle da sua saúde com inteligência artificial.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button 
-                size="xl" 
-                onClick={() => navigate('/auth')}
-                className="group"
+            {/* Background glow */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 rounded-[3rem] blur-3xl" />
+            
+            <div className="relative text-center space-y-10 bg-gradient-to-br from-card/90 to-card/70 backdrop-blur-xl rounded-[2.5rem] p-12 md:p-20 border border-primary/20 shadow-2xl">
+              {/* Icon */}
+              <motion.div 
+                animate={{ 
+                  y: [0, -8, 0],
+                  rotate: [0, 5, -5, 0]
+                }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center mx-auto shadow-2xl shadow-primary/30"
               >
-                Criar Conta Grátis
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button 
-                size="xl" 
-                variant="outline"
-                onClick={handleGuestAccess}
-              >
-                Testar como Visitante
-              </Button>
+                <Sparkles className="w-12 h-12 text-primary-foreground" />
+              </motion.div>
+
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1]">
+                Comece sua jornada de
+                <br />
+                <span className="text-gradient">longevidade hoje</span>
+              </h2>
+              
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                Descubra sua idade biológica, receba recomendações personalizadas 
+                e tome controle da sua saúde com inteligência artificial.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-5 justify-center pt-4">
+                <Button 
+                  size="xl" 
+                  onClick={() => navigate('/auth')}
+                  className="group relative overflow-hidden shadow-2xl shadow-primary/25 hover:shadow-primary/40 transition-all duration-500"
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    Criar Conta Grátis
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                </Button>
+                <Button 
+                  size="xl" 
+                  variant="outline"
+                  onClick={handleGuestAccess}
+                  className="border-primary/30 hover:bg-primary/10"
+                >
+                  Testar como Visitante
+                </Button>
+              </div>
             </div>
           </motion.div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-4 border-t border-border/50">
-        <div className="container mx-auto max-w-6xl">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
-                <Heart className="w-4 h-4 text-primary-foreground" />
+      <footer className="py-16 px-4 border-t border-border/50 bg-gradient-to-t from-secondary/30 to-transparent">
+        <div className="container mx-auto max-w-7xl">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+                <Heart className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="font-semibold text-foreground">LongLife<span className="text-primary">AI</span></span>
+              <span className="text-xl font-bold">
+                <span className="text-foreground">LongLife</span>
+                <span className="text-primary">AI</span>
+              </span>
             </div>
-            <p className="text-sm text-muted-foreground text-center">
+            
+            <p className="text-sm text-muted-foreground text-center max-w-md">
               Este aplicativo não fornece diagnóstico médico. Sempre consulte um profissional de saúde.
             </p>
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <a href="#" className="hover:text-primary transition-colors">Termos</a>
-              <a href="#" className="hover:text-primary transition-colors">Privacidade</a>
+            
+            <div className="flex items-center gap-8 text-sm">
+              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">Termos de Uso</a>
+              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">Privacidade</a>
             </div>
           </div>
         </div>
