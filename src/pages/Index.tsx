@@ -4,10 +4,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useGuest } from '@/contexts/GuestContext';
 
 const rotatingPhrases = [
-  'Idade Biológica',
-  'Riscos de Saúde',
-  'Potencial de Longevidade',
-  'Saúde Metabólica',
+  { prefix: 'Descubra sua', highlight: 'Idade Biológica' },
+  { prefix: 'Descubra seus', highlight: 'Riscos de Saúde' },
+  { prefix: 'Descubra seu', highlight: 'Potencial de Longevidade' },
+  { prefix: 'Descubra sua', highlight: 'Saúde Metabólica' },
 ];
 import { Button } from '@/components/ui/button';
 import { 
@@ -127,18 +127,25 @@ const Index: React.FC = () => {
               variants={fadeInUp}
               className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-foreground leading-[1.15] tracking-tight px-2"
             >
-              Descubra sua
+              <motion.span
+                key={`prefix-${currentPhraseIndex}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                {rotatingPhrases[currentPhraseIndex].prefix}
+              </motion.span>
               <br />
               <span className="relative inline-block min-h-[1.2em]">
                 <motion.span 
-                  key={currentPhraseIndex}
+                  key={`highlight-${currentPhraseIndex}`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.5, ease: "easeOut" }}
                   className="text-gradient"
                 >
-                  {rotatingPhrases[currentPhraseIndex]}
+                  {rotatingPhrases[currentPhraseIndex].highlight}
                 </motion.span>
                 <motion.span 
                   animate={{ scaleX: [0, 1] }}
