@@ -10,6 +10,7 @@ const rotatingPhrases = [
   { prefix: 'Descubra sua', highlight: 'Saúde Metabólica' },
 ];
 import { Button } from '@/components/ui/button';
+import BiomarkerRangeIndicator from '@/components/dashboard/BiomarkerRangeIndicator';
 import { 
   Zap, 
   BarChart3, 
@@ -404,16 +405,13 @@ const Index: React.FC = () => {
                     <span className="text-sm text-muted-foreground">mg/dL</span>
                   </div>
                 </div>
-                <div className="relative h-4 rounded-full overflow-hidden bg-gradient-to-r from-success via-warning to-destructive">
-                  <motion.div 
-                    initial={{ left: "0%" }}
-                    whileInView={{ left: "30%" }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.5, duration: 1 }}
-                    className="absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-card border-3 border-primary rounded-full shadow-lg"
-                    style={{ left: "30%" }}
-                  />
-                </div>
+                <BiomarkerRangeIndicator 
+                  value={92} 
+                  min={70} 
+                  max={126} 
+                  animate={true}
+                  animationDelay={0.5}
+                />
                 <div className="flex justify-between text-xs text-muted-foreground mt-2">
                   <span>70 mg/dL</span>
                   <span className="text-success font-medium">Normal</span>
