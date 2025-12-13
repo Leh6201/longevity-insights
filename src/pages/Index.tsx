@@ -110,7 +110,7 @@ const Index: React.FC = () => {
 
             <motion.h1 
               variants={fadeInUp}
-              className="text-5xl md:text-7xl lg:text-8xl font-bold text-foreground leading-[1.1] tracking-tight"
+              className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-foreground leading-[1.15] tracking-tight px-2"
             >
               Descubra sua
               <br />
@@ -119,14 +119,14 @@ const Index: React.FC = () => {
                 <motion.span 
                   animate={{ scaleX: [0, 1] }}
                   transition={{ delay: 1, duration: 0.8, ease: "easeOut" }}
-                  className="absolute -bottom-2 left-0 right-0 h-1.5 bg-gradient-to-r from-primary via-accent to-primary rounded-full origin-left"
+                  className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-1 sm:h-1.5 bg-gradient-to-r from-primary via-accent to-primary rounded-full origin-left"
                 />
               </span>
             </motion.h1>
 
             <motion.p 
               variants={fadeInUp}
-              className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-light"
+              className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-light px-4"
             >
               Envie seus exames e receba análises inteligentes com
               <span className="text-foreground font-medium"> recomendações personalizadas </span>
@@ -135,23 +135,23 @@ const Index: React.FC = () => {
 
             <motion.div 
               variants={fadeInUp}
-              className="flex flex-col sm:flex-row gap-5 justify-center pt-6"
+              className="flex flex-col sm:flex-row gap-4 justify-center pt-6 px-4"
             >
               <Button 
-                size="xl" 
+                size="lg" 
                 onClick={() => navigate('/auth')}
-                className="group relative overflow-hidden shadow-2xl shadow-primary/25 hover:shadow-primary/40 transition-all duration-500"
+                className="group relative overflow-hidden shadow-2xl shadow-primary/25 hover:shadow-primary/40 transition-all duration-500 w-full sm:w-auto"
               >
-                <span className="relative z-10 flex items-center gap-2">
+                <span className="relative z-10 flex items-center justify-center gap-2">
                   Começar Agora
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </span>
               </Button>
               <Button 
-                size="xl" 
+                size="lg" 
                 variant="glass"
                 onClick={handleGuestAccess}
-                className="backdrop-blur-xl"
+                className="backdrop-blur-xl w-full sm:w-auto"
               >
                 Experimentar Grátis
               </Button>
@@ -160,7 +160,7 @@ const Index: React.FC = () => {
             {/* Stats bar */}
             <motion.div 
               variants={fadeInUp}
-              className="flex flex-wrap justify-center gap-8 md:gap-16 pt-16"
+              className="flex flex-wrap justify-center gap-6 sm:gap-8 md:gap-16 pt-12 sm:pt-16 px-4"
             >
               {[
                 { value: "13", label: "Biomarcadores" },
@@ -168,8 +168,8 @@ const Index: React.FC = () => {
                 { value: "100%", label: "Personalizado" }
               ].map((stat, i) => (
                 <div key={i} className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-gradient">{stat.value}</div>
-                  <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gradient">{stat.value}</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground mt-1">{stat.label}</div>
                 </div>
               ))}
             </motion.div>
@@ -212,7 +212,7 @@ const Index: React.FC = () => {
                 <span className="text-sm font-medium text-primary">Análise Instantânea</span>
               </div>
 
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1]">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.15]">
                 Resultados em
                 <br />
                 <span className="text-gradient">segundos</span>
@@ -443,7 +443,7 @@ const Index: React.FC = () => {
                 <span className="text-sm font-medium text-primary">Monitoramento Contínuo</span>
               </div>
 
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1]">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.15]">
                 Acompanhe sua
                 <br />
                 <span className="text-gradient">evolução</span>
@@ -560,7 +560,7 @@ const Index: React.FC = () => {
                 <span className="text-sm font-medium text-primary">Prevenção Inteligente</span>
               </div>
 
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1]">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.15]">
                 Antecipe
                 <br />
                 <span className="text-gradient">riscos à saúde</span>
@@ -600,7 +600,7 @@ const Index: React.FC = () => {
                 <span className="text-sm font-medium text-primary">Relatórios Profissionais</span>
               </div>
 
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1]">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.15]">
                 Compartilhe com
                 <br />
                 <span className="text-gradient">seu médico</span>
@@ -731,7 +731,7 @@ const Index: React.FC = () => {
             {/* Background glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 rounded-[3rem] blur-3xl" />
             
-            <div className="relative text-center space-y-10 bg-gradient-to-br from-card/90 to-card/70 backdrop-blur-xl rounded-[2.5rem] p-12 md:p-20 border border-primary/20 shadow-2xl">
+            <div className="relative text-center space-y-8 sm:space-y-10 bg-gradient-to-br from-card/90 to-card/70 backdrop-blur-xl rounded-2xl sm:rounded-[2.5rem] p-6 sm:p-12 md:p-20 border border-primary/20 shadow-2xl">
               {/* Icon */}
               <motion.div 
                 animate={{ 
@@ -744,33 +744,33 @@ const Index: React.FC = () => {
                 <Sparkles className="w-12 h-12 text-primary-foreground" />
               </motion.div>
 
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1]">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground leading-[1.15]">
                 Comece sua jornada de
                 <br />
                 <span className="text-gradient">longevidade hoje</span>
               </h2>
               
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed px-2">
                 Descubra sua idade biológica, receba recomendações personalizadas 
                 e tome controle da sua saúde com inteligência artificial.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-5 justify-center pt-4">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4 px-4">
                 <Button 
-                  size="xl" 
+                  size="lg" 
                   onClick={() => navigate('/auth')}
-                  className="group relative overflow-hidden shadow-2xl shadow-primary/25 hover:shadow-primary/40 transition-all duration-500"
+                  className="group relative overflow-hidden shadow-2xl shadow-primary/25 hover:shadow-primary/40 transition-all duration-500 w-full sm:w-auto"
                 >
-                  <span className="relative z-10 flex items-center gap-2">
+                  <span className="relative z-10 flex items-center justify-center gap-2">
                     Criar Conta Grátis
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </Button>
                 <Button 
-                  size="xl" 
+                  size="lg" 
                   variant="outline"
                   onClick={handleGuestAccess}
-                  className="border-primary/30 hover:bg-primary/10"
+                  className="border-primary/30 hover:bg-primary/10 w-full sm:w-auto"
                 >
                   Testar como Visitante
                 </Button>
