@@ -1,7 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useGuest } from '@/contexts/GuestContext';
+
+const rotatingPhrases = [
+  'Idade Biológica',
+  'Riscos de Saúde',
+  'Potencial de Longevidade',
+  'Saúde Metabólica',
+];
 import { Button } from '@/components/ui/button';
 import { 
   Zap, 
@@ -26,8 +33,16 @@ const Index: React.FC = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const { isGuest, enterGuestMode } = useGuest();
+  const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentPhraseIndex((prev) => (prev + 1) % rotatingPhrases.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
     if (!loading && (user || isGuest)) {
       navigate('/dashboard', { replace: true });
     }
@@ -114,8 +129,17 @@ const Index: React.FC = () => {
             >
               Descubra sua
               <br />
-              <span className="relative inline-block">
-                <span className="text-gradient">Idade Biológica</span>
+              <span className="relative inline-block min-h-[1.2em]">
+                <motion.span 
+                  key={currentPhraseIndex}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className="text-gradient"
+                >
+                  {rotatingPhrases[currentPhraseIndex]}
+                </motion.span>
                 <motion.span 
                   animate={{ scaleX: [0, 1] }}
                   transition={{ delay: 1, duration: 0.8, ease: "easeOut" }}
