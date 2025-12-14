@@ -230,6 +230,15 @@ const resources = {
       save: "Save",
       delete: "Delete",
       edit: "Edit",
+      uploadForRecommendations: "Upload your lab tests to receive personalized recommendations",
+      
+      // Health Goals (snake_case keys from database)
+      lose_weight: "Lose Weight",
+      improve_energy: "Improve Energy",
+      improve_sleep: "Improve Sleep",
+      reduce_cholesterol: "Reduce Cholesterol",
+      reduce_blood_sugar: "Reduce Blood Sugar",
+      increase_longevity: "Increase Longevity",
     },
   },
   pt: {
@@ -459,6 +468,15 @@ const resources = {
       save: "Salvar",
       delete: "Excluir",
       edit: "Editar",
+      uploadForRecommendations: "Envie seus exames para receber recomendações personalizadas",
+      
+      // Health Goals (snake_case keys from database)
+      lose_weight: "Perder Peso",
+      improve_energy: "Melhorar Energia",
+      improve_sleep: "Melhorar Sono",
+      reduce_cholesterol: "Reduzir Colesterol",
+      reduce_blood_sugar: "Reduzir Açúcar no Sangue",
+      increase_longevity: "Aumentar Longevidade",
     },
   },
 };
