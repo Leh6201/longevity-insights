@@ -308,7 +308,7 @@ const Dashboard: React.FC = () => {
                 <div className="flex flex-wrap gap-2">
                   {onboarding.health_goals.map((goal, idx) => (
                     <span key={idx} className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">
-                      {t(goal.replace('_', '') as any) || goal}
+                      {t(goal as any) || goal}
                     </span>
                   ))}
                 </div>

@@ -41,7 +41,7 @@ const RecommendationsCard: React.FC<RecommendationsCardProps> = ({ recommendatio
             ))
           ) : (
             <p className="text-muted-foreground text-sm text-center py-8">
-              Upload your lab tests to receive personalized recommendations
+              {t('uploadForRecommendations')}
             </p>
           )}
         </div>

@@ -22,59 +22,61 @@ serve(async (req) => {
     console.log('Analyzing lab results for user:', userId);
     console.log('File type:', fileType);
 
-    const systemPrompt = `You are a medical lab results analyzer specialized in longevity and health biomarkers. 
+    const systemPrompt = `Você é um analisador de resultados laboratoriais especializado em longevidade e biomarcadores de saúde.
     
-Your task is to:
-1. Extract biomarker values from the lab test image/document
-2. Calculate a biological age estimate based on the biomarkers
-3. Assess metabolic and inflammation risk scores
-4. Generate personalized health recommendations
+Sua tarefa é:
+1. Extrair os valores dos biomarcadores do exame laboratorial (imagem/documento)
+2. Calcular uma estimativa de idade biológica baseada nos biomarcadores
+3. Avaliar os scores de risco metabólico e inflamação
+4. Gerar recomendações de saúde personalizadas EM PORTUGUÊS BRASILEIRO
 
-IMPORTANT: This is for educational purposes only. Always recommend consulting healthcare professionals.
+IMPORTANTE: Isto é apenas para fins educacionais. Sempre recomende consultar profissionais de saúde.
 
-Extract the following biomarkers if present (return null if not found):
-- Total Cholesterol (mg/dL)
+Extraia os seguintes biomarcadores se presentes (retorne null se não encontrado):
+- Colesterol Total (mg/dL)
 - HDL (mg/dL)
 - LDL (mg/dL)
-- Triglycerides (mg/dL)
-- Glucose (mg/dL)
-- Hemoglobin (g/dL)
-- Creatinine (mg/dL)
-- AST (U/L)
-- ALT (U/L)
+- Triglicerídeos (mg/dL)
+- Glicose (mg/dL)
+- Hemoglobina (g/dL)
+- Creatinina (mg/dL)
+- AST/TGO (U/L)
+- ALT/TGP (U/L)
 - GGT (U/L)
-- Vitamin D (ng/mL)
+- Vitamina D (ng/mL)
 - TSH (mIU/L)
-- CRP (mg/L)
+- PCR (mg/L)
 
-Respond ONLY with valid JSON in this exact format:
+Responda APENAS com JSON válido neste formato exato:
 {
   "biomarkers": {
-    "total_cholesterol": number or null,
-    "hdl": number or null,
-    "ldl": number or null,
-    "triglycerides": number or null,
-    "glucose": number or null,
-    "hemoglobin": number or null,
-    "creatinine": number or null,
-    "ast": number or null,
-    "alt": number or null,
-    "ggt": number or null,
-    "vitamin_d": number or null,
-    "tsh": number or null,
-    "crp": number or null
+    "total_cholesterol": number ou null,
+    "hdl": number ou null,
+    "ldl": number ou null,
+    "triglycerides": number ou null,
+    "glucose": number ou null,
+    "hemoglobin": number ou null,
+    "creatinine": number ou null,
+    "ast": number ou null,
+    "alt": number ou null,
+    "ggt": number ou null,
+    "vitamin_d": number ou null,
+    "tsh": number ou null,
+    "crp": number ou null
   },
-  "biological_age": number (estimated based on biomarkers),
+  "biological_age": number (estimado baseado nos biomarcadores),
   "metabolic_risk_score": "low" | "moderate" | "high",
   "inflammation_score": "low" | "moderate" | "high",
   "recommendations": [
-    "recommendation 1",
-    "recommendation 2",
-    "recommendation 3",
-    "recommendation 4",
-    "recommendation 5"
+    "recomendação 1 em português",
+    "recomendação 2 em português",
+    "recomendação 3 em português",
+    "recomendação 4 em português",
+    "recomendação 5 em português"
   ]
-}`;
+}
+
+ATENÇÃO: Todas as recomendações DEVEM estar em português brasileiro, com linguagem amigável e sugestões específicas de estilo de vida.`;
 
     const messages: Array<{ role: string; content: Array<{ type: string; text?: string; image_url?: { url: string } }> }> = [
       {
@@ -82,7 +84,7 @@ Respond ONLY with valid JSON in this exact format:
         content: [
           {
             type: "text",
-            text: "Please analyze this lab test and extract all biomarker values. Provide biological age estimate and health recommendations."
+            text: "Por favor, analise este exame laboratorial e extraia todos os valores dos biomarcadores. Forneça uma estimativa de idade biológica e recomendações de saúde em português brasileiro."
           },
           {
             type: "image_url",
@@ -150,7 +152,7 @@ Respond ONLY with valid JSON in this exact format:
         biological_age: null,
         metabolic_risk_score: null,
         inflammation_score: null,
-        recommendations: ["Unable to extract biomarkers. Please ensure the lab test image is clear and readable."]
+        recommendations: ["Não foi possível extrair os biomarcadores. Por favor, certifique-se de que a imagem do exame está clara e legível."]
       };
     }
 
