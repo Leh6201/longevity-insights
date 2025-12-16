@@ -291,6 +291,45 @@ const Dashboard: React.FC = () => {
                 recommendationsCount={labResult.ai_recommendations?.length || 0}
               />
 
+              {/* Biomarker Progress Bars */}
+              <Card className="rounded-2xl shadow-card">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">{t('biomarkers')}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <BiomarkerProgressCard
+                    name={t('glucose')}
+                    percentage={calculateBiomarkerPercentage(labResult.glucose, 70, 126)}
+                    isNormal={isInRange(labResult.glucose, 70, 100)}
+                    delay={0}
+                  />
+                  <BiomarkerProgressCard
+                    name={t('totalCholesterol')}
+                    percentage={calculateBiomarkerPercentage(labResult.total_cholesterol, 0, 300)}
+                    isNormal={isInRange(labResult.total_cholesterol, 0, 200)}
+                    delay={0.1}
+                  />
+                  <BiomarkerProgressCard
+                    name={t('hemoglobin')}
+                    percentage={calculateBiomarkerPercentage(labResult.hemoglobin, 10, 20)}
+                    isNormal={isInRange(labResult.hemoglobin, 12, 17)}
+                    delay={0.2}
+                  />
+                  <BiomarkerProgressCard
+                    name="HDL"
+                    percentage={calculateBiomarkerPercentage(labResult.hdl, 20, 100)}
+                    isNormal={isInRange(labResult.hdl, 40, 100)}
+                    delay={0.3}
+                  />
+                  <BiomarkerProgressCard
+                    name="LDL"
+                    percentage={calculateBiomarkerPercentage(labResult.ldl, 0, 200)}
+                    isNormal={isInRange(labResult.ldl, 0, 100)}
+                    delay={0.4}
+                  />
+                </CardContent>
+              </Card>
+
               {/* Risk Projections */}
               <div className="space-y-3">
                 <h2 className="text-lg font-semibold text-foreground">{t('healthProjections')}</h2>
@@ -344,46 +383,6 @@ const Dashboard: React.FC = () => {
                   delay={0.4}
                 />
               </div>
-
-              {/* Biomarker Progress Bars */}
-              <Card className="rounded-2xl shadow-card">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">{t('biomarkers')}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <BiomarkerProgressCard
-                    name={t('glucose')}
-                    percentage={calculateBiomarkerPercentage(labResult.glucose, 70, 126)}
-                    isNormal={isInRange(labResult.glucose, 70, 100)}
-                    delay={0}
-                  />
-                  <BiomarkerProgressCard
-                    name={t('totalCholesterol')}
-                    percentage={calculateBiomarkerPercentage(labResult.total_cholesterol, 0, 300)}
-                    isNormal={isInRange(labResult.total_cholesterol, 0, 200)}
-                    delay={0.1}
-                  />
-                  <BiomarkerProgressCard
-                    name={t('hemoglobin')}
-                    percentage={calculateBiomarkerPercentage(labResult.hemoglobin, 10, 20)}
-                    isNormal={isInRange(labResult.hemoglobin, 12, 17)}
-                    delay={0.2}
-                  />
-                  <BiomarkerProgressCard
-                    name="HDL"
-                    percentage={calculateBiomarkerPercentage(labResult.hdl, 20, 100)}
-                    isNormal={isInRange(labResult.hdl, 40, 100)}
-                    delay={0.3}
-                  />
-                  <BiomarkerProgressCard
-                    name="LDL"
-                    percentage={calculateBiomarkerPercentage(labResult.ldl, 0, 200)}
-                    isNormal={isInRange(labResult.ldl, 0, 100)}
-                    delay={0.4}
-                  />
-                </CardContent>
-              </Card>
-
               {/* Recommendations & Actions */}
               <div className="grid lg:grid-cols-2 gap-6">
                 <QuickRecommendationCard 
