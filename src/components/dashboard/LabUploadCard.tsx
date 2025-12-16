@@ -104,7 +104,7 @@ const LabUploadCard: React.FC<LabUploadCardProps> = ({ onUploadComplete }) => {
 
           toast({
             title: t('analysisComplete'),
-            description: "Your biomarkers have been extracted successfully!",
+            description: "Seus biomarcadores foram extraídos com sucesso!",
           });
 
           onUploadComplete();
