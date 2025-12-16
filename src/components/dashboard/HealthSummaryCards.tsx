@@ -67,12 +67,12 @@ const HealthSummaryCards: React.FC<HealthSummaryCardsProps> = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.1 }}
-          className={`${card.bgColor} rounded-2xl p-4 text-center`}
+          className={`${card.bgColor} rounded-2xl p-4 flex flex-col items-center justify-center aspect-[4/3] min-h-[100px]`}
         >
-          <div className={`text-2xl sm:text-3xl font-bold ${card.textColor || ''}`}>
+          <div className={`text-2xl sm:text-3xl font-bold ${card.textColor || ''} whitespace-nowrap`}>
             {card.value}
           </div>
-          <div className="text-xs sm:text-sm text-muted-foreground mt-1">
+          <div className="text-xs sm:text-sm text-muted-foreground mt-1 whitespace-nowrap">
             {card.label}
           </div>
         </motion.div>
