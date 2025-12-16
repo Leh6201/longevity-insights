@@ -343,7 +343,7 @@ const resources = {
       metabolicRisk: "Risco Metabólico",
       inflammationScore: "Índice de Inflamação",
       low: "Baixo",
-      moderate: "Moderado",
+      moderate: "Médio",
       high: "Alto",
       personalizedRecommendations: "Recomendações Personalizadas",
       lipidProfile: "Perfil Lipídico",
