@@ -23,7 +23,7 @@ const PremiumOverlay: React.FC<PremiumOverlayProps> = ({
   }
 
   return (
-    <div className="relative">
+    <div className="relative overflow-hidden min-w-0">
       <div className="blur-sm pointer-events-none select-none">
         {children}
       </div>
