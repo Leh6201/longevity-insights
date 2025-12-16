@@ -60,19 +60,21 @@ const HealthSummaryCards: React.FC<HealthSummaryCardsProps> = ({
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
       {cards.map((card, index) => (
         <motion.div
           key={index}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.1 }}
-          className={`${card.bgColor} rounded-2xl px-4 py-3 flex flex-col items-center justify-center`}
+          className={`${card.bgColor} rounded-2xl px-4 py-2 flex flex-col items-center justify-center gap-1 h-[84px] sm:h-[92px] overflow-hidden`}
         >
-          <div className={`text-2xl sm:text-3xl font-bold ${card.textColor || ''} whitespace-nowrap text-center`}>
+          <div
+            className={`text-2xl sm:text-3xl font-bold ${card.textColor || ''} whitespace-nowrap leading-none text-center max-w-full`}
+          >
             {card.value}
           </div>
-          <div className="text-xs sm:text-sm text-muted-foreground mt-1.5 whitespace-nowrap text-center">
+          <div className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap leading-tight text-center max-w-full">
             {card.label}
           </div>
         </motion.div>
