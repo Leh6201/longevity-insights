@@ -22,17 +22,23 @@ serve(async (req) => {
     console.log('Analyzing lab results for user:', userId);
     console.log('File type:', fileType);
 
-    const systemPrompt = `Você é um analisador de resultados laboratoriais especializado em longevidade e biomarcadores de saúde.
-    
-Sua tarefa é:
-1. Extrair os valores dos biomarcadores do exame laboratorial (imagem/documento)
-2. Calcular uma estimativa de idade biológica baseada nos biomarcadores
-3. Avaliar os scores de risco metabólico e inflamação
-4. Gerar recomendações de saúde personalizadas EM PORTUGUÊS BRASILEIRO
+    const systemPrompt = `Você é um assistente de análise de exames laboratoriais médicos.
 
-IMPORTANTE: Isto é apenas para fins educacionais. Sempre recomende consultar profissionais de saúde.
+TAREFA PRINCIPAL: Extrair TODOS os biomarcadores presentes no documento.
 
-Extraia os seguintes biomarcadores se presentes (retorne null se não encontrado):
+REGRAS CRÍTICAS:
+- Extraia APENAS dados que estão EXPLICITAMENTE presentes no documento
+- NÃO invente ou assuma valores que não estão visíveis
+- Se um biomarcador não está presente, retorne null
+- Extraia o valor numérico exato conforme mostrado no documento
+
+Para cada biomarcador encontrado, extraia:
+- Nome do biomarcador
+- Valor numérico
+- Unidade de medida
+- Faixa de referência (se disponível)
+
+Biomarcadores a procurar (retorne null se não encontrado):
 - Colesterol Total (mg/dL)
 - HDL (mg/dL)
 - LDL (mg/dL)
@@ -44,39 +50,21 @@ Extraia os seguintes biomarcadores se presentes (retorne null se não encontrado
 - ALT/TGP (U/L)
 - GGT (U/L)
 - Vitamina D (ng/mL)
-- TSH (mIU/L)
-- PCR (mg/L)
+- TSH (mIU/L ou μUI/mL)
+- PCR/CRP (mg/L)
 
-Responda APENAS com JSON válido neste formato exato:
-{
-  "biomarkers": {
-    "total_cholesterol": number ou null,
-    "hdl": number ou null,
-    "ldl": number ou null,
-    "triglycerides": number ou null,
-    "glucose": number ou null,
-    "hemoglobin": number ou null,
-    "creatinine": number ou null,
-    "ast": number ou null,
-    "alt": number ou null,
-    "ggt": number ou null,
-    "vitamin_d": number ou null,
-    "tsh": number ou null,
-    "crp": number ou null
-  },
-  "biological_age": number (estimado baseado nos biomarcadores),
-  "metabolic_risk_score": "low" | "moderate" | "high",
-  "inflammation_score": "low" | "moderate" | "high",
-  "recommendations": [
-    "recomendação 1 em português",
-    "recomendação 2 em português",
-    "recomendação 3 em português",
-    "recomendação 4 em português",
-    "recomendação 5 em português"
-  ]
-}
+Após extrair os biomarcadores:
+1. Estime a idade biológica baseada nos valores encontrados
+2. Avalie o risco metabólico (low/moderate/high)
+3. Avalie o score de inflamação (low/moderate/high)
+4. Gere 5 recomendações em PORTUGUÊS BRASILEIRO
 
-ATENÇÃO: Todas as recomendações DEVEM estar em português brasileiro, com linguagem amigável e sugestões específicas de estilo de vida.`;
+IMPORTANTE: Responda SOMENTE com JSON puro, SEM markdown, SEM \`\`\`json, SEM texto antes ou depois.
+
+Formato de resposta (JSON puro):
+{"biomarkers":{"total_cholesterol":number|null,"hdl":number|null,"ldl":number|null,"triglycerides":number|null,"glucose":number|null,"hemoglobin":number|null,"creatinine":number|null,"ast":number|null,"alt":number|null,"ggt":number|null,"vitamin_d":number|null,"tsh":number|null,"crp":number|null},"biological_age":number|null,"metabolic_risk_score":"low"|"moderate"|"high","inflammation_score":"low"|"moderate"|"high","recommendations":["recomendação 1","recomendação 2","recomendação 3","recomendação 4","recomendação 5"]}
+
+ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com sugestões de estilo de vida. Isto é apenas educacional - sempre recomende consultar profissionais de saúde.`;
 
     const messages: Array<{ role: string; content: Array<{ type: string; text?: string; image_url?: { url: string } }> }> = [
       {
@@ -137,11 +125,22 @@ ATENÇÃO: Todas as recomendações DEVEM estar em português brasileiro, com li
     
     console.log('AI Response:', content);
 
-    let analysisResult;
+    let analysisResult: {
+      biomarkers: Record<string, number | null>;
+      biological_age: number | null;
+      metabolic_risk_score: string | null;
+      inflammation_score: string | null;
+      recommendations: string[];
+    };
     try {
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      // Remove markdown code blocks if present
+      let cleanContent = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+      
+      // Find the JSON object
+      const jsonMatch = cleanContent.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         analysisResult = JSON.parse(jsonMatch[0]);
+        console.log('Successfully parsed biomarkers:', Object.keys(analysisResult.biomarkers || {}).filter(k => analysisResult.biomarkers[k] !== null));
       } else {
         throw new Error('No JSON found in response');
       }
