@@ -146,7 +146,7 @@ const Onboarding: React.FC = () => {
     selected,
     onClick,
     children
-  }: any) => <button type="button" onClick={onClick} className={`p-3 rounded-xl border-2 transition-all duration-200 text-sm font-medium ${selected ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:border-primary/50 text-foreground'}`}>
+  }: any) => <button type="button" onClick={onClick} className={`p-2 sm:p-3 rounded-xl border-2 transition-all duration-200 text-xs sm:text-sm font-medium whitespace-nowrap ${selected ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:border-primary/50 text-foreground'}`}>
       {children}
     </button>;
   const GoalButton = ({
