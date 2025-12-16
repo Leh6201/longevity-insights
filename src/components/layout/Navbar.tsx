@@ -45,13 +45,8 @@ const Navbar: React.FC = () => {
       return;
     }
 
-    // Check if there's history to go back to
-    if (window.history.length > 2) {
-      navigate(-1);
-    } else {
-      // No history, go to home/dashboard
-      navigate(user || isGuest ? '/dashboard' : '/');
-    }
+    // Always try to go back, fallback to dashboard if at start of history
+    navigate(-1);
   };
 
   // Show navbar for both logged-in users and guests
