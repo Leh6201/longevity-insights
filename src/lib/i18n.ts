@@ -232,6 +232,23 @@ const resources = {
       edit: "Edit",
       uploadForRecommendations: "Upload your lab tests to receive personalized recommendations",
       
+      // New Dashboard
+      bioAge: "Bio Age",
+      risk: "Risk",
+      tips: "Tips",
+      healthProjections: "Health Projections",
+      projectionNext10Years: "Projection next 10 years",
+      cardiovascularHealth: "Cardiovascular Health",
+      inflammatoryMarkers: "Inflammatory Markers",
+      fastingGlucose: "Fasting Glucose",
+      trend: "Trend",
+      biomarkers: "Biomarkers",
+      normal: "Normal",
+      actions: "Actions",
+      updatedAt: "Updated at",
+      updatedNow: "Updated now",
+      glucoseMetabolism: "Glucose Metabolism",
+      
       // Health Goals (snake_case keys from database)
       lose_weight: "Lose Weight",
       improve_energy: "Improve Energy",
@@ -469,6 +486,23 @@ const resources = {
       delete: "Excluir",
       edit: "Editar",
       uploadForRecommendations: "Envie seus exames para receber recomendações personalizadas",
+      
+      // New Dashboard
+      bioAge: "Idade Bio",
+      risk: "Risco",
+      tips: "Dicas",
+      healthProjections: "Projeções de Saúde",
+      projectionNext10Years: "Projeção próximos 10 anos",
+      cardiovascularHealth: "Saúde Cardiovascular",
+      inflammatoryMarkers: "Marcadores Inflamatórios",
+      fastingGlucose: "Glicose em Jejum",
+      trend: "Tendência",
+      biomarkers: "Biomarcadores",
+      normal: "Normal",
+      actions: "Ações",
+      updatedAt: "Atualizado em",
+      updatedNow: "Atualizado agora",
+      glucoseMetabolism: "Metabolismo da Glicose",
       
       // Health Goals (snake_case keys from database)
       lose_weight: "Perder Peso",

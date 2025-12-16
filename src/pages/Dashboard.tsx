@@ -6,20 +6,22 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useGuest } from '@/contexts/GuestContext';
 import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/layout/Navbar';
-import BiologicalAgeCard from '@/components/dashboard/BiologicalAgeCard';
-import RiskScoreCard from '@/components/dashboard/RiskScoreCard';
-import BiomarkerChart from '@/components/dashboard/BiomarkerChart';
-import RecommendationsCard from '@/components/dashboard/RecommendationsCard';
-import LabUploadCard from '@/components/dashboard/LabUploadCard';
 import Tutorial from '@/components/Tutorial';
 import GuestBanner from '@/components/GuestBanner';
 import PremiumOverlay from '@/components/PremiumOverlay';
 import PremiumBadge from '@/components/PremiumBadge';
+import LabUploadCard from '@/components/dashboard/LabUploadCard';
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import HealthSummaryCards from '@/components/dashboard/HealthSummaryCards';
+import RiskProjectionCard from '@/components/dashboard/RiskProjectionCard';
+import BiomarkerProgressCard from '@/components/dashboard/BiomarkerProgressCard';
+import BiomarkerRangeCard from '@/components/dashboard/BiomarkerRangeCard';
+import TrendChartCard from '@/components/dashboard/TrendChartCard';
+import QuickRecommendationCard from '@/components/dashboard/QuickRecommendationCard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, AlertCircle, Upload, RefreshCw, Share2, Calendar, Clock, Sparkles, Target, Download, Activity, Loader2 } from 'lucide-react';
+import { AlertCircle, Sparkles, RefreshCw, Share2, Activity, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
 import { generateHealthReport } from '@/lib/generateHealthReport';
 
 interface LabResult {
@@ -56,7 +58,7 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
-  const { isGuest, guestOnboarding, guestLabResult, setGuestLabResult } = useGuest();
+  const { isGuest, guestOnboarding, guestLabResult } = useGuest();
   
   const [labResult, setLabResult] = useState<LabResult | null>(null);
   const [onboarding, setOnboarding] = useState<OnboardingData | null>(null);
@@ -129,10 +131,8 @@ const Dashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    // Wait for auth to finish loading
     if (authLoading) return;
     
-    // If no user and not a guest, redirect to auth
     if (!user && !isGuest) {
       setLoading(false);
       navigate('/auth', { replace: true });
@@ -202,30 +202,20 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const lipidData = [
-    { name: t('totalCholesterol'), value: labResult?.total_cholesterol, reference: { min: 0, max: 200 }, tooltipKey: 'totalCholesterolTooltip' },
-    { name: t('hdl'), value: labResult?.hdl, reference: { min: 40, max: 60 }, tooltipKey: 'hdlTooltip' },
-    { name: t('ldl'), value: labResult?.ldl, reference: { min: 0, max: 100 }, tooltipKey: 'ldlTooltip' },
-    { name: t('triglycerides'), value: labResult?.triglycerides, reference: { min: 0, max: 150 }, tooltipKey: 'triglycericesTooltip' },
-  ];
+  // Calculate biomarker percentages for display
+  const calculateBiomarkerPercentage = (value: number | null, min: number, max: number) => {
+    if (value === null) return 0;
+    const percentage = Math.min(100, Math.max(0, ((max - value) / (max - min)) * 100));
+    return Math.round(percentage);
+  };
 
-  const glucoseData = [
-    { name: t('glucose'), value: labResult?.glucose, reference: { min: 70, max: 100 }, tooltipKey: 'glucoseTooltip' },
-    { name: t('hemoglobin'), value: labResult?.hemoglobin, reference: { min: 12, max: 17 }, tooltipKey: 'hemoglobinTooltip' },
-  ];
+  const isInRange = (value: number | null, min: number, max: number) => {
+    if (value === null) return false;
+    return value >= min && value <= max;
+  };
 
-  const liverData = [
-    { name: t('ast'), value: labResult?.ast, reference: { min: 0, max: 40 }, tooltipKey: 'astTooltip' },
-    { name: t('alt'), value: labResult?.alt, reference: { min: 0, max: 40 }, tooltipKey: 'altTooltip' },
-    { name: t('ggt'), value: labResult?.ggt, reference: { min: 0, max: 60 }, tooltipKey: 'ggtTooltip' },
-  ];
-
-  const otherMarkersData = [
-    { name: t('creatinine'), value: labResult?.creatinine, reference: { min: 0.6, max: 1.2 }, tooltipKey: 'creatinineTooltip' },
-    { name: t('vitaminD'), value: labResult?.vitamin_d, reference: { min: 30, max: 100 }, tooltipKey: 'vitaminDTooltip' },
-    { name: t('tsh'), value: labResult?.tsh, reference: { min: 0.4, max: 4.0 }, tooltipKey: 'tshTooltip' },
-    { name: t('crp'), value: labResult?.crp, reference: { min: 0, max: 3 }, tooltipKey: 'crpTooltip' },
-  ];
+  // Mock trend data for charts
+  const trendData = [65, 72, 68, 80, 75, 82, 70, 78, 68];
 
   if (authLoading || loading) {
     return (
@@ -274,90 +264,138 @@ const Dashboard: React.FC = () => {
         )}
       </AnimatePresence>
       
-      <main className="container mx-auto px-4 pt-24 pb-12">
+      <main className="container mx-auto px-4 pt-24 pb-12 max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-display font-bold text-foreground">{t('dashboard')}</h1>
-            {isGuest && (
-              <span className="px-3 py-1 rounded-full bg-muted text-muted-foreground text-sm">
-                {t('guestMode')}
-              </span>
-            )}
-          </div>
+          {/* Dashboard Header */}
+          <DashboardHeader 
+            lastUpdate={labResult?.upload_date ? new Date(labResult.upload_date).toLocaleDateString() : undefined}
+            isGuest={isGuest}
+          />
 
           {/* Disclaimer */}
-          <div className="flex items-center gap-3 p-4 rounded-xl bg-warning/10 border border-warning/20">
+          <div className="flex items-center gap-3 p-4 rounded-2xl bg-warning/10 border border-warning/20">
             <AlertCircle className="w-5 h-5 text-warning shrink-0" />
             <p className="text-sm text-warning">{t('disclaimer')}</p>
           </div>
 
-          {/* Health Goals Summary */}
-          {onboarding?.health_goals && onboarding.health_goals.length > 0 && (
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Target className="w-5 h-5" />
-                  {t('yourGoals')}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {onboarding.health_goals.map((goal, idx) => (
-                    <span key={idx} className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">
-                      {t(goal as any) || goal}
-                    </span>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {labResult && (
+          {labResult ? (
             <>
-              {/* Main Stats Grid */}
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 min-w-0">
-                <BiologicalAgeCard 
-                  biologicalAge={labResult.biological_age} 
-                  actualAge={onboarding?.age || 30}
+              {/* Summary Cards */}
+              <HealthSummaryCards
+                biologicalAge={labResult.biological_age}
+                riskLevel={labResult.metabolic_risk_score as 'low' | 'moderate' | 'high' | null}
+                recommendationsCount={labResult.ai_recommendations?.length || 0}
+              />
+
+              {/* Risk Projections */}
+              <div className="space-y-3">
+                <h2 className="text-lg font-semibold text-foreground">{t('healthProjections')}</h2>
+                <div className="grid gap-3">
+                  <RiskProjectionCard
+                    title={t('metabolicRisk')}
+                    subtitle={t('projectionNext10Years')}
+                    percentage={12}
+                    monthlyChange={-3}
+                    icon="metabolic"
+                    delay={0}
+                  />
+                  <RiskProjectionCard
+                    title={t('cardiovascularHealth')}
+                    subtitle={t('projectionNext10Years')}
+                    percentage={18}
+                    monthlyChange={-5}
+                    icon="cardiovascular"
+                    delay={0.1}
+                  />
+                  <RiskProjectionCard
+                    title={t('inflammatoryMarkers')}
+                    subtitle={t('projectionNext10Years')}
+                    percentage={8}
+                    monthlyChange={-2}
+                    icon="inflammation"
+                    delay={0.2}
+                  />
+                </div>
+              </div>
+
+              {/* Two Column Layout for Desktop */}
+              <div className="grid lg:grid-cols-2 gap-6">
+                {/* Biomarker Range Card */}
+                <BiomarkerRangeCard
+                  name={t('fastingGlucose')}
+                  value={labResult.glucose}
+                  unit="mg/dL"
+                  min={70}
+                  max={126}
+                  optimalMin={70}
+                  optimalMax={100}
+                  delay={0.3}
                 />
-                <RiskScoreCard 
-                  title={t('metabolicRisk')} 
-                  score={labResult.metabolic_risk_score as 'low' | 'moderate' | 'high' | null} 
-                  icon="metabolic"
-                />
-                <RiskScoreCard 
-                  title={t('inflammationScore')} 
-                  score={labResult.inflammation_score as 'low' | 'moderate' | 'high' | null} 
-                  icon="inflammation"
+
+                {/* Trend Chart */}
+                <TrendChartCard
+                  title={`${t('trend')} ALT`}
+                  change={-15}
+                  data={trendData}
+                  delay={0.4}
                 />
               </div>
 
-              {/* Biomarkers Section */}
-              <div className="space-y-4">
-                <h2 className="text-xl font-semibold">{t('biomarkers')}</h2>
-                
-                <div className="grid md:grid-cols-2 gap-4">
-                  <BiomarkerChart title={t('lipidProfile')} data={lipidData} />
-                  <BiomarkerChart title={t('glucoseMetabolism')} data={glucoseData} />
-                  <BiomarkerChart title={t('liverFunction')} data={liverData} />
-                  <BiomarkerChart title={t('otherMarkers')} data={otherMarkersData} />
-                </div>
-              </div>
+              {/* Biomarker Progress Bars */}
+              <Card className="rounded-2xl shadow-card">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">{t('biomarkers')}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <BiomarkerProgressCard
+                    name={t('glucose')}
+                    percentage={calculateBiomarkerPercentage(labResult.glucose, 70, 126)}
+                    isNormal={isInRange(labResult.glucose, 70, 100)}
+                    delay={0}
+                  />
+                  <BiomarkerProgressCard
+                    name={t('totalCholesterol')}
+                    percentage={calculateBiomarkerPercentage(labResult.total_cholesterol, 0, 300)}
+                    isNormal={isInRange(labResult.total_cholesterol, 0, 200)}
+                    delay={0.1}
+                  />
+                  <BiomarkerProgressCard
+                    name={t('hemoglobin')}
+                    percentage={calculateBiomarkerPercentage(labResult.hemoglobin, 10, 20)}
+                    isNormal={isInRange(labResult.hemoglobin, 12, 17)}
+                    delay={0.2}
+                  />
+                  <BiomarkerProgressCard
+                    name="HDL"
+                    percentage={calculateBiomarkerPercentage(labResult.hdl, 20, 100)}
+                    isNormal={isInRange(labResult.hdl, 40, 100)}
+                    delay={0.3}
+                  />
+                  <BiomarkerProgressCard
+                    name="LDL"
+                    percentage={calculateBiomarkerPercentage(labResult.ldl, 0, 200)}
+                    isNormal={isInRange(labResult.ldl, 0, 100)}
+                    delay={0.4}
+                  />
+                </CardContent>
+              </Card>
 
               {/* Recommendations & Actions */}
               <div className="grid lg:grid-cols-2 gap-6">
-                <RecommendationsCard recommendations={labResult.ai_recommendations || []} />
+                <QuickRecommendationCard 
+                  recommendations={labResult.ai_recommendations || []} 
+                />
                 
                 <div className="space-y-4">
                   <LabUploadCard onUploadComplete={fetchData} />
 
                   {/* Actions Card */}
                   <PremiumOverlay isPremiumUser={false}>
-                    <Card>
+                    <Card className="rounded-2xl shadow-card">
                       <CardHeader>
                         <div className="flex items-center justify-between">
                           <CardTitle className="text-lg flex items-center gap-2">
@@ -400,13 +438,11 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
             </>
-          )}
-
-          {!labResult && (
+          ) : (
             <div className="grid lg:grid-cols-2 gap-6">
               <LabUploadCard onUploadComplete={fetchData} />
               <PremiumOverlay isPremiumUser={false}>
-                <Card>
+                <Card className="rounded-2xl shadow-card">
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg">{t('advancedAnalytics')}</CardTitle>
