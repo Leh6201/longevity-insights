@@ -17,7 +17,7 @@ import PremiumOverlay from '@/components/PremiumOverlay';
 import PremiumBadge from '@/components/PremiumBadge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, AlertCircle, Upload, RefreshCw, Share2, Calendar, Clock, Sparkles, Target, Download } from 'lucide-react';
+import { FileText, AlertCircle, Upload, RefreshCw, Share2, Calendar, Clock, Sparkles, Target, Download, Activity, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { generateHealthReport } from '@/lib/generateHealthReport';
@@ -316,42 +316,13 @@ const Dashboard: React.FC = () => {
             </Card>
           )}
 
-          {labResult ? (
+          {labResult && (
             <>
-              {/* Last Analysis Info */}
-              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  <span>{t('lastAnalysis')}: {format(new Date(labResult.upload_date), 'PPP')}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  <span>{t('processingTime')}: ~3s</span>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-3">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleReanalyze}
-                  disabled={reanalyzing}
-                >
-                  <RefreshCw className={`w-4 h-4 mr-2 ${reanalyzing ? 'animate-spin' : ''}`} />
-                  {t('reanalyze')}
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleShare}>
-                  <Share2 className="w-4 h-4 mr-2" />
-                  {t('shareWithDoctor')}
-                </Button>
-              </div>
-
-              {/* Main Stats */}
-              <div className="grid lg:grid-cols-3 gap-6">
+              {/* Main Stats Grid */}
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 min-w-0">
                 <BiologicalAgeCard 
                   biologicalAge={labResult.biological_age} 
-                  actualAge={onboarding?.age || null} 
+                  actualAge={onboarding?.age || 30}
                 />
                 <RiskScoreCard 
                   title={t('metabolicRisk')} 
@@ -360,65 +331,75 @@ const Dashboard: React.FC = () => {
                 />
                 <RiskScoreCard 
                   title={t('inflammationScore')} 
-                  score={labResult.inflammation_score as 'low' | 'moderate' | 'high' | null}
+                  score={labResult.inflammation_score as 'low' | 'moderate' | 'high' | null} 
                   icon="inflammation"
                 />
               </div>
 
-              {/* Charts */}
-              <div className="grid lg:grid-cols-2 gap-6">
-                <BiomarkerChart title={t('lipidProfile')} data={lipidData} />
-                <BiomarkerChart title={t('glucoseMarkers')} data={glucoseData} />
-                <BiomarkerChart title={t('liverFunction')} data={liverData} />
-                <BiomarkerChart title={t('otherMarkers')} data={otherMarkersData} />
+              {/* Biomarkers Section */}
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold">{t('biomarkers')}</h2>
+                
+                <div className="grid md:grid-cols-2 gap-4">
+                  <BiomarkerChart title={t('lipidProfile')} data={lipidData} />
+                  <BiomarkerChart title={t('glucoseMetabolism')} data={glucoseData} />
+                  <BiomarkerChart title={t('liverFunction')} data={liverData} />
+                  <BiomarkerChart title={t('otherMarkers')} data={otherMarkersData} />
+                </div>
               </div>
 
-              {/* Recommendations & Upload */}
+              {/* Recommendations & Actions */}
               <div className="grid lg:grid-cols-2 gap-6">
                 <RecommendationsCard recommendations={labResult.ai_recommendations || []} />
-                <div className="space-y-6">
+                
+                <div className="space-y-4">
                   <LabUploadCard onUploadComplete={fetchData} />
-                  {/* Premium History Feature */}
+
+                  {/* Actions Card */}
                   <PremiumOverlay isPremiumUser={false}>
                     <Card>
                       <CardHeader>
                         <div className="flex items-center justify-between">
-                          <CardTitle className="text-lg">{t('analysisHistory')}</CardTitle>
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            <Activity className="w-5 h-5" />
+                            {t('actions')}
+                          </CardTitle>
                           <PremiumBadge />
                         </div>
-                        <CardDescription>{t('trackProgress')}</CardDescription>
                       </CardHeader>
-                      <CardContent>
-                        <div className="h-32 flex items-center justify-center text-muted-foreground">
-                          {t('viewAllAnalyses')}
-                        </div>
+                      <CardContent className="space-y-4">
+                        <Button 
+                          className="w-full" 
+                          variant="outline"
+                          onClick={handleReanalyze}
+                          disabled={reanalyzing}
+                        >
+                          {reanalyzing ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          ) : (
+                            <RefreshCw className="w-4 h-4 mr-2" />
+                          )}
+                          {t('reanalyze')}
+                        </Button>
+                        <Button 
+                          className="w-full" 
+                          variant="outline"
+                          onClick={handleShare}
+                        >
+                          <Share2 className="w-4 h-4 mr-2" />
+                          {t('shareWithDoctor')}
+                        </Button>
+                        {labResult.upload_date && (
+                          <p className="text-xs text-muted-foreground text-center">
+                            {t('lastAnalysis')}: {new Date(labResult.upload_date).toLocaleDateString()}
+                          </p>
+                        )}
                       </CardContent>
                     </Card>
                   </PremiumOverlay>
                 </div>
               </div>
             </>
-          ) : (
-            /* Empty State */
-            <Card className="border-dashed">
-              <CardContent className="py-12">
-                <div className="text-center space-y-4">
-                  <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
-                    <FileText className="w-8 h-8 text-primary" />
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-xl font-semibold">{t('noLabResults')}</h3>
-                    <p className="text-muted-foreground max-w-md mx-auto">
-                      {t('uploadFirstDescription')}
-                    </p>
-                  </div>
-                  <Button size="lg" onClick={() => document.getElementById('lab-upload-input')?.click()}>
-                    <Upload className="w-4 h-4 mr-2" />
-                    {t('uploadLabTest')}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
           )}
 
           {!labResult && (
