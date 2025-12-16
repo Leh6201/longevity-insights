@@ -270,17 +270,17 @@ const Dashboard: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
+          {/* Disclaimer */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-warning/5 border border-warning/10">
+            <AlertCircle className="w-3.5 h-3.5 text-warning/70 shrink-0" />
+            <p className="text-xs text-warning/70">{t('disclaimer')}</p>
+          </div>
+
           {/* Dashboard Header */}
           <DashboardHeader 
             lastUpdate={labResult?.upload_date ? new Date(labResult.upload_date).toLocaleDateString() : undefined}
             isGuest={isGuest}
           />
-
-          {/* Disclaimer */}
-          <div className="flex items-center gap-3 p-4 rounded-2xl bg-warning/10 border border-warning/20">
-            <AlertCircle className="w-5 h-5 text-warning shrink-0" />
-            <p className="text-sm text-warning">{t('disclaimer')}</p>
-          </div>
 
           {labResult ? (
             <>
