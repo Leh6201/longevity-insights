@@ -18,6 +18,7 @@ import BiomarkerProgressCard from '@/components/dashboard/BiomarkerProgressCard'
 import BiomarkerRangeCard from '@/components/dashboard/BiomarkerRangeCard';
 import TrendChartCard from '@/components/dashboard/TrendChartCard';
 import QuickRecommendationCard from '@/components/dashboard/QuickRecommendationCard';
+import PersonalizedRecommendationsSection from '@/components/dashboard/PersonalizedRecommendationsSection';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Sparkles, RefreshCw, Share2, Activity, Loader2 } from 'lucide-react';
@@ -383,58 +384,63 @@ const Dashboard: React.FC = () => {
                   delay={0.4}
                 />
               </div>
-              {/* Recommendations & Actions */}
-              <div className="grid lg:grid-cols-2 gap-6 overflow-hidden">
-                <QuickRecommendationCard 
-                  recommendations={labResult.ai_recommendations || []} 
-                />
-                
-                <div className="space-y-4 min-w-0 overflow-hidden">
-                  <LabUploadCard onUploadComplete={fetchData} />
+              {/* Quick Recommendations */}
+              <QuickRecommendationCard 
+                recommendations={labResult.ai_recommendations || []} 
+              />
 
-                  {/* Actions Card */}
-                  <PremiumOverlay isPremiumUser={false}>
-                    <Card className="rounded-2xl shadow-card">
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <CardTitle className="text-lg flex items-center gap-2">
-                            <Activity className="w-5 h-5" />
-                            {t('actions')}
-                          </CardTitle>
-                          <PremiumBadge />
-                        </div>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <Button 
-                          className="w-full" 
-                          variant="outline"
-                          onClick={handleReanalyze}
-                          disabled={reanalyzing}
-                        >
-                          {reanalyzing ? (
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          ) : (
-                            <RefreshCw className="w-4 h-4 mr-2" />
-                          )}
-                          {t('reanalyze')}
-                        </Button>
-                        <Button 
-                          className="w-full" 
-                          variant="outline"
-                          onClick={handleShare}
-                        >
-                          <Share2 className="w-4 h-4 mr-2" />
-                          {t('shareWithDoctor')}
-                        </Button>
-                        {labResult.upload_date && (
-                          <p className="text-xs text-muted-foreground text-center">
-                            {t('lastAnalysis')}: {new Date(labResult.upload_date).toLocaleDateString()}
-                          </p>
+              {/* Personalized Recommendations - Premium */}
+              <PersonalizedRecommendationsSection 
+                recommendations={labResult.ai_recommendations || []}
+                isPremiumUser={false}
+              />
+
+              {/* Upload & Actions */}
+              <div className="grid lg:grid-cols-2 gap-6 overflow-hidden">
+                <LabUploadCard onUploadComplete={fetchData} />
+
+                {/* Actions Card */}
+                <PremiumOverlay isPremiumUser={false}>
+                  <Card className="rounded-2xl shadow-card">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Activity className="w-5 h-5" />
+                          {t('actions')}
+                        </CardTitle>
+                        <PremiumBadge />
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <Button 
+                        className="w-full" 
+                        variant="outline"
+                        onClick={handleReanalyze}
+                        disabled={reanalyzing}
+                      >
+                        {reanalyzing ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <RefreshCw className="w-4 h-4 mr-2" />
                         )}
-                      </CardContent>
-                    </Card>
-                  </PremiumOverlay>
-                </div>
+                        {t('reanalyze')}
+                      </Button>
+                      <Button 
+                        className="w-full" 
+                        variant="outline"
+                        onClick={handleShare}
+                      >
+                        <Share2 className="w-4 h-4 mr-2" />
+                        {t('shareWithDoctor')}
+                      </Button>
+                      {labResult.upload_date && (
+                        <p className="text-xs text-muted-foreground text-center">
+                          {t('lastAnalysis')}: {new Date(labResult.upload_date).toLocaleDateString()}
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </PremiumOverlay>
               </div>
             </>
           ) : (
