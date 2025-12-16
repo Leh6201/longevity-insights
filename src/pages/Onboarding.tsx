@@ -215,7 +215,7 @@ const Onboarding: React.FC = () => {
                       <div className="space-y-2">
                         <Label>{t('biologicalSex')}</Label>
                         <div className="grid grid-cols-2 gap-2">
-                          <SelectButton selected={data.biological_sex === 'male'} onClick={() => updateData('biological_sex', 'male')} className="text-right">
+                          <SelectButton selected={data.biological_sex === 'male'} onClick={() => updateData('biological_sex', 'male')} className="text-center">
                             {t('male')}
                           </SelectButton>
                           <SelectButton selected={data.biological_sex === 'female'} onClick={() => updateData('biological_sex', 'female')}>
