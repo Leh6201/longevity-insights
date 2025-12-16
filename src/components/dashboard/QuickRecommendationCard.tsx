@@ -17,7 +17,7 @@ const QuickRecommendationCard: React.FC<QuickRecommendationCardProps> = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-card rounded-2xl p-5 shadow-card"
+      className="bg-card rounded-2xl p-5 shadow-card overflow-hidden min-w-0"
     >
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-foreground">Principais Recomendações</h3>
@@ -44,7 +44,7 @@ const QuickRecommendationCard: React.FC<QuickRecommendationCardProps> = ({
             <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
               <span className="text-xs font-bold text-primary">{index + 1}</span>
             </div>
-            <p className="text-sm text-foreground line-clamp-2">
+            <p className="text-sm text-foreground line-clamp-2 break-words min-w-0">
               {rec.length > 100 ? `${rec.substring(0, 100)}...` : rec}
             </p>
           </motion.div>

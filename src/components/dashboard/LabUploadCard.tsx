@@ -134,7 +134,7 @@ const LabUploadCard: React.FC<LabUploadCardProps> = ({ onUploadComplete }) => {
   };
 
   return (
-    <Card>
+    <Card className="overflow-hidden min-w-0">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-lg">
           <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">

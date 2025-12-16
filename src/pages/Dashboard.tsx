@@ -384,12 +384,12 @@ const Dashboard: React.FC = () => {
                 />
               </div>
               {/* Recommendations & Actions */}
-              <div className="grid lg:grid-cols-2 gap-6">
+              <div className="grid lg:grid-cols-2 gap-6 overflow-hidden">
                 <QuickRecommendationCard 
                   recommendations={labResult.ai_recommendations || []} 
                 />
                 
-                <div className="space-y-4">
+                <div className="space-y-4 min-w-0 overflow-hidden">
                   <LabUploadCard onUploadComplete={fetchData} />
 
                   {/* Actions Card */}
