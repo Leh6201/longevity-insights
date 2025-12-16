@@ -38,15 +38,18 @@ const Navbar: React.FC = () => {
       navigate('/auth');
     }
   };
-  const handleBack = () => {
+  const handleBack = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     // In guest mode on dashboard, go back to auth
     if (isGuest && location.pathname === '/dashboard') {
       navigate('/auth');
       return;
     }
 
-    // Always try to go back, fallback to dashboard if at start of history
-    navigate(-1);
+    // Navigate to dashboard as fallback
+    navigate('/dashboard');
   };
 
   // Show navbar for both logged-in users and guests
