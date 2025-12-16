@@ -239,18 +239,18 @@ const Settings: React.FC = () => {
                   <Globe className="w-4 h-4" />
                   {t('language')}
                 </Label>
-                <div className="flex gap-3">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
                   <Button
                     variant={language === 'en' ? 'default' : 'outline'}
                     onClick={() => handleLanguageChange('en')}
-                    className="flex-1"
+                    className="w-full text-sm"
                   >
                     English
                   </Button>
                   <Button
                     variant={language === 'pt' ? 'default' : 'outline'}
                     onClick={() => handleLanguageChange('pt')}
-                    className="flex-1"
+                    className="w-full text-sm"
                   >
                     Português
                   </Button>
@@ -260,22 +260,22 @@ const Settings: React.FC = () => {
               {/* Theme */}
               <div className="space-y-3">
                 <Label>{t('theme')}</Label>
-                <div className="flex gap-3">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
                   <Button
                     variant={theme === 'light' ? 'default' : 'outline'}
                     onClick={() => setTheme('light')}
-                    className="flex-1"
+                    className="w-full text-sm"
                   >
-                    <Sun className="w-4 h-4 mr-2" />
-                    {t('lightMode')}
+                    <Sun className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                    <span className="truncate">{t('lightMode')}</span>
                   </Button>
                   <Button
                     variant={theme === 'dark' ? 'default' : 'outline'}
                     onClick={() => setTheme('dark')}
-                    className="flex-1"
+                    className="w-full text-sm"
                   >
-                    <Moon className="w-4 h-4 mr-2" />
-                    {t('darkMode')}
+                    <Moon className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                    <span className="truncate">{t('darkMode')}</span>
                   </Button>
                 </div>
               </div>
