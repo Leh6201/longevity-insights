@@ -37,22 +37,22 @@ const RiskProjectionCard: React.FC<RiskProjectionCardProps> = ({
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay }}
-      className="bg-card rounded-2xl p-4 shadow-card flex items-center gap-4 hover:shadow-hover transition-shadow"
+      className="bg-card rounded-2xl p-4 shadow-card flex items-center gap-3 hover:shadow-hover transition-shadow overflow-hidden w-full"
     >
-      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-        <Icon className="w-6 h-6 text-primary" />
+      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+        <Icon className="w-5 h-5 text-primary" />
       </div>
       
-      <div className="flex-1 min-w-0">
-        <h3 className="font-semibold text-foreground truncate">{title}</h3>
-        <p className="text-xs text-muted-foreground">{subtitle}</p>
+      <div className="flex-1 min-w-0 overflow-hidden">
+        <h3 className="font-semibold text-foreground text-sm truncate">{title}</h3>
+        <p className="text-xs text-muted-foreground truncate">{subtitle}</p>
       </div>
       
       <div className="text-right shrink-0">
-        <div className={`text-lg font-bold ${isPositive ? 'text-primary' : 'text-destructive'}`}>
+        <div className={`text-base font-bold ${isPositive ? 'text-primary' : 'text-destructive'}`}>
           {isPositive ? '+' : ''}{percentage}%
         </div>
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+        <div className="flex items-center justify-end gap-1 text-xs text-muted-foreground whitespace-nowrap">
           {isMonthlyPositive ? (
             <TrendingUp className="w-3 h-3 text-primary" />
           ) : (
