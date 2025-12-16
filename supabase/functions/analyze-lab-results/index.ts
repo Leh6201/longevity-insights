@@ -126,7 +126,7 @@ ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com s
     console.log('AI Response:', content);
 
     let analysisResult: {
-      biomarkers: Record<string, number | null>;
+      biomarkers: Record<string, unknown>;
       biological_age: number | null;
       metabolic_risk_score: string | null;
       inflammation_score: string | null;
@@ -155,6 +155,35 @@ ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com s
       };
     }
 
+    // Extract numeric values from biomarkers (AI may return objects with {value, unit, reference_range})
+    const extractNumericValue = (val: unknown): number | null => {
+      if (val === null || val === undefined) return null;
+      if (typeof val === 'number') return val;
+      if (typeof val === 'object' && val !== null && 'value' in val) {
+        const numVal = (val as { value: unknown }).value;
+        return typeof numVal === 'number' ? numVal : null;
+      }
+      return null;
+    };
+
+    const normalizedBiomarkers = {
+      total_cholesterol: extractNumericValue(analysisResult.biomarkers?.total_cholesterol),
+      hdl: extractNumericValue(analysisResult.biomarkers?.hdl),
+      ldl: extractNumericValue(analysisResult.biomarkers?.ldl),
+      triglycerides: extractNumericValue(analysisResult.biomarkers?.triglycerides),
+      glucose: extractNumericValue(analysisResult.biomarkers?.glucose),
+      hemoglobin: extractNumericValue(analysisResult.biomarkers?.hemoglobin),
+      creatinine: extractNumericValue(analysisResult.biomarkers?.creatinine),
+      ast: extractNumericValue(analysisResult.biomarkers?.ast),
+      alt: extractNumericValue(analysisResult.biomarkers?.alt),
+      ggt: extractNumericValue(analysisResult.biomarkers?.ggt),
+      vitamin_d: extractNumericValue(analysisResult.biomarkers?.vitamin_d),
+      tsh: extractNumericValue(analysisResult.biomarkers?.tsh),
+      crp: extractNumericValue(analysisResult.biomarkers?.crp),
+    };
+
+    console.log('Normalized biomarkers for DB:', normalizedBiomarkers);
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -164,7 +193,7 @@ ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com s
       .insert({
         user_id: userId,
         file_name: fileName,
-        ...analysisResult.biomarkers,
+        ...normalizedBiomarkers,
         biological_age: analysisResult.biological_age,
         metabolic_risk_score: analysisResult.metabolic_risk_score,
         inflammation_score: analysisResult.inflammation_score,
