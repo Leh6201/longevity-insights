@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  User, Palette, Globe, Loader2, Sun, Moon, LogOut, Trash2, 
+  User, Palette, Globe, Loader2, LogOut, Trash2, 
   Diamond, MessageSquare, FileText, Shield, ChevronRight, KeyRound, Edit
 } from 'lucide-react';
 import { changeLanguage } from '@/lib/i18n';
@@ -266,16 +266,14 @@ const Settings: React.FC = () => {
                     onClick={() => setTheme('light')}
                     className="w-full text-sm"
                   >
-                    <Sun className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" />
-                    <span className="truncate">{t('lightMode')}</span>
+                    Claro
                   </Button>
                   <Button
                     variant={theme === 'dark' ? 'default' : 'outline'}
                     onClick={() => setTheme('dark')}
                     className="w-full text-sm"
                   >
-                    <Moon className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" />
-                    <span className="truncate">{t('darkMode')}</span>
+                    Escuro
                   </Button>
                 </div>
               </div>
