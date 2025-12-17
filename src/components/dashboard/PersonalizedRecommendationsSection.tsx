@@ -77,8 +77,8 @@ const PersonalizedRecommendationsSection: React.FC<PersonalizedRecommendationsSe
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
-                <Lightbulb className="w-5 h-5 text-primary-foreground" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-400 flex items-center justify-center shadow-md">
+                <Sparkles className="w-5 h-5 text-white" />
               </div>
               Recomendações Personalizadas
             </CardTitle>
@@ -132,8 +132,8 @@ const PersonalizedRecommendationsSection: React.FC<PersonalizedRecommendationsSe
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
-              <Lightbulb className="w-5 h-5 text-primary-foreground" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-400 flex items-center justify-center shadow-md">
+              <Sparkles className="w-5 h-5 text-white" />
             </div>
             Recomendações Personalizadas
           </CardTitle>
