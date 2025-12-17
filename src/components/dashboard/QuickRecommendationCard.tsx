@@ -10,6 +10,6 @@ const QuickRecommendationCard: React.FC<QuickRecommendationCardProps> = ({
   onViewAll
 }) => {
   const displayedRecommendations = recommendations.slice(0, 3);
-  return;
+  return null;
 };
 export default QuickRecommendationCard;
