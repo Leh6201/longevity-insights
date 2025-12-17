@@ -3,11 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
-import { useGuest } from '@/contexts/GuestContext';
 import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/layout/Navbar';
 import Tutorial from '@/components/Tutorial';
-import GuestBanner from '@/components/GuestBanner';
 import PremiumOverlay from '@/components/PremiumOverlay';
 import PremiumBadge from '@/components/PremiumBadge';
 import LabUploadCard from '@/components/dashboard/LabUploadCard';
@@ -59,7 +57,6 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
-  const { isGuest, guestOnboarding, guestLabResult } = useGuest();
   
   const [labResult, setLabResult] = useState<LabResult | null>(null);
   const [onboarding, setOnboarding] = useState<OnboardingData | null>(null);
@@ -71,24 +68,6 @@ const Dashboard: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      if (isGuest) {
-        if (guestOnboarding) {
-          setOnboarding({ 
-            age: guestOnboarding.age, 
-            completed: guestOnboarding.completed,
-            health_goals: guestOnboarding.health_goals 
-          });
-          if (!guestOnboarding.completed) {
-            navigate('/onboarding', { replace: true });
-            return;
-          }
-        }
-        if (guestLabResult) {
-          setLabResult(guestLabResult);
-        }
-        return;
-      }
-
       if (!user) return;
 
       const { data: labData } = await supabase
@@ -134,7 +113,7 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     if (authLoading) return;
     
-    if (!user && !isGuest) {
+    if (!user) {
       setLoading(false);
       navigate('/auth', { replace: true });
       return;
@@ -146,7 +125,7 @@ const Dashboard: React.FC = () => {
     }
 
     fetchData();
-  }, [user, authLoading, isGuest]);
+  }, [user, authLoading]);
 
   const handleTutorialComplete = () => {
     localStorage.setItem('longlife-tutorial-seen', 'true');
@@ -280,7 +259,7 @@ const Dashboard: React.FC = () => {
           {/* Dashboard Header */}
           <DashboardHeader 
             lastUpdate={labResult?.upload_date ? new Date(labResult.upload_date).toLocaleDateString() : undefined}
-            isGuest={isGuest}
+            isGuest={false}
           />
 
           {labResult ? (
@@ -466,8 +445,6 @@ const Dashboard: React.FC = () => {
           )}
         </motion.div>
       </main>
-
-      <GuestBanner />
     </div>
   );
 };
