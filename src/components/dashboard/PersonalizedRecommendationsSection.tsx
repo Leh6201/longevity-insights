@@ -56,11 +56,14 @@ const PersonalizedRecommendationsSection: React.FC<PersonalizedRecommendationsSe
     return <Card className="overflow-hidden min-w-0">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between gap-2 min-w-0">
-            <CardTitle className="flex items-center gap-3 text-lg min-w-0 flex-1">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-400 flex items-center justify-center shadow-md shrink-0">
+            <CardTitle className="flex items-start gap-3 text-lg min-w-0 flex-1">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-400 flex items-center justify-center shadow-md shrink-0 mt-0.5">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
-              <span className="truncate">Recomendações Personalizadas</span>
+              <span className="min-w-0 flex-1 leading-tight">
+                <span className="sm:hidden">Recomendações<br />Personalizadas</span>
+                <span className="hidden sm:inline">Recomendações Personalizadas</span>
+              </span>
             </CardTitle>
             
           </div>
@@ -103,11 +106,14 @@ const PersonalizedRecommendationsSection: React.FC<PersonalizedRecommendationsSe
   return <Card className="overflow-hidden min-w-0">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between gap-2 min-w-0">
-          <CardTitle className="flex items-center gap-3 text-lg min-w-0 flex-1">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-400 flex items-center justify-center shadow-md shrink-0">
+          <CardTitle className="flex items-start gap-3 text-lg min-w-0 flex-1">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-400 flex items-center justify-center shadow-md shrink-0 mt-0.5">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <span className="truncate">Recomendações Personalizadas</span>
+            <span className="min-w-0 flex-1 leading-tight">
+              <span className="sm:hidden">Recomendações<br />Personalizadas</span>
+              <span className="hidden sm:inline">Recomendações Personalizadas</span>
+            </span>
           </CardTitle>
           <PremiumBadge />
         </div>
