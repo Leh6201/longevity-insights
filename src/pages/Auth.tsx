@@ -3,11 +3,12 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
+import { useGuest } from '@/contexts/GuestContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dna, Mail, Lock, User, ArrowLeft, Loader2 } from 'lucide-react';
+import { Dna, Mail, Lock, User, ArrowLeft, Loader2, UserX } from 'lucide-react';
 
 type AuthMode = 'signin' | 'signup' | 'forgot';
 
@@ -16,12 +17,17 @@ const Auth: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, signIn, signUp, signInWithGoogle, resetPassword } = useAuth();
+  const { enterGuestMode, exitGuestMode } = useGuest();
   
   const [mode, setMode] = useState<AuthMode>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    exitGuestMode();
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -57,6 +63,11 @@ const Auth: React.FC = () => {
 
   const handleGoogleSignIn = async () => {
     await signInWithGoogle();
+  };
+
+  const handleGuestMode = () => {
+    enterGuestMode();
+    navigate('/onboarding');
   };
 
   return (
@@ -232,6 +243,28 @@ const Auth: React.FC = () => {
                         {t('continueWithFacebook')}
                       </Button>
                     </div>
+
+                    {/* Guest Mode Button */}
+                    <div className="relative my-6">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-border" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-card px-2 text-muted-foreground">
+                          {t('or')}
+                        </span>
+                      </div>
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      onClick={handleGuestMode}
+                    >
+                      <UserX className="w-4 h-4 mr-2" />
+                      {t('enterWithoutLogin')}
+                    </Button>
 
                     <p className="text-center text-sm text-muted-foreground mt-6">
                       {mode === 'signin' ? t('dontHaveAccount') : t('alreadyHaveAccount')}{' '}

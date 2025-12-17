@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
+import { useGuest } from '@/contexts/GuestContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +17,7 @@ const EditProfile: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isGuest, guestOnboarding, setGuestOnboarding } = useGuest();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(false);
@@ -36,12 +38,25 @@ const EditProfile: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!user) {
-      navigate('/auth');
-      return;
+    if (isGuest && guestOnboarding) {
+      setData({
+        age: guestOnboarding.age?.toString() || '',
+        biological_sex: guestOnboarding.biological_sex || '',
+        weight: guestOnboarding.weight?.toString() || '',
+        height: guestOnboarding.height?.toString() || '',
+        training_frequency: guestOnboarding.training_frequency || '',
+        sleep_quality: guestOnboarding.sleep_quality || '',
+        alcohol_consumption: guestOnboarding.alcohol_consumption || '',
+        daily_water_intake: guestOnboarding.daily_water_intake?.toString() || '',
+        mental_health_level: guestOnboarding.mental_health_level || 5,
+        health_goals: guestOnboarding.health_goals || [],
+        current_medications: guestOnboarding.current_medications || '',
+        medical_history: guestOnboarding.medical_history || '',
+      });
+    } else if (user) {
+      fetchData();
     }
-    fetchData();
-  }, [user, navigate]);
+  }, [user, isGuest, guestOnboarding]);
 
   const fetchData = async () => {
     if (!user) return;
@@ -91,10 +106,32 @@ const EditProfile: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!user) return;
     setSaving(true);
 
     try {
+      if (isGuest) {
+        setGuestOnboarding({
+          age: parseInt(data.age) || null,
+          biological_sex: data.biological_sex || null,
+          weight: parseFloat(data.weight) || null,
+          height: parseFloat(data.height) || null,
+          training_frequency: data.training_frequency || null,
+          sleep_quality: data.sleep_quality || null,
+          alcohol_consumption: data.alcohol_consumption || null,
+          daily_water_intake: parseFloat(data.daily_water_intake) || null,
+          mental_health_level: data.mental_health_level,
+          health_goals: data.health_goals,
+          current_medications: data.current_medications || null,
+          medical_history: data.medical_history || null,
+          completed: true,
+        });
+        toast({ title: t('success'), description: t('profileUpdated') });
+        navigate('/dashboard');
+        return;
+      }
+
+      if (!user) return;
+
       const { error } = await supabase
         .from('onboarding_data')
         .update({

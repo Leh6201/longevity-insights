@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
+import { useGuest } from '@/contexts/GuestContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +12,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { ChevronRight, ChevronLeft, User, Activity, Target, FileText, Check, Loader2, ArrowLeft } from 'lucide-react';
-
 const steps = [{
   id: 'basic',
   icon: User
@@ -25,12 +25,23 @@ const steps = [{
   id: 'medical',
   icon: FileText
 }];
-
 const Onboarding: React.FC = () => {
-  const { t } = useTranslation();
+  const {
+    t
+  } = useTranslation();
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { toast } = useToast();
+  const {
+    user
+  } = useAuth();
+  const {
+    isGuest,
+    guestOnboarding,
+    setGuestOnboarding,
+    setShowUpgradePrompt
+  } = useGuest();
+  const {
+    toast
+  } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState({
@@ -47,33 +58,54 @@ const Onboarding: React.FC = () => {
     current_medications: '',
     medical_history: ''
   });
-
   useEffect(() => {
-    if (!user) {
+    if (!user && !isGuest) {
       navigate('/auth');
     }
-  }, [user, navigate]);
-
+  }, [user, isGuest, navigate]);
   const updateData = (field: string, value: any) => {
     setData(prev => ({
       ...prev,
       [field]: value
     }));
   };
-
   const toggleGoal = (goal: string) => {
     setData(prev => ({
       ...prev,
       health_goals: prev.health_goals.includes(goal) ? prev.health_goals.filter(g => g !== goal) : [...prev.health_goals, goal]
     }));
   };
-
   const handleComplete = async () => {
     setLoading(true);
     try {
+      if (isGuest) {
+        setGuestOnboarding({
+          age: parseInt(data.age) || null,
+          biological_sex: data.biological_sex || null,
+          weight: parseFloat(data.weight) || null,
+          height: parseFloat(data.height) || null,
+          training_frequency: data.training_frequency || null,
+          sleep_quality: data.sleep_quality || null,
+          alcohol_consumption: data.alcohol_consumption || null,
+          daily_water_intake: parseFloat(data.daily_water_intake) || null,
+          mental_health_level: data.mental_health_level,
+          health_goals: data.health_goals,
+          current_medications: data.current_medications || null,
+          medical_history: data.medical_history || null,
+          completed: true
+        });
+        setShowUpgradePrompt(true);
+        toast({
+          title: t('success'),
+          description: t('profileSaved')
+        });
+        navigate('/dashboard');
+        return;
+      }
       if (!user) return;
-
-      const { error } = await supabase.from('onboarding_data').update({
+      const {
+        error
+      } = await supabase.from('onboarding_data').update({
         ...data,
         age: parseInt(data.age) || null,
         weight: parseFloat(data.weight) || null,
@@ -81,9 +113,7 @@ const Onboarding: React.FC = () => {
         daily_water_intake: parseFloat(data.daily_water_intake) || null,
         completed: true
       }).eq('user_id', user.id);
-
       if (error) throw error;
-
       toast({
         title: t('success'),
         description: t('profileSaved')
@@ -99,7 +129,6 @@ const Onboarding: React.FC = () => {
       setLoading(false);
     }
   };
-
   const canProceed = () => {
     switch (currentStep) {
       case 0:
@@ -112,60 +141,41 @@ const Onboarding: React.FC = () => {
         return true;
     }
   };
-
   const SelectButton = ({
     value,
     selected,
     onClick,
     children
-  }: any) => (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`p-2 sm:p-3 rounded-xl border-2 transition-all duration-200 text-xs sm:text-sm font-medium whitespace-nowrap flex items-center justify-center text-center w-full ${selected ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:border-primary/50 text-foreground'}`}
-    >
+  }: any) => <button type="button" onClick={onClick} className={`p-2 sm:p-3 rounded-xl border-2 transition-all duration-200 text-xs sm:text-sm font-medium whitespace-nowrap flex items-center justify-center text-center w-full ${selected ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:border-primary/50 text-foreground'}`}>
       {children}
-    </button>
-  );
-
+    </button>;
   const GoalButton = ({
     goal,
     labelKey
   }: {
     goal: string;
     labelKey: string;
-  }) => (
-    <button
-      type="button"
-      onClick={() => toggleGoal(goal)}
-      className={`p-3 sm:p-4 rounded-xl border-2 transition-all duration-200 flex items-center gap-2 sm:gap-3 h-16 sm:h-14 ${data.health_goals.includes(goal) ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}
-    >
+  }) => <button type="button" onClick={() => toggleGoal(goal)} className={`p-3 sm:p-4 rounded-xl border-2 transition-all duration-200 flex items-center gap-2 sm:gap-3 h-16 sm:h-14 ${data.health_goals.includes(goal) ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}>
       <div className={`w-5 h-5 min-w-[20px] min-h-[20px] rounded-full border-2 flex items-center justify-center flex-shrink-0 aspect-square ${data.health_goals.includes(goal) ? 'border-primary bg-primary' : 'border-muted-foreground'}`}>
         {data.health_goals.includes(goal) && <Check className="w-3 h-3 text-primary-foreground" />}
       </div>
       <span className="flex-1 min-w-0 font-medium text-xs sm:text-sm text-left leading-snug whitespace-normal break-normal">{t(labelKey)}</span>
-    </button>
-  );
-
-  return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+    </button>;
+  return <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10" />
       
       {/* Back Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-4 left-4 z-20"
-        onClick={() => navigate(-1)}
-      >
+      <Button variant="ghost" size="icon" className="absolute top-4 left-4 z-20" onClick={() => isGuest ? navigate('/auth') : navigate(-1)}>
         <ArrowLeft className="w-5 h-5" />
       </Button>
       
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-2xl relative z-10"
-      >
+      <motion.div initial={{
+      opacity: 0,
+      y: 20
+    }} animate={{
+      opacity: 1,
+      y: 0
+    }} className="w-full max-w-2xl relative z-10">
         <Card className="glass border-border/50">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-display">{t('onboardingTitle')}</CardTitle>
@@ -174,31 +184,29 @@ const Onboarding: React.FC = () => {
             {/* Progress */}
             <div className="flex justify-center gap-2 mt-6">
               {steps.map((step, idx) => {
-                const Icon = step.icon;
-                return (
-                  <div
-                    key={step.id}
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${idx === currentStep ? 'gradient-primary shadow-glow' : idx < currentStep ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground'}`}
-                  >
+              const Icon = step.icon;
+              return <div key={step.id} className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${idx === currentStep ? 'gradient-primary shadow-glow' : idx < currentStep ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground'}`}>
                     <Icon className="w-5 h-5" />
-                  </div>
-                );
-              })}
+                  </div>;
+            })}
             </div>
           </CardHeader>
 
           <CardContent>
             <AnimatePresence mode="wait">
-              <motion.div
-                key={currentStep}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-6"
-              >
-                {currentStep === 0 && (
-                  <>
+              <motion.div key={currentStep} initial={{
+              opacity: 0,
+              x: 20
+            }} animate={{
+              opacity: 1,
+              x: 0
+            }} exit={{
+              opacity: 0,
+              x: -20
+            }} transition={{
+              duration: 0.3
+            }} className="space-y-6">
+                {currentStep === 0 && <>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>{t('age')}</Label>
@@ -226,39 +234,31 @@ const Onboarding: React.FC = () => {
                         <Input type="number" value={data.height} onChange={e => updateData('height', e.target.value)} placeholder="175" />
                       </div>
                     </div>
-                  </>
-                )}
+                  </>}
 
-                {currentStep === 1 && (
-                  <>
+                {currentStep === 1 && <>
                     <div className="space-y-3">
                       <Label>{t('trainingFrequency')}</Label>
                       <div className="grid grid-cols-4 gap-2">
-                        {['0', '1-2', '3-4', '5+'].map((freq, idx) => (
-                          <SelectButton key={freq} selected={data.training_frequency === freq} onClick={() => updateData('training_frequency', freq)}>
+                        {['0', '1-2', '3-4', '5+'].map((freq, idx) => <SelectButton key={freq} selected={data.training_frequency === freq} onClick={() => updateData('training_frequency', freq)}>
                             {t(`training${idx}` as any)}
-                          </SelectButton>
-                        ))}
+                          </SelectButton>)}
                       </div>
                     </div>
                     <div className="space-y-3">
                       <Label>{t('sleepQuality')}</Label>
                       <div className="grid grid-cols-3 gap-2">
-                        {['poor', 'average', 'good'].map(quality => (
-                          <SelectButton key={quality} selected={data.sleep_quality === quality} onClick={() => updateData('sleep_quality', quality)}>
+                        {['poor', 'average', 'good'].map(quality => <SelectButton key={quality} selected={data.sleep_quality === quality} onClick={() => updateData('sleep_quality', quality)}>
                             {t(`sleep${quality.charAt(0).toUpperCase() + quality.slice(1)}` as any)}
-                          </SelectButton>
-                        ))}
+                          </SelectButton>)}
                       </div>
                     </div>
                     <div className="space-y-3">
                       <Label>{t('alcoholConsumption')}</Label>
                       <div className="grid grid-cols-4 gap-2">
-                        {['none', 'low', 'moderate', 'high'].map(level => (
-                          <SelectButton key={level} selected={data.alcohol_consumption === level} onClick={() => updateData('alcohol_consumption', level)}>
+                        {['none', 'low', 'moderate', 'high'].map(level => <SelectButton key={level} selected={data.alcohol_consumption === level} onClick={() => updateData('alcohol_consumption', level)}>
                             {t(`alcohol${level.charAt(0).toUpperCase() + level.slice(1)}` as any)}
-                          </SelectButton>
-                        ))}
+                          </SelectButton>)}
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -271,11 +271,9 @@ const Onboarding: React.FC = () => {
                         <Input type="number" min={1} max={10} value={data.mental_health_level} onChange={e => updateData('mental_health_level', parseInt(e.target.value))} />
                       </div>
                     </div>
-                  </>
-                )}
+                  </>}
 
-                {currentStep === 2 && (
-                  <div className="space-y-3">
+                {currentStep === 2 && <div className="space-y-3">
                     <Label>{t('selectGoals')}</Label>
                     <div className="grid grid-cols-2 gap-3">
                       <GoalButton goal="lose_weight" labelKey="loseWeight" />
@@ -285,11 +283,9 @@ const Onboarding: React.FC = () => {
                       <GoalButton goal="reduce_blood_sugar" labelKey="reduceBloodSugar" />
                       <GoalButton goal="increase_longevity" labelKey="increaseLongevity" />
                     </div>
-                  </div>
-                )}
+                  </div>}
 
-                {currentStep === 3 && (
-                  <>
+                {currentStep === 3 && <>
                     <div className="space-y-2">
                       <Label>{t('currentMedications')}</Label>
                       <Textarea value={data.current_medications} onChange={e => updateData('current_medications', e.target.value)} placeholder={t('medicationsPlaceholder')} rows={3} />
@@ -298,8 +294,7 @@ const Onboarding: React.FC = () => {
                       <Label>{t('medicalHistoryLabel')}</Label>
                       <Textarea value={data.medical_history} onChange={e => updateData('medical_history', e.target.value)} placeholder={t('medicalHistoryPlaceholder')} rows={3} />
                     </div>
-                  </>
-                )}
+                  </>}
               </motion.div>
             </AnimatePresence>
 
@@ -309,22 +304,16 @@ const Onboarding: React.FC = () => {
                 {t('back')}
               </Button>
 
-              {currentStep < steps.length - 1 ? (
-                <Button onClick={() => setCurrentStep(prev => prev + 1)} disabled={!canProceed()}>
+              {currentStep < steps.length - 1 ? <Button onClick={() => setCurrentStep(prev => prev + 1)} disabled={!canProceed()}>
                   {t('next')}
                   <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              ) : (
-                <Button onClick={handleComplete} disabled={loading}>
+                </Button> : <Button onClick={handleComplete} disabled={loading}>
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : t('complete')}
-                </Button>
-              )}
+                </Button>}
             </div>
           </CardContent>
         </Card>
       </motion.div>
-    </div>
-  );
+    </div>;
 };
-
 export default Onboarding;
