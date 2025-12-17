@@ -75,12 +75,12 @@ const PersonalizedRecommendationsSection: React.FC<PersonalizedRecommendationsSe
     return (
       <Card className="overflow-hidden min-w-0">
         <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-400 flex items-center justify-center shadow-md">
+          <div className="flex items-center justify-between gap-2">
+            <CardTitle className="flex items-center gap-3 text-lg whitespace-nowrap">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-400 flex items-center justify-center shadow-md shrink-0">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
-              Recomendações Personalizadas
+              <span className="truncate">Recomendações Personalizadas</span>
             </CardTitle>
             <PremiumBadge />
           </div>
@@ -130,12 +130,12 @@ const PersonalizedRecommendationsSection: React.FC<PersonalizedRecommendationsSe
   return (
     <Card className="overflow-hidden min-w-0">
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-400 flex items-center justify-center shadow-md">
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle className="flex items-center gap-3 text-lg whitespace-nowrap">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-400 flex items-center justify-center shadow-md shrink-0">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
-            Recomendações Personalizadas
+            <span className="truncate">Recomendações Personalizadas</span>
           </CardTitle>
           <PremiumBadge />
         </div>
