@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
-import { useGuest } from '@/contexts/GuestContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { supabase } from '@/integrations/supabase/client';
 import Navbar from '@/components/layout/Navbar';
@@ -23,7 +22,6 @@ const Settings: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, loading: authLoading, signOut } = useAuth();
-  const { isGuest, exitGuestMode } = useGuest();
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
 
@@ -45,7 +43,7 @@ const Settings: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!authLoading && !user && !isGuest) {
+    if (!authLoading && !user) {
       navigate('/auth');
       return;
     }
@@ -54,7 +52,7 @@ const Settings: React.FC = () => {
       setEmail(user.email || '');
       fetchProfile();
     }
-  }, [user, authLoading, isGuest, navigate]);
+  }, [user, authLoading, navigate]);
 
   const fetchProfile = async () => {
     if (!user) return;
@@ -79,7 +77,7 @@ const Settings: React.FC = () => {
 
   const handleLanguageChange = (lang: string) => {
     setLanguageState(lang);
-    changeLanguage(lang, isGuest);
+    changeLanguage(lang, false);
   };
 
   const handleSave = async () => {
@@ -115,13 +113,8 @@ const Settings: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    if (isGuest) {
-      exitGuestMode();
-      navigate('/auth');
-    } else {
-      await signOut();
-      navigate('/auth');
-    }
+    await signOut();
+    navigate('/auth');
   };
 
   const handleDeleteAccount = () => {
@@ -146,7 +139,6 @@ const Settings: React.FC = () => {
   };
 
   const getUserStatus = () => {
-    if (isGuest) return t('guest');
     return t('free');
   };
 
@@ -180,47 +172,36 @@ const Settings: React.FC = () => {
               <CardDescription>{t('manageAccount')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {!isGuest ? (
-                <>
-                  <div className="space-y-2">
-                    <Label>{t('name')}</Label>
-                    <Input
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="John Doe"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>{t('email')}</Label>
-                    <Input value={email} disabled className="opacity-60" />
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Button 
-                      variant="outline" 
-                      className="flex-1"
-                      onClick={() => navigate('/edit-profile')}
-                    >
-                      <Edit className="w-4 h-4 mr-2" />
-                      {t('editHealthData')}
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="flex-1"
-                      onClick={handleChangePassword}
-                    >
-                      <KeyRound className="w-4 h-4 mr-2" />
-                      {t('changePassword')}
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-muted-foreground mb-4">{t('guestAccountMessage')}</p>
-                  <Button onClick={() => navigate('/auth?mode=signup')}>
-                    {t('createAccount')}
-                  </Button>
-                </div>
-              )}
+              <div className="space-y-2">
+                <Label>{t('name')}</Label>
+                <Input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="John Doe"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>{t('email')}</Label>
+                <Input value={email} disabled className="opacity-60" />
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => navigate('/edit-profile')}
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  {t('editHealthData')}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={handleChangePassword}
+                >
+                  <KeyRound className="w-4 h-4 mr-2" />
+                  {t('changePassword')}
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
@@ -352,28 +333,24 @@ const Settings: React.FC = () => {
           </Card>
 
           {/* Actions */}
-          {!isGuest && (
-            <Button onClick={handleSave} className="w-full" size="lg" disabled={saving}>
-              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              {t('saveChanges')}
-            </Button>
-          )}
+          <Button onClick={handleSave} className="w-full" size="lg" disabled={saving}>
+            {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+            {t('saveChanges')}
+          </Button>
 
           <div className="flex flex-col gap-3">
             <Button variant="outline" onClick={handleLogout} className="w-full">
               <LogOut className="w-4 h-4 mr-2" />
               {t('logout')}
             </Button>
-            {!isGuest && (
-              <Button 
-                variant="ghost" 
-                onClick={handleDeleteAccount} 
-                className="w-full text-destructive hover:text-destructive"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                {t('deleteAccount')}
-              </Button>
-            )}
+            <Button 
+              variant="ghost" 
+              onClick={handleDeleteAccount} 
+              className="w-full text-destructive hover:text-destructive"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              {t('deleteAccount')}
+            </Button>
           </div>
         </motion.div>
       </main>
