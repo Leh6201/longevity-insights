@@ -117,7 +117,7 @@ const PersonalizedRecommendationsSection: React.FC<PersonalizedRecommendationsSe
                   Receba explicações completas sobre seus resultados, impactos na saúde e ações práticas personalizadas.
                 </p>
               </div>
-              <Button className="mt-2">
+              <Button className="w-full mt-3">
                 Ver Planos Premium
               </Button>
             </div>
