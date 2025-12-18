@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
-import { useGuest } from '@/contexts/GuestContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { ChevronRight, ChevronLeft, User, Activity, Target, FileText, Check, Loader2, ArrowLeft } from 'lucide-react';
+
 const steps = [{
   id: 'basic',
   icon: User
@@ -25,23 +25,12 @@ const steps = [{
   id: 'medical',
   icon: FileText
 }];
+
 const Onboarding: React.FC = () => {
-  const {
-    t
-  } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const {
-    user
-  } = useAuth();
-  const {
-    isGuest,
-    guestOnboarding,
-    setGuestOnboarding,
-    setShowUpgradePrompt
-  } = useGuest();
-  const {
-    toast
-  } = useToast();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState({
@@ -58,54 +47,33 @@ const Onboarding: React.FC = () => {
     current_medications: '',
     medical_history: ''
   });
+
   useEffect(() => {
-    if (!user && !isGuest) {
+    if (!user) {
       navigate('/auth');
     }
-  }, [user, isGuest, navigate]);
+  }, [user, navigate]);
+
   const updateData = (field: string, value: any) => {
     setData(prev => ({
       ...prev,
       [field]: value
     }));
   };
+
   const toggleGoal = (goal: string) => {
     setData(prev => ({
       ...prev,
       health_goals: prev.health_goals.includes(goal) ? prev.health_goals.filter(g => g !== goal) : [...prev.health_goals, goal]
     }));
   };
+
   const handleComplete = async () => {
+    if (!user) return;
+    
     setLoading(true);
     try {
-      if (isGuest) {
-        setGuestOnboarding({
-          age: parseInt(data.age) || null,
-          biological_sex: data.biological_sex || null,
-          weight: parseFloat(data.weight) || null,
-          height: parseFloat(data.height) || null,
-          training_frequency: data.training_frequency || null,
-          sleep_quality: data.sleep_quality || null,
-          alcohol_consumption: data.alcohol_consumption || null,
-          daily_water_intake: parseFloat(data.daily_water_intake) || null,
-          mental_health_level: data.mental_health_level,
-          health_goals: data.health_goals,
-          current_medications: data.current_medications || null,
-          medical_history: data.medical_history || null,
-          completed: true
-        });
-        setShowUpgradePrompt(true);
-        toast({
-          title: t('success'),
-          description: t('profileSaved')
-        });
-        navigate('/dashboard');
-        return;
-      }
-      if (!user) return;
-      const {
-        error
-      } = await supabase.from('onboarding_data').update({
+      const { error } = await supabase.from('onboarding_data').update({
         ...data,
         age: parseInt(data.age) || null,
         weight: parseFloat(data.weight) || null,
@@ -113,12 +81,16 @@ const Onboarding: React.FC = () => {
         daily_water_intake: parseFloat(data.daily_water_intake) || null,
         completed: true
       }).eq('user_id', user.id);
+
       if (error) throw error;
+
       toast({
         title: t('success'),
         description: t('profileSaved')
       });
-      navigate('/dashboard');
+
+      // Use hard redirect for production compatibility
+      window.location.href = '/dashboard';
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -165,7 +137,7 @@ const Onboarding: React.FC = () => {
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10" />
       
       {/* Back Button */}
-      <Button variant="ghost" size="icon" className="absolute top-4 left-4 z-20" onClick={() => isGuest ? navigate('/auth') : navigate(-1)}>
+      <Button variant="ghost" size="icon" className="absolute top-4 left-4 z-20" onClick={() => navigate(-1)}>
         <ArrowLeft className="w-5 h-5" />
       </Button>
       
