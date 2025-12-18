@@ -29,7 +29,7 @@ const steps = [{
 const Onboarding: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -48,11 +48,30 @@ const Onboarding: React.FC = () => {
     medical_history: ''
   });
 
+  // Auth gate: wait for auth to finish loading before deciding to redirect.
+  // This prevents /onboarding -> /auth loops on production hard reloads.
   useEffect(() => {
+    if (authLoading) return;
     if (!user) {
-      navigate('/auth');
+      navigate('/auth', { replace: true });
     }
-  }, [user, navigate]);
+  }, [authLoading, user, navigate]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
 
   const updateData = (field: string, value: any) => {
     setData(prev => ({
