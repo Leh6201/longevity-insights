@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,23 +16,48 @@ const Auth: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, signIn, signUp, signInWithGoogle, resetPassword } = useAuth();
+  const { user, loading: authLoading, signIn, signUp, signInWithGoogle, resetPassword } = useAuth();
   
   const [mode, setMode] = useState<AuthMode>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [checkingOnboarding, setCheckingOnboarding] = useState(false);
 
+  // Check onboarding status and redirect accordingly
   useEffect(() => {
-    if (user) {
-      navigate('/dashboard');
+    const checkOnboardingAndRedirect = async () => {
+      if (!user || checkingOnboarding) return;
+      
+      setCheckingOnboarding(true);
+      try {
+        const { data: onboarding } = await supabase
+          .from('onboarding_data')
+          .select('completed')
+          .eq('user_id', user.id)
+          .single();
+
+        // Use hard redirect for production compatibility
+        if (onboarding?.completed) {
+          window.location.href = '/dashboard';
+        } else {
+          window.location.href = '/onboarding';
+        }
+      } catch (error) {
+        // No onboarding data found, redirect to onboarding
+        window.location.href = '/onboarding';
+      }
+    };
+
+    if (user && !authLoading) {
+      checkOnboardingAndRedirect();
     }
-  }, [user, navigate]);
+  }, [user, authLoading, checkingOnboarding]);
 
   useEffect(() => {
     const modeParam = searchParams.get('mode');
-    if (modeParam === 'signup') setMode('signup');
+    if (modeParam === 'signup' || modeParam === 'register') setMode('signup');
   }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,11 +67,10 @@ const Auth: React.FC = () => {
     try {
       if (mode === 'signin') {
         await signIn(email, password);
+        // Redirect will be handled by the useEffect above
       } else if (mode === 'signup') {
-        const { error } = await signUp(email, password, name);
-        if (!error) {
-          navigate('/onboarding');
-        }
+        await signUp(email, password, name);
+        // Redirect will be handled by the useEffect above
       } else if (mode === 'forgot') {
         await resetPassword(email);
         setMode('signin');
@@ -58,6 +83,15 @@ const Auth: React.FC = () => {
   const handleGoogleSignIn = async () => {
     await signInWithGoogle();
   };
+
+  // Show loading while checking auth or onboarding
+  if (authLoading || checkingOnboarding) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">

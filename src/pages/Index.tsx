@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { useGuest } from '@/contexts/GuestContext';
 
 const rotatingPhrases = [
   { prefix: 'Descubra sua', highlight: 'Idade Biológica' },
@@ -32,8 +30,6 @@ import { motion, Variants } from 'framer-motion';
 
 const Index: React.FC = () => {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
-  const { isGuest, enterGuestMode } = useGuest();
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
 
   useEffect(() => {
@@ -42,25 +38,6 @@ const Index: React.FC = () => {
     }, 3000);
     return () => clearInterval(interval);
   }, []);
-
-  useEffect(() => {
-    if (!loading && (user || isGuest)) {
-      navigate('/dashboard', { replace: true });
-    }
-  }, [user, loading, isGuest, navigate]);
-
-  const handleGuestAccess = () => {
-    enterGuestMode();
-    navigate('/onboarding');
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-      </div>
-    );
-  }
 
   // Animation variants
   const fadeInUp: Variants = {
@@ -182,10 +159,10 @@ const Index: React.FC = () => {
               <Button 
                 size="lg" 
                 variant="glass"
-                onClick={handleGuestAccess}
+                onClick={() => navigate('/auth?mode=register')}
                 className="backdrop-blur-xl w-full sm:w-auto"
               >
-                Experimentar Grátis
+                Criar Conta Grátis
               </Button>
             </motion.div>
 
@@ -798,10 +775,10 @@ const Index: React.FC = () => {
                 <Button 
                   size="lg" 
                   variant="outline"
-                  onClick={handleGuestAccess}
+                  onClick={() => navigate('/auth?mode=register')}
                   className="border-primary/30 hover:bg-primary/10 w-full sm:w-auto"
                 >
-                  Testar como Visitante
+                  Criar Conta
                 </Button>
               </div>
             </div>
