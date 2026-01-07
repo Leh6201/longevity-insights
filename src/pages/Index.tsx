@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 const rotatingPhrases = [{
   prefix: 'Descubra sua',
@@ -20,7 +20,12 @@ import { motion, Variants } from 'framer-motion';
 const Index: React.FC = () => {
   const navigate = useNavigate();
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
+  const isFirstRender = useRef(true);
+  
   useEffect(() => {
+    // Mark first render as complete after mount
+    isFirstRender.current = false;
+    
     const interval = setInterval(() => {
       setCurrentPhraseIndex(prev => (prev + 1) % rotatingPhrases.length);
     }, 3000);
@@ -98,7 +103,7 @@ const Index: React.FC = () => {
               <span className="relative inline-block min-h-[1.2em]">
                 <motion.span 
                   key={currentPhraseIndex} 
-                  initial={{ opacity: 0, y: 20 }} 
+                  initial={isFirstRender.current ? false : { opacity: 0, y: 20 }} 
                   animate={{ opacity: 1, y: 0 }} 
                   transition={{ duration: 0.5, ease: "easeOut" }} 
                   className="text-gradient"
@@ -107,7 +112,7 @@ const Index: React.FC = () => {
                 </motion.span>
                 <motion.span 
                   key={`underline-${currentPhraseIndex}`}
-                  initial={{ scaleX: 0 }}
+                  initial={isFirstRender.current ? false : { scaleX: 0 }}
                   animate={{ scaleX: 1 }}
                   transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }} 
                   className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-1 sm:h-1.5 bg-gradient-to-r from-primary via-accent to-primary rounded-full origin-left" 
