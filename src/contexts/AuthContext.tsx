@@ -77,7 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signUp = async (email: string, password: string, name: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${window.location.origin}/onboarding`;
     
     const { error } = await supabase.auth.signUp({
       email,
@@ -91,15 +91,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (error) {
       toast({
         variant: "destructive",
-        title: "Sign up failed",
+        title: i18n.t('signUpFailed'),
         description: error.message,
       });
       return { error };
     }
 
     toast({
-      title: "Account created!",
-      description: "Welcome to LongLife AI",
+      title: i18n.t('accountCreated'),
+      description: i18n.t('welcomeToApp'),
     });
     return { error: null };
   };
@@ -113,7 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (error) {
       toast({
         variant: "destructive",
-        title: "Sign in failed",
+        title: i18n.t('signInFailed'),
         description: error.message,
       });
       return { error };
@@ -126,14 +126,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/`,
+        redirectTo: `${window.location.origin}/auth`,
       },
     });
 
     if (error) {
       toast({
         variant: "destructive",
-        title: "Google sign in failed",
+        title: i18n.t('googleSignInFailed'),
         description: error.message,
       });
       return { error };
@@ -145,8 +145,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     await supabase.auth.signOut();
     toast({
-      title: "Signed out",
-      description: "See you next time!",
+      title: i18n.t('signedOut'),
+      description: i18n.t('seeYouNextTime'),
     });
   };
 
@@ -158,15 +158,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (error) {
       toast({
         variant: "destructive",
-        title: "Reset failed",
+        title: i18n.t('resetFailed'),
         description: error.message,
       });
       return { error };
     }
 
     toast({
-      title: "Check your email",
-      description: "We sent you a password reset link",
+      title: i18n.t('checkYourEmail'),
+      description: i18n.t('resetLinkSent'),
     });
     return { error: null };
   };

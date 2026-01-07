@@ -25,12 +25,20 @@ const Auth: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [checkingOnboarding, setCheckingOnboarding] = useState(false);
 
-  // Check onboarding status and redirect accordingly
+  // Check onboarding status and redirect accordingly after session is confirmed
   useEffect(() => {
     const checkOnboardingAndRedirect = async () => {
-      if (!user || checkingOnboarding) return;
+      if (!user || checkingOnboarding || authLoading) return;
+      
+      // Wait for session to be fully established
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
       
       setCheckingOnboarding(true);
+      
+      // Small delay to ensure session is persisted
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       try {
         const { data: onboarding } = await supabase
           .from('onboarding_data')
