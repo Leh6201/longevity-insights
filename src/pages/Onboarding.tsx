@@ -10,9 +10,12 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { ChevronRight, ChevronLeft, User, Activity, Target, FileText, Check, Loader2, ArrowLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft, User, Activity, Target, FileText, Check, Loader2, ArrowLeft, Smile } from 'lucide-react';
 
 const steps = [{
+  id: 'name',
+  icon: Smile
+}, {
   id: 'basic',
   icon: User
 }, {
@@ -34,6 +37,7 @@ const Onboarding: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState({
+    name: '',
     age: '',
     biological_sex: '',
     weight: '',
@@ -92,12 +96,28 @@ const Onboarding: React.FC = () => {
     
     setLoading(true);
     try {
+      // Save name to profile
+      const { error: profileError } = await supabase.from('profiles').update({
+        name: data.name.trim(),
+        updated_at: new Date().toISOString()
+      }).eq('user_id', user.id);
+
+      if (profileError) throw profileError;
+
+      // Save onboarding data
       const { error } = await supabase.from('onboarding_data').update({
-        ...data,
         age: parseInt(data.age) || null,
+        biological_sex: data.biological_sex,
         weight: parseFloat(data.weight) || null,
         height: parseFloat(data.height) || null,
+        training_frequency: data.training_frequency,
+        sleep_quality: data.sleep_quality,
+        alcohol_consumption: data.alcohol_consumption,
         daily_water_intake: parseFloat(data.daily_water_intake) || null,
+        mental_health_level: data.mental_health_level,
+        health_goals: data.health_goals,
+        current_medications: data.current_medications,
+        medical_history: data.medical_history,
         completed: true
       }).eq('user_id', user.id);
 
@@ -123,10 +143,12 @@ const Onboarding: React.FC = () => {
   const canProceed = () => {
     switch (currentStep) {
       case 0:
-        return data.age && data.biological_sex && data.weight && data.height;
+        return data.name.trim().length > 0;
       case 1:
-        return data.training_frequency && data.sleep_quality && data.alcohol_consumption;
+        return data.age && data.biological_sex && data.weight && data.height;
       case 2:
+        return data.training_frequency && data.sleep_quality && data.alcohol_consumption;
+      case 3:
         return data.health_goals.length > 0;
       default:
         return true;
@@ -169,8 +191,18 @@ const Onboarding: React.FC = () => {
     }} className="w-full max-w-2xl relative z-10">
         <Card className="glass border-border/50">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-display">{t('onboardingTitle')}</CardTitle>
-            <CardDescription>{t(`${steps[currentStep].id}Info` as any) || t('basicInfo')}</CardDescription>
+            <CardTitle className="text-2xl font-display">
+              {currentStep === 0 
+                ? t('whatShouldWeCallYou') 
+                : currentStep === 1 && data.name 
+                  ? t('letsPersonalize', { name: data.name })
+                  : t('onboardingTitle')}
+            </CardTitle>
+            <CardDescription>
+              {currentStep === 0 
+                ? t('namePersonalizationDesc') 
+                : t(`${steps[currentStep].id}Info` as any) || t('basicInfo')}
+            </CardDescription>
             
             {/* Progress */}
             <div className="flex justify-center gap-2 mt-6">
@@ -198,6 +230,21 @@ const Onboarding: React.FC = () => {
               duration: 0.3
             }} className="space-y-6">
                 {currentStep === 0 && <>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>{t('yourName')}</Label>
+                        <Input 
+                          type="text" 
+                          value={data.name} 
+                          onChange={e => updateData('name', e.target.value)} 
+                          placeholder={t('namePlaceholder')}
+                          autoFocus
+                        />
+                      </div>
+                    </div>
+                  </>}
+
+                {currentStep === 1 && <>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>{t('age')}</Label>
@@ -227,7 +274,7 @@ const Onboarding: React.FC = () => {
                     </div>
                   </>}
 
-                {currentStep === 1 && <>
+                {currentStep === 2 && <>
                     <div className="space-y-3">
                       <Label>{t('trainingFrequency')}</Label>
                       <div className="grid grid-cols-4 gap-2">
@@ -264,7 +311,7 @@ const Onboarding: React.FC = () => {
                     </div>
                   </>}
 
-                {currentStep === 2 && <div className="space-y-3">
+                {currentStep === 3 && <div className="space-y-3">
                     <Label>{t('selectGoals')}</Label>
                     <div className="grid grid-cols-2 gap-3">
                       <GoalButton goal="lose_weight" labelKey="loseWeight" />
@@ -276,7 +323,7 @@ const Onboarding: React.FC = () => {
                     </div>
                   </div>}
 
-                {currentStep === 3 && <>
+                {currentStep === 4 && <>
                     <div className="space-y-2">
                       <Label>{t('currentMedications')}</Label>
                       <Textarea value={data.current_medications} onChange={e => updateData('current_medications', e.target.value)} placeholder={t('medicationsPlaceholder')} rows={3} />

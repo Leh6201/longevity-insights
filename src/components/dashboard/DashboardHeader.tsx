@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Activity, MoreVertical } from 'lucide-react';
+import { Activity } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/contexts/AuthContext';
+import { useGuest } from '@/contexts/GuestContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface DashboardHeaderProps {
   lastUpdate?: string;
@@ -13,6 +16,28 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   isGuest = false,
 }) => {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const [userName, setUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUserName = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from('profiles')
+        .select('name')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (data?.name) {
+        setUserName(data.name);
+      }
+    };
+
+    if (!isGuest && user) {
+      fetchUserName();
+    }
+  }, [user, isGuest]);
 
   return (
     <motion.div
@@ -25,7 +50,9 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <Activity className="w-5 h-5 text-primary-foreground" />
         </div>
         <div>
-          <h1 className="font-bold text-foreground">{t('dashboard')}</h1>
+          <h1 className="font-bold text-foreground">
+            {userName ? t('helloUser', { name: userName }) : t('dashboard')}
+          </h1>
           <p className="text-xs text-muted-foreground">
             {lastUpdate ? `${t('updatedAt')} ${lastUpdate}` : t('updatedNow')}
           </p>
