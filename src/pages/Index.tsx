@@ -92,39 +92,26 @@ const Index: React.FC = () => {
             </motion.div>
 
             <motion.h1 variants={fadeInUp} className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-foreground leading-[1.15] tracking-tight px-2">
-              <motion.span key={`prefix-${currentPhraseIndex}`} initial={{
-              opacity: 0
-            }} animate={{
-              opacity: 1
-            }} transition={{
-              duration: 0.3
-            }}>
+              <span className="block">
                 {rotatingPhrases[currentPhraseIndex].prefix}
-              </motion.span>
-              <br />
+              </span>
               <span className="relative inline-block min-h-[1.2em]">
-                <motion.span key={`highlight-${currentPhraseIndex}`} initial={{
-                opacity: 0,
-                y: 20
-              }} animate={{
-                opacity: 1,
-                y: 0
-              }} exit={{
-                opacity: 0,
-                y: -20
-              }} transition={{
-                duration: 0.5,
-                ease: "easeOut"
-              }} className="text-gradient">
+                <motion.span 
+                  key={currentPhraseIndex} 
+                  initial={{ opacity: 0, y: 20 }} 
+                  animate={{ opacity: 1, y: 0 }} 
+                  transition={{ duration: 0.5, ease: "easeOut" }} 
+                  className="text-gradient"
+                >
                   {rotatingPhrases[currentPhraseIndex].highlight}
                 </motion.span>
-                <motion.span animate={{
-                scaleX: [0, 1]
-              }} transition={{
-                delay: 1,
-                duration: 0.8,
-                ease: "easeOut"
-              }} className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-1 sm:h-1.5 bg-gradient-to-r from-primary via-accent to-primary rounded-full origin-left" />
+                <motion.span 
+                  key={`underline-${currentPhraseIndex}`}
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }} 
+                  className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-1 sm:h-1.5 bg-gradient-to-r from-primary via-accent to-primary rounded-full origin-left" 
+                />
               </span>
             </motion.h1>
 
