@@ -53,8 +53,8 @@ const LabUploadCard: React.FC<LabUploadCardProps> = ({ onUploadComplete }) => {
     if (!validTypes.includes(file.type)) {
       toast({
         variant: "destructive",
-        title: "Invalid file type",
-        description: "Please upload a PDF, PNG, or JPG file",
+        title: t('invalidFileType'),
+        description: t('pleaseUploadValidFile'),
       });
       return false;
     }
@@ -104,7 +104,7 @@ const LabUploadCard: React.FC<LabUploadCardProps> = ({ onUploadComplete }) => {
 
           toast({
             title: t('analysisComplete'),
-            description: "Seus biomarcadores foram extraídos com sucesso!",
+            description: t('biomarkersExtracted'),
           });
 
           onUploadComplete();
@@ -113,7 +113,7 @@ const LabUploadCard: React.FC<LabUploadCardProps> = ({ onUploadComplete }) => {
           toast({
             variant: "destructive",
             title: t('error'),
-            description: err.message || "Failed to analyze lab results",
+            description: err.message || t('failedToAnalyze'),
           });
         } finally {
           setAnalyzing(false);
@@ -157,7 +157,7 @@ const LabUploadCard: React.FC<LabUploadCardProps> = ({ onUploadComplete }) => {
               <div className="absolute inset-0 rounded-full animate-pulse-ring border-2 border-primary" />
             </div>
             <p className="mt-4 text-foreground font-medium">{t('analyzing')}</p>
-            <p className="text-sm text-muted-foreground">This may take a moment...</p>
+            <p className="text-sm text-muted-foreground">{t('thisMayTakeMoment')}</p>
           </motion.div>
         ) : (
           <>
@@ -219,7 +219,7 @@ const LabUploadCard: React.FC<LabUploadCardProps> = ({ onUploadComplete }) => {
                 ) : (
                   <Check className="w-4 h-4 mr-2" />
                 )}
-                {uploading ? 'Uploading...' : 'Analyze Lab Results'}
+                {uploading ? t('uploadingFile') : t('analyzeLabResults')}
               </Button>
             )}
           </>
