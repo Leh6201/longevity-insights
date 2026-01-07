@@ -22,6 +22,7 @@ const EditProfile: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [userName, setUserName] = useState('');
   const [data, setData] = useState({
     age: '',
     biological_sex: '',
@@ -63,6 +64,18 @@ const EditProfile: React.FC = () => {
     setLoading(true);
 
     try {
+      // Fetch profile name
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('name')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profileData?.name) {
+        setUserName(profileData.name);
+      }
+
+      // Fetch onboarding data
       const { data: onboardingData } = await supabase
         .from('onboarding_data')
         .select('*')
@@ -132,6 +145,20 @@ const EditProfile: React.FC = () => {
 
       if (!user) return;
 
+      // Save name to profile
+      if (userName.trim()) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({ 
+            name: userName.trim(),
+            updated_at: new Date().toISOString() 
+          })
+          .eq('user_id', user.id);
+
+        if (profileError) throw profileError;
+      }
+
+      // Save onboarding data
       const { error } = await supabase
         .from('onboarding_data')
         .update({
@@ -233,6 +260,15 @@ const EditProfile: React.FC = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>{t('name')}</Label>
+                <Input
+                  type="text"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  placeholder={t('namePlaceholder')}
+                />
+              </div>
               <div className="flex items-center gap-2 p-3 rounded-lg bg-warning/10 border border-warning/20">
                 <AlertTriangle className="w-4 h-4 text-warning" />
                 <p className="text-xs text-warning">{t('ageWarning')}</p>

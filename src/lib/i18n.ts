@@ -5,6 +5,14 @@ import { supabase } from '@/integrations/supabase/client';
 const resources = {
   pt: {
     translation: {
+      // Name Step
+      whatShouldWeCallYou: "Como devemos te chamar?",
+      namePersonalizationDesc: "Este nome será usado para personalizar sua experiência no app.",
+      yourName: "Seu nome",
+      namePlaceholder: "Digite seu nome",
+      helloUser: "Olá, {{name}} 👋",
+      letsPersonalize: "Vamos personalizar sua experiência, {{name}}",
+      
       // Auth
       welcome: "Bem-vindo ao LongLife AI",
       tagline: "Desbloqueie seu potencial de longevidade com insights de saúde baseados em IA",
@@ -36,6 +44,7 @@ const resources = {
       // Onboarding
       onboardingTitle: "Vamos personalizar sua experiência",
       basicInfo: "Informações Básicas",
+      nameInfo: "Vamos começar nos conhecendo melhor",
       lifestyle: "Estilo de Vida e Hábitos",
       healthGoals: "Objetivos de Saúde",
       medicalHistory: "Histórico Médico",
