@@ -97,15 +97,21 @@ const Index: React.FC = () => {
             </motion.div>
 
             <motion.h1 variants={fadeInUp} className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-foreground leading-[1.15] tracking-tight px-2">
-              <span className="block">
+              <motion.span 
+                key={`prefix-${currentPhraseIndex}`}
+                initial={isFirstRender.current ? false : { opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="block"
+              >
                 {rotatingPhrases[currentPhraseIndex].prefix}
-              </span>
+              </motion.span>
               <span className="relative inline-block min-h-[1.2em]">
                 <motion.span 
-                  key={currentPhraseIndex} 
+                  key={`highlight-${currentPhraseIndex}`} 
                   initial={isFirstRender.current ? false : { opacity: 0, y: 20 }} 
                   animate={{ opacity: 1, y: 0 }} 
-                  transition={{ duration: 0.5, ease: "easeOut" }} 
+                  transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }} 
                   className="text-gradient"
                 >
                   {rotatingPhrases[currentPhraseIndex].highlight}
