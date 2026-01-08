@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 const rotatingPhrases = [{
   prefix: 'Descubra sua',
   highlight: 'Idade Biológica'
@@ -13,24 +14,72 @@ const rotatingPhrases = [{
   prefix: 'Descubra sua',
   highlight: 'Saúde Metabólica'
 }];
+
 import { Button } from '@/components/ui/button';
 import BiomarkerRangeIndicator from '@/components/dashboard/BiomarkerRangeIndicator';
 import { Zap, BarChart3, TrendingUp, FileText, Heart, Activity, Brain, Dna, Shield, ArrowRight, ChevronDown, Sparkles, Clock, Target, LineChart } from 'lucide-react';
-import { motion, Variants } from 'framer-motion';
+import { motion, Variants, animate } from 'framer-motion';
+
 const Index: React.FC = () => {
   const navigate = useNavigate();
-  const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
-  const isFirstRender = useRef(true);
-  
+
+  // Keep phrase index in a ref so the heading doesn't re-render/remount.
+  const phraseIndexRef = useRef(0);
+  const isAnimatingRef = useRef(false);
+
+  const prefixRef = useRef<HTMLSpanElement | null>(null);
+  const highlightRef = useRef<HTMLSpanElement | null>(null);
+  const underlineRef = useRef<HTMLSpanElement | null>(null);
+
   useEffect(() => {
-    // Mark first render as complete after mount
-    isFirstRender.current = false;
-    
-    const interval = setInterval(() => {
-      setCurrentPhraseIndex(prev => (prev + 1) % rotatingPhrases.length);
-    }, 3000);
-    return () => clearInterval(interval);
+    const timeouts: number[] = [];
+
+    const setPhrase = (index: number) => {
+      const prefixEl = prefixRef.current;
+      const highlightEl = highlightRef.current;
+
+      if (prefixEl) prefixEl.textContent = rotatingPhrases[index].prefix;
+      if (highlightEl) highlightEl.textContent = rotatingPhrases[index].highlight;
+    };
+
+    // Ensure initial DOM matches the first phrase before starting the loop.
+    setPhrase(phraseIndexRef.current);
+
+    const tick = () => {
+      const prefixEl = prefixRef.current;
+      const highlightEl = highlightRef.current;
+      const underlineEl = underlineRef.current;
+
+      if (!prefixEl || !highlightEl) return;
+      if (isAnimatingRef.current) return;
+      isAnimatingRef.current = true;
+
+      // Never fully hide text to avoid any perceived blink.
+      animate(prefixEl, { opacity: [1, 0.85, 1], y: [0, 6, 0] }, { duration: 0.6, ease: "easeInOut" });
+      animate(highlightEl, { opacity: [1, 0.6, 1], y: [0, 10, 0] }, { duration: 0.6, ease: "easeInOut" });
+      if (underlineEl) {
+        animate(underlineEl, { scaleX: [1, 0.5, 1] }, { duration: 0.6, ease: "easeInOut" });
+      }
+
+      // Swap copy mid-animation without remounting any nodes.
+      timeouts.push(window.setTimeout(() => {
+        phraseIndexRef.current = (phraseIndexRef.current + 1) % rotatingPhrases.length;
+        setPhrase(phraseIndexRef.current);
+      }, 300));
+
+      timeouts.push(window.setTimeout(() => {
+        isAnimatingRef.current = false;
+      }, 650));
+    };
+
+    const intervalId = window.setInterval(tick, 3000);
+
+    return () => {
+      window.clearInterval(intervalId);
+      timeouts.forEach(id => window.clearTimeout(id));
+    };
   }, []);
+
 
   // Animation variants
   const fadeInUp: Variants = {
@@ -97,30 +146,15 @@ const Index: React.FC = () => {
             </motion.div>
 
             <motion.h1 variants={fadeInUp} className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-foreground leading-[1.15] tracking-tight px-2">
-              <motion.span 
-                key={`prefix-${currentPhraseIndex}`}
-                initial={isFirstRender.current ? false : { opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="block"
-              >
-                {rotatingPhrases[currentPhraseIndex].prefix}
-              </motion.span>
+              <span ref={prefixRef} className="block">
+                {rotatingPhrases[phraseIndexRef.current].prefix}
+              </span>
               <span className="relative inline-block min-h-[1.2em]">
-                <motion.span 
-                  key={`highlight-${currentPhraseIndex}`} 
-                  initial={isFirstRender.current ? false : { opacity: 0, y: 20 }} 
-                  animate={{ opacity: 1, y: 0 }} 
-                  transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }} 
-                  className="text-gradient"
-                >
-                  {rotatingPhrases[currentPhraseIndex].highlight}
-                </motion.span>
-                <motion.span 
-                  key={`underline-${currentPhraseIndex}`}
-                  initial={isFirstRender.current ? false : { scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }} 
+                <span ref={highlightRef} className="text-gradient">
+                  {rotatingPhrases[phraseIndexRef.current].highlight}
+                </span>
+                <span 
+                  ref={underlineRef}
                   className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-1 sm:h-1.5 bg-gradient-to-r from-primary via-accent to-primary rounded-full origin-left" 
                 />
               </span>
