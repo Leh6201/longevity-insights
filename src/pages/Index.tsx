@@ -1,19 +1,12 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const rotatingPhrases = [{
-  prefix: 'Descubra sua',
-  highlight: 'Idade Biológica'
-}, {
-  prefix: 'Descubra seus',
-  highlight: 'Riscos de Saúde'
-}, {
-  prefix: 'Descubra seu',
-  highlight: 'Potencial de Longevidade'
-}, {
-  prefix: 'Descubra sua',
-  highlight: 'Saúde Metabólica'
-}];
+const rotatingPhrases = [
+  { prefix: 'Descubra sua', highlight: 'Idade Biológica' },
+  { prefix: 'Descubra seus', highlight: 'Riscos de Saúde' },
+  { prefix: 'Descubra seu', highlight: 'Potencial de Longevidade' },
+  { prefix: 'Descubra sua', highlight: 'Saúde Metabólica' }
+];
 
 import { Button } from '@/components/ui/button';
 import BiomarkerRangeIndicator from '@/components/dashboard/BiomarkerRangeIndicator';
@@ -23,27 +16,31 @@ import { motion, Variants, animate } from 'framer-motion';
 const Index: React.FC = () => {
   const navigate = useNavigate();
 
-  // Keep phrase index in a ref so the heading doesn't re-render/remount.
+  // Use state ONLY for initial SSR-safe render, then refs take over
+  const [isMounted, setIsMounted] = useState(false);
   const phraseIndexRef = useRef(0);
   const isAnimatingRef = useRef(false);
-
   const prefixRef = useRef<HTMLSpanElement | null>(null);
   const highlightRef = useRef<HTMLSpanElement | null>(null);
   const underlineRef = useRef<HTMLSpanElement | null>(null);
 
+  // Mark as mounted after first render to enable animations
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Animation loop - only runs after mount
+  useEffect(() => {
+    if (!isMounted) return;
+
     const timeouts: number[] = [];
 
     const setPhrase = (index: number) => {
       const prefixEl = prefixRef.current;
       const highlightEl = highlightRef.current;
-
       if (prefixEl) prefixEl.textContent = rotatingPhrases[index].prefix;
       if (highlightEl) highlightEl.textContent = rotatingPhrases[index].highlight;
     };
-
-    // Ensure initial DOM matches the first phrase before starting the loop.
-    setPhrase(phraseIndexRef.current);
 
     const tick = () => {
       const prefixEl = prefixRef.current;
@@ -54,51 +51,45 @@ const Index: React.FC = () => {
       if (isAnimatingRef.current) return;
       isAnimatingRef.current = true;
 
-      // Never fully hide text to avoid any perceived blink.
-      animate(prefixEl, { opacity: [1, 0.85, 1], y: [0, 6, 0] }, { duration: 0.6, ease: "easeInOut" });
-      animate(highlightEl, { opacity: [1, 0.6, 1], y: [0, 10, 0] }, { duration: 0.6, ease: "easeInOut" });
+      // Subtle animation - never drop below 0.7 opacity to prevent any flash
+      animate(prefixEl, { opacity: [1, 0.7, 1], y: [0, 4, 0] }, { duration: 0.5, ease: "easeInOut" });
+      animate(highlightEl, { opacity: [1, 0.7, 1], y: [0, 6, 0] }, { duration: 0.5, ease: "easeInOut" });
       if (underlineEl) {
-        animate(underlineEl, { scaleX: [1, 0.5, 1] }, { duration: 0.6, ease: "easeInOut" });
+        animate(underlineEl, { scaleX: [1, 0.6, 1] }, { duration: 0.5, ease: "easeInOut" });
       }
 
-      // Swap copy mid-animation without remounting any nodes.
+      // Swap text at mid-point of animation
       timeouts.push(window.setTimeout(() => {
         phraseIndexRef.current = (phraseIndexRef.current + 1) % rotatingPhrases.length;
         setPhrase(phraseIndexRef.current);
-      }, 300));
+      }, 250));
 
       timeouts.push(window.setTimeout(() => {
         isAnimatingRef.current = false;
-      }, 650));
+      }, 550));
     };
 
-    const intervalId = window.setInterval(tick, 3000);
+    const intervalId = window.setInterval(tick, 3500);
 
     return () => {
       window.clearInterval(intervalId);
       timeouts.forEach(id => window.clearTimeout(id));
     };
-  }, []);
-
+  }, [isMounted]);
 
   // Animation variants
   const fadeInUp: Variants = {
-    hidden: {
-      opacity: 0,
-      y: 40
-    },
-    visible: {
-      opacity: 1,
-      y: 0
-    }
+    hidden: { opacity: 0, y: 40 },
+    visible: { opacity: 1, y: 0 }
   };
   const staggerChildren: Variants = {
-    visible: {
-      transition: {
-        staggerChildren: 0.15
-      }
-    }
+    visible: { transition: { staggerChildren: 0.15 } }
   };
+
+  // Static initial values - guaranteed to match between server and client
+  const initialPrefix = rotatingPhrases[0].prefix;
+  const initialHighlight = rotatingPhrases[0].highlight;
+
   return <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center px-4 py-20 overflow-hidden">
@@ -146,16 +137,25 @@ const Index: React.FC = () => {
             </motion.div>
 
             <motion.h1 variants={fadeInUp} className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-foreground leading-[1.15] tracking-tight px-2">
-              <span ref={prefixRef} className="block">
-                {rotatingPhrases[phraseIndexRef.current].prefix}
+              <span 
+                ref={prefixRef} 
+                className="block"
+                style={{ opacity: 1 }}
+              >
+                {initialPrefix}
               </span>
               <span className="relative inline-block min-h-[1.2em]">
-                <span ref={highlightRef} className="text-gradient">
-                  {rotatingPhrases[phraseIndexRef.current].highlight}
+                <span 
+                  ref={highlightRef} 
+                  className="text-gradient"
+                  style={{ opacity: 1 }}
+                >
+                  {initialHighlight}
                 </span>
                 <span 
                   ref={underlineRef}
-                  className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-1 sm:h-1.5 bg-gradient-to-r from-primary via-accent to-primary rounded-full origin-left" 
+                  className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-1 sm:h-1.5 bg-gradient-to-r from-primary via-accent to-primary rounded-full origin-left"
+                  style={{ transform: 'scaleX(1)' }}
                 />
               </span>
             </motion.h1>
