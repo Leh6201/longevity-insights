@@ -136,7 +136,7 @@ const Index: React.FC = () => {
               </span>
             </motion.div>
 
-            <motion.h1 variants={fadeInUp} className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-foreground leading-[1.15] tracking-tight px-2">
+            <motion.h1 variants={fadeInUp} translate="no" className="notranslate text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-foreground leading-[1.15] tracking-tight px-2">
               <span 
                 ref={prefixRef} 
                 className="block"
