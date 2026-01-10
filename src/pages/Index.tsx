@@ -508,7 +508,7 @@ const Index: React.FC = () => {
                 <span className="text-sm font-medium text-primary">Monitoramento Contínuo</span>
               </div>
 
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.15]">
+              <h2 translate="no" className="notranslate text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.15]">
                 Acompanhe sua
                 <br />
                 <span className="text-gradient">evolução</span>
