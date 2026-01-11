@@ -444,25 +444,7 @@ const Dashboard: React.FC = () => {
               </div>
             </>
           ) : (
-            <div className="grid lg:grid-cols-2 gap-6">
-              <LabUploadCard onUploadComplete={fetchData} />
-              <PremiumOverlay isPremiumUser={false}>
-                <Card className="rounded-2xl shadow-card">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">{t('advancedAnalytics')}</CardTitle>
-                      <PremiumBadge />
-                    </div>
-                    <CardDescription>{t('premiumAnalyticsDesc')}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-32 flex items-center justify-center text-muted-foreground">
-                      {t('unlockAdvancedFeatures')}
-                    </div>
-                  </CardContent>
-                </Card>
-              </PremiumOverlay>
-            </div>
+            <LabUploadCard onUploadComplete={fetchData} />
           )}
         </motion.div>
       </main>
