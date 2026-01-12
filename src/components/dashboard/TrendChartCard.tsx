@@ -1,12 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendingUp, TrendingDown, HelpCircle } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface TrendChartCardProps {
   title: string;
   change: number;
   data: number[];
   delay?: number;
+  infoText?: string;
 }
 
 const TrendChartCard: React.FC<TrendChartCardProps> = ({
@@ -14,6 +16,7 @@ const TrendChartCard: React.FC<TrendChartCardProps> = ({
   change,
   data,
   delay = 0,
+  infoText,
 }) => {
   const isPositive = change > 0;
   const maxValue = Math.max(...data);
@@ -31,7 +34,26 @@ const TrendChartCard: React.FC<TrendChartCardProps> = ({
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
             <TrendingUp className="w-5 h-5 text-primary" />
           </div>
-          <span className="font-semibold text-foreground">{title}</span>
+          <div className="flex items-center gap-1.5">
+            <span className="font-semibold text-foreground">{title}</span>
+            {infoText && (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button 
+                    className="inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-muted/80 transition-colors"
+                    aria-label={`Info about ${title}`}
+                  >
+                    <HelpCircle className="w-3 h-3 text-muted-foreground" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-3" align="start" side="top">
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {infoText}
+                  </p>
+                </PopoverContent>
+              </Popover>
+            )}
+          </div>
         </div>
         <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${
           isPositive ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'
