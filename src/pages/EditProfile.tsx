@@ -238,7 +238,7 @@ const EditProfile: React.FC = () => {
     <div className="min-h-screen bg-background">
       <header className="fixed top-0 left-0 right-0 z-50 h-16 border-b border-border/50 bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto h-full flex items-center px-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <h1 className="ml-4 text-lg font-semibold">{t('editHealthData')}</h1>
