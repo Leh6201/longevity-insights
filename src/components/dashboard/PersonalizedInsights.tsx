@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { 
@@ -9,7 +10,8 @@ import {
   Heart, 
   Scale,
   Brain,
-  Wine
+  Wine,
+  ChevronRight
 } from 'lucide-react';
 
 interface OnboardingData {
@@ -33,17 +35,19 @@ interface Insight {
   icon: React.ReactNode;
   text: string;
   type: 'positive' | 'neutral' | 'attention';
+  navigateTo: string;
 }
 
 const PersonalizedInsights: React.FC<PersonalizedInsightsProps> = ({ onboardingData }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   if (!onboardingData) return null;
 
   const generateInsights = (): Insight[] => {
     const insights: Insight[] = [];
     const { 
-      age, weight, height, daily_water_intake, mental_health_level, 
+      weight, height, daily_water_intake, mental_health_level, 
       health_goals, training_frequency, sleep_quality, alcohol_consumption 
     } = onboardingData;
 
@@ -56,48 +60,55 @@ const PersonalizedInsights: React.FC<PersonalizedInsightsProps> = ({ onboardingD
         insights.push({
           icon: <Scale className="w-4 h-4" />,
           text: t('insightUnderweight'),
-          type: 'attention'
+          type: 'attention',
+          navigateTo: '/edit-profile'
         });
       } else if (bmi >= 18.5 && bmi < 25) {
         insights.push({
           icon: <Scale className="w-4 h-4" />,
           text: t('insightHealthyWeight'),
-          type: 'positive'
+          type: 'positive',
+          navigateTo: '/edit-profile'
         });
       } else if (bmi >= 25 && bmi < 30) {
         insights.push({
           icon: <Scale className="w-4 h-4" />,
           text: t('insightOverweight'),
-          type: 'attention'
+          type: 'attention',
+          navigateTo: '/edit-profile'
         });
       } else if (bmi >= 30) {
         insights.push({
           icon: <Scale className="w-4 h-4" />,
           text: t('insightObesity'),
-          type: 'attention'
+          type: 'attention',
+          navigateTo: '/edit-profile'
         });
       }
     }
 
     // Hydration insight
-    if (daily_water_intake !== null) {
+    if (daily_water_intake !== null && daily_water_intake !== undefined) {
       if (daily_water_intake >= 2) {
         insights.push({
           icon: <Droplets className="w-4 h-4" />,
           text: t('insightGoodHydration'),
-          type: 'positive'
+          type: 'positive',
+          navigateTo: '/edit-profile'
         });
       } else if (daily_water_intake >= 1.5) {
         insights.push({
           icon: <Droplets className="w-4 h-4" />,
           text: t('insightModerateHydration'),
-          type: 'neutral'
+          type: 'neutral',
+          navigateTo: '/edit-profile'
         });
       } else {
         insights.push({
           icon: <Droplets className="w-4 h-4" />,
           text: t('insightLowHydration'),
-          type: 'attention'
+          type: 'attention',
+          navigateTo: '/edit-profile'
         });
       }
     }
@@ -108,19 +119,22 @@ const PersonalizedInsights: React.FC<PersonalizedInsightsProps> = ({ onboardingD
         insights.push({
           icon: <Moon className="w-4 h-4" />,
           text: t('insightGoodSleep'),
-          type: 'positive'
+          type: 'positive',
+          navigateTo: '/edit-profile'
         });
       } else if (sleep_quality === 'average') {
         insights.push({
           icon: <Moon className="w-4 h-4" />,
           text: t('insightAverageSleep'),
-          type: 'neutral'
+          type: 'neutral',
+          navigateTo: '/edit-profile'
         });
       } else if (sleep_quality === 'poor') {
         insights.push({
           icon: <Moon className="w-4 h-4" />,
           text: t('insightPoorSleep'),
-          type: 'attention'
+          type: 'attention',
+          navigateTo: '/edit-profile'
         });
       }
     }
@@ -131,48 +145,55 @@ const PersonalizedInsights: React.FC<PersonalizedInsightsProps> = ({ onboardingD
         insights.push({
           icon: <Dumbbell className="w-4 h-4" />,
           text: t('insightHighActivity'),
-          type: 'positive'
+          type: 'positive',
+          navigateTo: '/edit-profile'
         });
       } else if (training_frequency === '3-4') {
         insights.push({
           icon: <Dumbbell className="w-4 h-4" />,
           text: t('insightModerateActivity'),
-          type: 'positive'
+          type: 'positive',
+          navigateTo: '/edit-profile'
         });
       } else if (training_frequency === '1-2') {
         insights.push({
           icon: <Dumbbell className="w-4 h-4" />,
           text: t('insightLowActivity'),
-          type: 'neutral'
+          type: 'neutral',
+          navigateTo: '/edit-profile'
         });
       } else if (training_frequency === '0') {
         insights.push({
           icon: <Dumbbell className="w-4 h-4" />,
           text: t('insightNoActivity'),
-          type: 'attention'
+          type: 'attention',
+          navigateTo: '/edit-profile'
         });
       }
     }
 
     // Mental health insight
-    if (mental_health_level !== null) {
+    if (mental_health_level !== null && mental_health_level !== undefined) {
       if (mental_health_level >= 8) {
         insights.push({
           icon: <Brain className="w-4 h-4" />,
           text: t('insightGreatMentalHealth'),
-          type: 'positive'
+          type: 'positive',
+          navigateTo: '/edit-profile'
         });
       } else if (mental_health_level >= 5) {
         insights.push({
           icon: <Brain className="w-4 h-4" />,
           text: t('insightModerateMentalHealth'),
-          type: 'neutral'
+          type: 'neutral',
+          navigateTo: '/edit-profile'
         });
       } else {
         insights.push({
           icon: <Brain className="w-4 h-4" />,
           text: t('insightLowMentalHealth'),
-          type: 'attention'
+          type: 'attention',
+          navigateTo: '/edit-profile'
         });
       }
     }
@@ -183,13 +204,15 @@ const PersonalizedInsights: React.FC<PersonalizedInsightsProps> = ({ onboardingD
         insights.push({
           icon: <Wine className="w-4 h-4" />,
           text: t('insightNoAlcohol'),
-          type: 'positive'
+          type: 'positive',
+          navigateTo: '/edit-profile'
         });
       } else if (alcohol_consumption === 'high') {
         insights.push({
           icon: <Wine className="w-4 h-4" />,
           text: t('insightHighAlcohol'),
-          type: 'attention'
+          type: 'attention',
+          navigateTo: '/edit-profile'
         });
       }
     }
@@ -210,7 +233,8 @@ const PersonalizedInsights: React.FC<PersonalizedInsightsProps> = ({ onboardingD
         insights.push({
           icon: <Heart className="w-4 h-4" />,
           text: goalMap[goalKey],
-          type: 'neutral'
+          type: 'neutral',
+          navigateTo: '/edit-profile'
         });
       }
     }
@@ -234,6 +258,10 @@ const PersonalizedInsights: React.FC<PersonalizedInsightsProps> = ({ onboardingD
     }
   };
 
+  const handleClick = (path: string) => {
+    navigate(path);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -248,20 +276,22 @@ const PersonalizedInsights: React.FC<PersonalizedInsightsProps> = ({ onboardingD
       
       <div className="space-y-2">
         {insights.map((insight, index) => (
-          <motion.div
+          <motion.button
             key={index}
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 * index }}
-            className="flex items-start gap-3 py-2 px-3 rounded-lg bg-muted/30 border border-border/50"
+            onClick={() => handleClick(insight.navigateTo)}
+            className="w-full flex items-center gap-3 py-2.5 px-3 rounded-lg bg-muted/30 border border-border/50 hover:bg-muted/50 hover:border-border transition-colors text-left group"
           >
             <span className={getTypeStyles(insight.type)}>
               {insight.icon}
             </span>
-            <p className="text-sm text-foreground/80 leading-relaxed">
+            <p className="text-sm text-foreground/80 leading-relaxed flex-1">
               {insight.text}
             </p>
-          </motion.div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+          </motion.button>
         ))}
       </div>
     </motion.div>
