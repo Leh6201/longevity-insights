@@ -116,14 +116,14 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ onboardingData }) => {
 
   const getGoalIcon = (goal: string) => {
     const icons: Record<string, React.ReactNode> = {
-      'lose_weight': <Scale className="w-3.5 h-3.5" />,
-      'improve_energy': <Sparkles className="w-3.5 h-3.5" />,
-      'improve_sleep': <Moon className="w-3.5 h-3.5" />,
-      'reduce_cholesterol': <Heart className="w-3.5 h-3.5" />,
-      'reduce_blood_sugar': <Droplets className="w-3.5 h-3.5" />,
-      'increase_longevity': <Target className="w-3.5 h-3.5" />,
+      'lose_weight': <Scale className="w-3.5 h-3.5 text-orange-500" />,
+      'improve_energy': <Sparkles className="w-3.5 h-3.5 text-yellow-500" />,
+      'improve_sleep': <Moon className="w-3.5 h-3.5 text-indigo-500" />,
+      'reduce_cholesterol': <Heart className="w-3.5 h-3.5 text-red-500" />,
+      'reduce_blood_sugar': <Droplets className="w-3.5 h-3.5 text-blue-500" />,
+      'increase_longevity': <Target className="w-3.5 h-3.5 text-emerald-500" />,
     };
-    return icons[goal] || <Target className="w-3.5 h-3.5" />;
+    return icons[goal] || <Target className="w-3.5 h-3.5 text-muted-foreground" />;
   };
 
   // Define consistent display order for goals
