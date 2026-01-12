@@ -284,19 +284,29 @@ const EditProfile: React.FC = () => {
                 </div>
                 <div className="space-y-2">
                   <Label>{t('biologicalSex')}</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <SelectButton
-                      selected={data.biological_sex === 'male'}
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
                       onClick={() => updateData('biological_sex', 'male')}
+                      className={`px-3 py-1.5 rounded-full border text-sm font-medium whitespace-nowrap transition-all duration-200 ${
+                        data.biological_sex === 'male'
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border hover:border-primary/50 text-muted-foreground hover:text-foreground'
+                      }`}
                     >
                       {t('male')}
-                    </SelectButton>
-                    <SelectButton
-                      selected={data.biological_sex === 'female'}
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => updateData('biological_sex', 'female')}
+                      className={`px-3 py-1.5 rounded-full border text-sm font-medium whitespace-nowrap transition-all duration-200 ${
+                        data.biological_sex === 'female'
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border hover:border-primary/50 text-muted-foreground hover:text-foreground'
+                      }`}
                     >
                       {t('female')}
-                    </SelectButton>
+                    </button>
                   </div>
                 </div>
               </div>
