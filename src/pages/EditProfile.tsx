@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Loader2, User, Activity, Target, FileText, AlertTriangle, Check } from 'lucide-react';
+import { OptionGroup } from '@/components/ui/option-group';
 
 const EditProfile: React.FC = () => {
   const { t } = useTranslation();
@@ -193,19 +194,31 @@ const EditProfile: React.FC = () => {
     }
   };
 
-  const SelectButton = ({ value, selected, onClick, children }: any) => (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`p-3 rounded-xl border-2 transition-all duration-200 text-sm font-medium ${
-        selected
-          ? 'border-primary bg-primary/10 text-primary'
-          : 'border-border hover:border-primary/50 text-foreground'
-      }`}
-    >
-      {children}
-    </button>
-  );
+  // Option configurations for OptionGroup
+  const biologicalSexOptions = [
+    { value: 'male' as const, label: t('male') },
+    { value: 'female' as const, label: t('female') },
+  ];
+
+  const trainingFrequencyOptions = [
+    { value: '0' as const, label: t('training0') },
+    { value: '1-2' as const, label: t('training1') },
+    { value: '3-4' as const, label: t('training2') },
+    { value: '5+' as const, label: t('training3') },
+  ];
+
+  const sleepQualityOptions = [
+    { value: 'poor' as const, label: t('sleepPoor') },
+    { value: 'average' as const, label: t('sleepAverage') },
+    { value: 'good' as const, label: t('sleepGood') },
+  ];
+
+  const alcoholConsumptionOptions = [
+    { value: 'none' as const, label: t('alcoholNone') },
+    { value: 'low' as const, label: t('alcoholLow') },
+    { value: 'moderate' as const, label: t('alcoholModerate') },
+    { value: 'high' as const, label: t('alcoholHigh') },
+  ];
 
   const GoalButton = ({ goal, labelKey }: { goal: string; labelKey: string }) => (
     <button
@@ -284,30 +297,11 @@ const EditProfile: React.FC = () => {
                 </div>
                 <div className="space-y-2">
                   <Label>{t('biologicalSex')}</Label>
-                  <div className="inline-grid gap-2">
-                    <button
-                      type="button"
-                      onClick={() => updateData('biological_sex', 'male')}
-                      className={`px-3 py-1.5 rounded-full border text-sm font-medium whitespace-nowrap transition-all duration-200 text-center ${
-                        data.biological_sex === 'male'
-                          ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-border hover:border-primary/50 text-muted-foreground hover:text-foreground'
-                      }`}
-                    >
-                      {t('male')}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => updateData('biological_sex', 'female')}
-                      className={`px-3 py-1.5 rounded-full border text-sm font-medium whitespace-nowrap transition-all duration-200 text-center ${
-                        data.biological_sex === 'female'
-                          ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-border hover:border-primary/50 text-muted-foreground hover:text-foreground'
-                      }`}
-                    >
-                      {t('female')}
-                    </button>
-                  </div>
+                  <OptionGroup
+                    options={biologicalSexOptions}
+                    value={data.biological_sex}
+                    onChange={(value) => updateData('biological_sex', value)}
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -342,45 +336,27 @@ const EditProfile: React.FC = () => {
             <CardContent className="space-y-4">
               <div className="space-y-3">
                 <Label>{t('trainingFrequency')}</Label>
-                <div className="grid grid-cols-4 gap-2">
-                  {['0', '1-2', '3-4', '5+'].map((freq, idx) => (
-                    <SelectButton
-                      key={freq}
-                      selected={data.training_frequency === freq}
-                      onClick={() => updateData('training_frequency', freq)}
-                    >
-                      {t(`training${idx}` as any)}
-                    </SelectButton>
-                  ))}
-                </div>
+                <OptionGroup
+                  options={trainingFrequencyOptions}
+                  value={data.training_frequency}
+                  onChange={(value) => updateData('training_frequency', value)}
+                />
               </div>
               <div className="space-y-3">
                 <Label>{t('sleepQuality')}</Label>
-                <div className="grid grid-cols-3 gap-2">
-                  {['poor', 'average', 'good'].map((quality) => (
-                    <SelectButton
-                      key={quality}
-                      selected={data.sleep_quality === quality}
-                      onClick={() => updateData('sleep_quality', quality)}
-                    >
-                      {t(`sleep${quality.charAt(0).toUpperCase() + quality.slice(1)}` as any)}
-                    </SelectButton>
-                  ))}
-                </div>
+                <OptionGroup
+                  options={sleepQualityOptions}
+                  value={data.sleep_quality}
+                  onChange={(value) => updateData('sleep_quality', value)}
+                />
               </div>
               <div className="space-y-3">
                 <Label>{t('alcoholConsumption')}</Label>
-                <div className="grid grid-cols-4 gap-2">
-                  {['none', 'low', 'moderate', 'high'].map((level) => (
-                    <SelectButton
-                      key={level}
-                      selected={data.alcohol_consumption === level}
-                      onClick={() => updateData('alcohol_consumption', level)}
-                    >
-                      {t(`alcohol${level.charAt(0).toUpperCase() + level.slice(1)}` as any)}
-                    </SelectButton>
-                  ))}
-                </div>
+                <OptionGroup
+                  options={alcoholConsumptionOptions}
+                  value={data.alcohol_consumption}
+                  onChange={(value) => updateData('alcohol_consumption', value)}
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
