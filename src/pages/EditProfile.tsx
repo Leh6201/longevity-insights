@@ -224,18 +224,18 @@ const EditProfile: React.FC = () => {
     <button
       type="button"
       onClick={() => toggleGoal(goal)}
-      className={`p-4 rounded-xl border-2 transition-all duration-200 flex items-center gap-3 ${
+      className={`h-20 p-3 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-center gap-2 ${
         data.health_goals.includes(goal)
           ? 'border-primary bg-primary/10'
           : 'border-border hover:border-primary/50'
       }`}
     >
-      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
         data.health_goals.includes(goal) ? 'border-primary bg-primary' : 'border-muted-foreground'
       }`}>
         {data.health_goals.includes(goal) && <Check className="w-3 h-3 text-primary-foreground" />}
       </div>
-      <span className="font-medium">{t(labelKey)}</span>
+      <span className="font-medium text-sm text-center leading-tight line-clamp-2">{t(labelKey)}</span>
     </button>
   );
 
