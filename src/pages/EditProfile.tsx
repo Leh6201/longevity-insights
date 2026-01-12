@@ -224,7 +224,7 @@ const EditProfile: React.FC = () => {
     <button
       type="button"
       onClick={() => toggleGoal(goal)}
-      className={`min-h-24 p-3 rounded-xl border-2 transition-all duration-200 flex flex-col items-center justify-center gap-2 ${
+      className={`h-16 p-3 rounded-xl border-2 transition-all duration-200 flex items-center gap-3 ${
         data.health_goals.includes(goal)
           ? 'border-primary bg-primary/10'
           : 'border-border hover:border-primary/50'
@@ -235,7 +235,7 @@ const EditProfile: React.FC = () => {
       }`}>
         {data.health_goals.includes(goal) && <Check className="w-3 h-3 text-primary-foreground" />}
       </div>
-      <span className="font-medium text-sm text-center leading-snug">{t(labelKey)}</span>
+      <span className="font-medium text-sm leading-snug text-left">{t(labelKey)}</span>
     </button>
   );
 
