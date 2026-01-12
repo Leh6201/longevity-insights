@@ -20,9 +20,9 @@ const DashboardBottomNav: React.FC<DashboardBottomNavProps> = ({ activeTab, onTa
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-t border-border safe-area-pb">
-      <div className="w-full px-4 safe-area-x">
-        <div className="flex items-center justify-center h-16 max-w-md mx-auto">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-t border-border">
+      <div className="w-full h-16 px-safe">
+        <div className="flex items-center h-full max-w-sm mx-auto">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             const Icon = tab.icon;
@@ -31,7 +31,7 @@ const DashboardBottomNav: React.FC<DashboardBottomNavProps> = ({ activeTab, onTa
               <button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className="relative flex flex-col items-center justify-center flex-1 h-full px-2 transition-colors"
+                className="relative flex flex-col items-center justify-center flex-1 h-full min-w-0 transition-colors"
               >
                 {isActive && (
                   <motion.div
@@ -57,6 +57,7 @@ const DashboardBottomNav: React.FC<DashboardBottomNavProps> = ({ activeTab, onTa
           })}
         </div>
       </div>
+      <div className="h-safe-area-inset-bottom bg-background/95" />
     </nav>
   );
 };
