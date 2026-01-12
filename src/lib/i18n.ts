@@ -346,6 +346,17 @@ const resources = {
       viewDetails: "Ver Detalhes",
       totalExams: "{{count}} exame(s) no histórico",
       failedToAnalyze: "Falha ao analisar resultados do exame",
+      
+      // Dashboard Tabs
+      tabSummary: "Resumo",
+      tabInsights: "Insights",
+      tabProfile: "Perfil",
+      
+      // Insights Tab
+      insightsDescription: "Entenda o que seus dados significam para sua saúde",
+      noInsightsYet: "Complete seu perfil para receber insights personalizados",
+      priorityFocus: "Foco Principal",
+      updateYourInfo: "Atualize suas informações de saúde",
     },
   },
 };
