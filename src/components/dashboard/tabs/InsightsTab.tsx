@@ -116,14 +116,32 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ onboardingData }) => {
 
   const getGoalIcon = (goal: string) => {
     const icons: Record<string, React.ReactNode> = {
-      'lose_weight': <Scale className="w-4 h-4" />,
-      'improve_energy': <Sparkles className="w-4 h-4" />,
-      'improve_sleep': <Moon className="w-4 h-4" />,
-      'reduce_cholesterol': <Heart className="w-4 h-4" />,
-      'reduce_blood_sugar': <Droplets className="w-4 h-4" />,
-      'increase_longevity': <Target className="w-4 h-4" />,
+      'lose_weight': <Scale className="w-3.5 h-3.5" />,
+      'improve_energy': <Sparkles className="w-3.5 h-3.5" />,
+      'improve_sleep': <Moon className="w-3.5 h-3.5" />,
+      'reduce_cholesterol': <Heart className="w-3.5 h-3.5" />,
+      'reduce_blood_sugar': <Droplets className="w-3.5 h-3.5" />,
+      'increase_longevity': <Target className="w-3.5 h-3.5" />,
     };
-    return icons[goal] || <Target className="w-4 h-4" />;
+    return icons[goal] || <Target className="w-3.5 h-3.5" />;
+  };
+
+  // Define consistent display order for goals
+  const goalDisplayOrder = [
+    'improve_sleep',
+    'lose_weight',
+    'improve_energy',
+    'reduce_blood_sugar',
+    'reduce_cholesterol',
+    'increase_longevity',
+  ];
+
+  const getSortedGoals = (goals: string[]) => {
+    return [...goals].sort((a, b) => {
+      const indexA = goalDisplayOrder.indexOf(a);
+      const indexB = goalDisplayOrder.indexOf(b);
+      return indexA - indexB;
+    });
   };
 
   const generateInsights = (): CalculatedInsight[] => {
@@ -479,7 +497,7 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ onboardingData }) => {
           </CardHeader>
           <CardContent className="pt-0">
             <div className="flex flex-wrap gap-1.5">
-              {onboardingData.health_goals.map((goal, index) => (
+              {getSortedGoals(onboardingData.health_goals).map((goal, index) => (
                 <motion.div
                   key={goal}
                   initial={{ opacity: 0, scale: 0.9 }}
