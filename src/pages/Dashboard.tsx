@@ -23,8 +23,8 @@ import ExamsHistoryCard from '@/components/dashboard/ExamsHistoryCard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { AlertCircle, Sparkles, RefreshCw, Share2, Activity, Loader2, FolderOpen, HelpCircle } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { AlertCircle, Sparkles, RefreshCw, Share2, Activity, Loader2, FolderOpen } from 'lucide-react';
+
 import { useToast } from '@/hooks/use-toast';
 import { generateHealthReport } from '@/lib/generateHealthReport';
 
@@ -298,46 +298,7 @@ const Dashboard: React.FC = () => {
               {/* Biomarker Progress Bars */}
               <Card className="rounded-2xl shadow-card">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    {t('biomarkers')}
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <button 
-                          className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-muted hover:bg-muted/80 transition-colors"
-                          aria-label={t('biomarkersInfoTitle')}
-                        >
-                          <HelpCircle className="w-3.5 h-3.5 text-muted-foreground" />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-80 p-4" align="start">
-                        <div className="space-y-3">
-                          <h4 className="font-semibold text-sm text-foreground">
-                            {t('biomarkersInfoTitle')}
-                          </h4>
-                          <p className="text-xs text-muted-foreground leading-relaxed">
-                            {t('biomarkersInfoDescription')}
-                          </p>
-                          <div className="space-y-2 pt-1">
-                            <p className="text-xs text-foreground/80">
-                              <span className="font-medium text-primary">•</span> {t('biomarkersGlucoseInfo')}
-                            </p>
-                            <p className="text-xs text-foreground/80">
-                              <span className="font-medium text-primary">•</span> {t('biomarkersCholesterolInfo')}
-                            </p>
-                            <p className="text-xs text-foreground/80">
-                              <span className="font-medium text-primary">•</span> {t('biomarkersHDLInfo')}
-                            </p>
-                            <p className="text-xs text-foreground/80">
-                              <span className="font-medium text-primary">•</span> {t('biomarkersLDLInfo')}
-                            </p>
-                          </div>
-                          <p className="text-xs text-primary font-medium pt-2 border-t border-border">
-                            {t('biomarkersImportance')}
-                          </p>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                  </CardTitle>
+                  <CardTitle className="text-lg">{t('biomarkers')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <BiomarkerProgressCard
@@ -345,30 +306,35 @@ const Dashboard: React.FC = () => {
                     percentage={calculateBiomarkerPercentage(labResult.glucose, 70, 126)}
                     isNormal={isInRange(labResult.glucose, 70, 100)}
                     delay={0}
+                    infoText={t('glucoseInfo')}
                   />
                   <BiomarkerProgressCard
                     name={t('totalCholesterol')}
                     percentage={calculateBiomarkerPercentage(labResult.total_cholesterol, 0, 300)}
                     isNormal={isInRange(labResult.total_cholesterol, 0, 200)}
                     delay={0.1}
+                    infoText={t('cholesterolInfo')}
                   />
                   <BiomarkerProgressCard
                     name={t('hemoglobin')}
                     percentage={calculateBiomarkerPercentage(labResult.hemoglobin, 10, 20)}
                     isNormal={isInRange(labResult.hemoglobin, 12, 17)}
                     delay={0.2}
+                    infoText={t('hemoglobinInfo')}
                   />
                   <BiomarkerProgressCard
                     name="HDL"
                     percentage={calculateBiomarkerPercentage(labResult.hdl, 20, 100)}
                     isNormal={isInRange(labResult.hdl, 40, 100)}
                     delay={0.3}
+                    infoText={t('hdlInfo')}
                   />
                   <BiomarkerProgressCard
                     name="LDL"
                     percentage={calculateBiomarkerPercentage(labResult.ldl, 0, 200)}
                     isNormal={isInRange(labResult.ldl, 0, 100)}
                     delay={0.4}
+                    infoText={t('ldlInfo')}
                   />
                 </CardContent>
               </Card>
