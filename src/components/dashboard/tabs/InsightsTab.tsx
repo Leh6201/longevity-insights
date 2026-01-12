@@ -502,11 +502,14 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ onboardingData }) => {
                   key={goal}
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.05 }}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ delay: index * 0.05, type: "spring", stiffness: 400, damping: 17 }}
+                  className="cursor-pointer"
                 >
                   <Badge 
                     variant="secondary" 
-                    className="px-2 py-1 text-xs flex items-center gap-1.5 bg-primary/10 text-primary border-primary/20"
+                    className="px-2 py-1 text-xs flex items-center gap-1.5 bg-primary/10 text-primary border-primary/20 transition-shadow duration-200 hover:shadow-md"
                   >
                     {getGoalIcon(goal)}
                     {getGoalLabel(goal)}
