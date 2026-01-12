@@ -3,16 +3,7 @@ import { motion } from 'framer-motion';
 import { Activity } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
-import { useGuest } from '@/contexts/GuestContext';
 import { supabase } from '@/integrations/supabase/client';
-import InsightChips from './InsightChips';
-
-interface OnboardingData {
-  daily_water_intake: number | null;
-  health_goals: string[] | null;
-  weight: number | null;
-  height: number | null;
-}
 
 interface DashboardHeaderProps {
   lastUpdate?: string;
@@ -25,48 +16,27 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 }) => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { guestOnboarding } = useGuest();
   const [userName, setUserName] = useState<string | null>(null);
-  const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (isGuest && guestOnboarding) {
-        setOnboardingData({
-          daily_water_intake: guestOnboarding.daily_water_intake,
-          health_goals: guestOnboarding.health_goals,
-          weight: guestOnboarding.weight,
-          height: guestOnboarding.height,
-        });
-        return;
-      }
-      
+    const fetchUserName = async () => {
       if (!user) return;
       
-      const [profileResult, onboardingResult] = await Promise.all([
-        supabase
-          .from('profiles')
-          .select('name')
-          .eq('user_id', user.id)
-          .single(),
-        supabase
-          .from('onboarding_data')
-          .select('daily_water_intake, health_goals, weight, height')
-          .eq('user_id', user.id)
-          .single()
-      ]);
+      const { data } = await supabase
+        .from('profiles')
+        .select('name')
+        .eq('user_id', user.id)
+        .single();
       
-      if (profileResult.data?.name) {
-        setUserName(profileResult.data.name);
-      }
-      
-      if (onboardingResult.data) {
-        setOnboardingData(onboardingResult.data);
+      if (data?.name) {
+        setUserName(data.name);
       }
     };
 
-    fetchUserData();
-  }, [user, isGuest, guestOnboarding]);
+    if (!isGuest && user) {
+      fetchUserName();
+    }
+  }, [user, isGuest]);
 
   return (
     <motion.div
@@ -85,7 +55,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <p className="text-xs text-muted-foreground">
             {lastUpdate ? `${t('updatedAt')} ${lastUpdate}` : t('updatedNow')}
           </p>
-          <InsightChips onboardingData={onboardingData} />
         </div>
       </div>
       

@@ -267,14 +267,18 @@ const resources = {
       updatedAt: "Atualizado em",
       updatedNow: "Atualizado agora",
       
-      // Insight Chips
-      increaseWaterIntake: "Aumentar hidratação",
-      goodWaterIntake: "Boa hidratação",
+      // Profile Summary
+      profileSummary: "Resumo do Perfil",
+      primaryGoal: "Objetivo principal",
+      bmiStatus: "Status IMC",
+      hydration: "Hidratação",
+      increaseWaterIntake: "Aumentar ingestão",
+      goodWaterIntake: "Adequada",
       healthFocus: "Foco na saúde",
-      bmiUnderweight: "IMC: Abaixo do peso",
-      bmiNormal: "IMC: Normal",
-      bmiOverweight: "IMC: Sobrepeso",
-      bmiObese: "IMC: Atenção",
+      bmiUnderweight: "Abaixo do peso",
+      bmiNormal: "Normal",
+      bmiOverweight: "Sobrepeso",
+      bmiObese: "Atenção",
       glucoseMetabolism: "Metabolismo da Glicose",
       
       // Health Goals (snake_case keys from database)

@@ -19,6 +19,7 @@ import BiomarkerRangeCard from '@/components/dashboard/BiomarkerRangeCard';
 import TrendChartCard from '@/components/dashboard/TrendChartCard';
 import QuickRecommendationCard from '@/components/dashboard/QuickRecommendationCard';
 import PersonalizedRecommendationsSection from '@/components/dashboard/PersonalizedRecommendationsSection';
+import ProfileSummary from '@/components/dashboard/ProfileSummary';
 import ExamsHistoryCard from '@/components/dashboard/ExamsHistoryCard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -55,6 +56,9 @@ interface OnboardingData {
   age: number | null;
   completed: boolean;
   health_goals?: string[];
+  daily_water_intake?: number | null;
+  weight?: number | null;
+  height?: number | null;
 }
 
 const Dashboard: React.FC = () => {
@@ -79,7 +83,10 @@ const Dashboard: React.FC = () => {
           setOnboarding({ 
             age: guestOnboarding.age, 
             completed: guestOnboarding.completed,
-            health_goals: guestOnboarding.health_goals 
+            health_goals: guestOnboarding.health_goals,
+            daily_water_intake: guestOnboarding.daily_water_intake,
+            weight: guestOnboarding.weight,
+            height: guestOnboarding.height,
           });
           if (!guestOnboarding.completed) {
             navigate('/onboarding', { replace: true });
@@ -116,7 +123,7 @@ const Dashboard: React.FC = () => {
 
       const { data: onboardingData } = await supabase
         .from('onboarding_data')
-        .select('age, completed, health_goals')
+        .select('age, completed, health_goals, daily_water_intake, weight, height')
         .eq('user_id', user.id)
         .single();
 
@@ -293,6 +300,16 @@ const Dashboard: React.FC = () => {
                 biologicalAge={labResult.biological_age}
                 riskLevel={labResult.metabolic_risk_score as 'low' | 'moderate' | 'high' | null}
                 recommendationsCount={labResult.ai_recommendations?.length || 0}
+              />
+
+              {/* Profile Summary */}
+              <ProfileSummary 
+                onboardingData={onboarding ? {
+                  daily_water_intake: onboarding.daily_water_intake ?? null,
+                  health_goals: onboarding.health_goals ?? null,
+                  weight: onboarding.weight ?? null,
+                  height: onboarding.height ?? null,
+                } : null}
               />
 
               {/* Biomarker Progress Bars */}
