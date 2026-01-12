@@ -114,6 +114,18 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ onboardingData }) => {
     return goalLabels[goal] || goal;
   };
 
+  const getGoalDescription = (goal: string) => {
+    const descriptions: Record<string, string> = {
+      'lose_weight': t('goalDescLoseWeight', 'Foco em alcançar um peso saudável através de alimentação equilibrada e exercícios regulares'),
+      'improve_energy': t('goalDescImproveEnergy', 'Aumentar seus níveis de energia diária com hábitos saudáveis e boa nutrição'),
+      'improve_sleep': t('goalDescImproveSleep', 'Melhorar a qualidade e duração do sono para recuperação e bem-estar'),
+      'reduce_cholesterol': t('goalDescReduceCholesterol', 'Reduzir níveis de colesterol para melhor saúde cardiovascular'),
+      'reduce_blood_sugar': t('goalDescReduceBloodSugar', 'Controlar e estabilizar os níveis de glicose no sangue'),
+      'increase_longevity': t('goalDescIncreaseLongevity', 'Adotar hábitos que promovam uma vida longa e saudável'),
+    };
+    return descriptions[goal] || '';
+  };
+
   const getGoalIcon = (goal: string) => {
     const icons: Record<string, React.ReactNode> = {
       'lose_weight': <Scale className="w-3.5 h-3.5 text-orange-500" />,
@@ -497,25 +509,33 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ onboardingData }) => {
           </CardHeader>
           <CardContent className="pt-0">
             <div className="flex flex-wrap gap-1.5">
-              {getSortedGoals(onboardingData.health_goals).map((goal, index) => (
-                <motion.div
-                  key={goal}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ delay: index * 0.05, type: "spring", stiffness: 400, damping: 17 }}
-                  className="cursor-pointer"
-                >
-                  <Badge 
-                    variant="secondary" 
-                    className="px-2 py-1 text-xs flex items-center gap-1.5 bg-primary/10 text-primary border-primary/20 transition-shadow duration-200 hover:shadow-md"
-                  >
-                    {getGoalIcon(goal)}
-                    {getGoalLabel(goal)}
-                  </Badge>
-                </motion.div>
-              ))}
+              <TooltipProvider delayDuration={200}>
+                {getSortedGoals(onboardingData.health_goals).map((goal, index) => (
+                  <Tooltip key={goal}>
+                    <TooltipTrigger asChild>
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                        transition={{ delay: index * 0.05, type: "spring", stiffness: 400, damping: 17 }}
+                        className="cursor-pointer"
+                      >
+                        <Badge 
+                          variant="secondary" 
+                          className="px-2 py-1 text-xs flex items-center gap-1.5 bg-primary/10 text-primary border-primary/20 transition-shadow duration-200 hover:shadow-md"
+                        >
+                          {getGoalIcon(goal)}
+                          {getGoalLabel(goal)}
+                        </Badge>
+                      </motion.div>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-[200px] text-center">
+                      <p className="text-xs">{getGoalDescription(goal)}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
+              </TooltipProvider>
             </div>
           </CardContent>
         </Card>
