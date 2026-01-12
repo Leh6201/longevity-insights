@@ -266,6 +266,15 @@ const resources = {
       actions: "Ações",
       updatedAt: "Atualizado em",
       updatedNow: "Atualizado agora",
+      
+      // Insight Chips
+      increaseWaterIntake: "Aumentar hidratação",
+      goodWaterIntake: "Boa hidratação",
+      healthFocus: "Foco na saúde",
+      bmiUnderweight: "IMC: Abaixo do peso",
+      bmiNormal: "IMC: Normal",
+      bmiOverweight: "IMC: Sobrepeso",
+      bmiObese: "IMC: Atenção",
       glucoseMetabolism: "Metabolismo da Glicose",
       
       // Health Goals (snake_case keys from database)
