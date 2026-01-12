@@ -66,7 +66,7 @@ const resources = {
       alcoholConsumption: "Consumo de Álcool",
       alcoholNone: "Nenhum",
       alcoholLow: "Baixo",
-      alcoholModerate: "Moderado",
+      alcoholModerate: "Médio",
       alcoholHigh: "Alto",
       dailyWater: "Consumo Diário de Água (L)",
       mentalHealth: "Nível de Saúde Mental (1-10)",
