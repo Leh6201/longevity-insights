@@ -496,7 +496,7 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ onboardingData }) => {
             <CardDescription>{t('goalsDriverDescription')}</CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="flex flex-wrap gap-1.5">
+            <div className="grid grid-cols-2 gap-1.5">
               {getSortedGoals(onboardingData.health_goals).map((goal, index) => (
                 <motion.div
                   key={goal}
