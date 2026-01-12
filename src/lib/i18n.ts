@@ -372,6 +372,7 @@ const resources = {
       
       // Insight Categories
       insightCategoryBmi: "IMC",
+      insightCategoryBmiTooltip: "Índice de Massa Corporal",
       insightCategoryHydration: "Hidratação",
       insightCategorySleep: "Qualidade do Sono",
       insightCategoryActivity: "Atividade Física",
