@@ -396,51 +396,46 @@ const Dashboard: React.FC = () => {
               />
 
               {/* Upload & Actions */}
-              <div className="grid lg:grid-cols-2 gap-6 overflow-hidden">
+              <div className="grid lg:grid-cols-2 gap-6">
                 <LabUploadCard onUploadComplete={fetchData} />
 
                 {/* Actions Card */}
-                <PremiumOverlay isPremiumUser={false}>
-                  <Card className="rounded-2xl shadow-card">
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          <Activity className="w-5 h-5" />
-                          {t('actions')}
-                        </CardTitle>
-                        <PremiumBadge />
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <Button 
-                        className="w-full" 
-                        variant="outline"
-                        onClick={handleReanalyze}
-                        disabled={reanalyzing}
-                      >
-                        {reanalyzing ? (
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        ) : (
-                          <RefreshCw className="w-4 h-4 mr-2" />
-                        )}
-                        {t('reanalyze')}
-                      </Button>
-                      <Button 
-                        className="w-full" 
-                        variant="outline"
-                        onClick={handleShare}
-                      >
-                        <Share2 className="w-4 h-4 mr-2" />
-                        {t('shareWithDoctor')}
-                      </Button>
-                      {labResult.upload_date && (
-                        <p className="text-xs text-muted-foreground text-center">
-                          {t('lastAnalysis')}: {new Date(labResult.upload_date).toLocaleDateString()}
-                        </p>
+                <Card className="rounded-2xl shadow-card">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Activity className="w-5 h-5" />
+                      {t('actions')}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <Button 
+                      className="w-full" 
+                      variant="outline"
+                      onClick={handleReanalyze}
+                      disabled={reanalyzing}
+                    >
+                      {reanalyzing ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <RefreshCw className="w-4 h-4 mr-2" />
                       )}
-                    </CardContent>
-                  </Card>
-                </PremiumOverlay>
+                      {t('reanalyze')}
+                    </Button>
+                    <Button 
+                      className="w-full" 
+                      variant="outline"
+                      onClick={handleShare}
+                    >
+                      <Share2 className="w-4 h-4 mr-2" />
+                      {t('shareWithDoctor')}
+                    </Button>
+                    {labResult.upload_date && (
+                      <p className="text-xs text-muted-foreground text-center">
+                        {t('lastAnalysis')}: {new Date(labResult.upload_date).toLocaleDateString()}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
             </>
           ) : (
