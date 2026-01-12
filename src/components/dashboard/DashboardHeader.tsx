@@ -58,18 +58,11 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         </div>
       </div>
       
-      <div className="flex items-center gap-2">
-        {isGuest && (
-          <span className="px-2 py-1 rounded-full bg-muted text-muted-foreground text-xs">
-            {t('guestMode')}
-          </span>
-        )}
-        <div className="flex gap-1">
-          <div className="w-2 h-2 rounded-full bg-primary" />
-          <div className="w-2 h-2 rounded-full bg-warning" />
-          <div className="w-2 h-2 rounded-full bg-destructive" />
-        </div>
-      </div>
+      {isGuest && (
+        <span className="px-2 py-1 rounded-full bg-muted text-muted-foreground text-xs">
+          {t('guestMode')}
+        </span>
+      )}
     </motion.div>
   );
 };

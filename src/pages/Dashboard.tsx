@@ -19,12 +19,11 @@ import BiomarkerRangeCard from '@/components/dashboard/BiomarkerRangeCard';
 import TrendChartCard from '@/components/dashboard/TrendChartCard';
 import QuickRecommendationCard from '@/components/dashboard/QuickRecommendationCard';
 import PersonalizedRecommendationsSection from '@/components/dashboard/PersonalizedRecommendationsSection';
-import ProfileSummary from '@/components/dashboard/ProfileSummary';
 import ExamsHistoryCard from '@/components/dashboard/ExamsHistoryCard';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { AlertCircle, Sparkles, RefreshCw, Share2, Activity, Loader2, FolderOpen } from 'lucide-react';
+import { Sparkles, RefreshCw, Share2, Activity, Loader2, FolderOpen } from 'lucide-react';
 
 import { useToast } from '@/hooks/use-toast';
 import { generateHealthReport } from '@/lib/generateHealthReport';
@@ -279,14 +278,8 @@ const Dashboard: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
+          className="space-y-8"
         >
-          {/* Disclaimer */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-warning/5 border border-warning/10">
-            <AlertCircle className="w-3.5 h-3.5 text-warning/70 shrink-0" />
-            <p className="text-xs text-warning/70">{t('disclaimer')}</p>
-          </div>
-
           {/* Dashboard Header */}
           <DashboardHeader 
             lastUpdate={labResult?.upload_date ? new Date(labResult.upload_date).toLocaleDateString() : undefined}
@@ -300,16 +293,6 @@ const Dashboard: React.FC = () => {
                 biologicalAge={labResult.biological_age}
                 riskLevel={labResult.metabolic_risk_score as 'low' | 'moderate' | 'high' | null}
                 recommendationsCount={labResult.ai_recommendations?.length || 0}
-              />
-
-              {/* Profile Summary */}
-              <ProfileSummary 
-                onboardingData={onboarding ? {
-                  daily_water_intake: onboarding.daily_water_intake ?? null,
-                  health_goals: onboarding.health_goals ?? null,
-                  weight: onboarding.weight ?? null,
-                  height: onboarding.height ?? null,
-                } : null}
               />
 
               {/* Biomarker Progress Bars */}
