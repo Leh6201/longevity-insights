@@ -1,11 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { HelpCircle } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface BiomarkerProgressCardProps {
   name: string;
   percentage: number;
   isNormal: boolean;
   delay?: number;
+  infoText?: string;
 }
 
 const BiomarkerProgressCard: React.FC<BiomarkerProgressCardProps> = ({
@@ -13,6 +16,7 @@ const BiomarkerProgressCard: React.FC<BiomarkerProgressCardProps> = ({
   percentage,
   isNormal,
   delay = 0,
+  infoText,
 }) => {
   return (
     <motion.div
@@ -25,6 +29,23 @@ const BiomarkerProgressCard: React.FC<BiomarkerProgressCardProps> = ({
         <div className="flex items-center gap-2">
           <div className={`w-2 h-2 rounded-full ${isNormal ? 'bg-primary' : 'bg-warning'}`} />
           <span className="text-sm font-medium text-foreground">{name}</span>
+          {infoText && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button 
+                  className="inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-muted/80 transition-colors"
+                  aria-label={`Info about ${name}`}
+                >
+                  <HelpCircle className="w-3 h-3 text-muted-foreground" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-3" align="start" side="top">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {infoText}
+                </p>
+              </PopoverContent>
+            </Popover>
+          )}
         </div>
         <span className={`text-sm font-semibold ${isNormal ? 'text-primary' : 'text-warning'}`}>
           {percentage}%
