@@ -19,6 +19,7 @@ import BiomarkerRangeCard from '@/components/dashboard/BiomarkerRangeCard';
 import TrendChartCard from '@/components/dashboard/TrendChartCard';
 import QuickRecommendationCard from '@/components/dashboard/QuickRecommendationCard';
 import PersonalizedRecommendationsSection from '@/components/dashboard/PersonalizedRecommendationsSection';
+import PersonalizedInsights from '@/components/dashboard/PersonalizedInsights';
 import ExamsHistoryCard from '@/components/dashboard/ExamsHistoryCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -54,10 +55,15 @@ interface LabResult {
 interface OnboardingData {
   age: number | null;
   completed: boolean;
-  health_goals?: string[];
+  health_goals?: string[] | null;
   daily_water_intake?: number | null;
   weight?: number | null;
   height?: number | null;
+  mental_health_level?: number | null;
+  training_frequency?: string | null;
+  sleep_quality?: string | null;
+  alcohol_consumption?: string | null;
+  biological_sex?: string | null;
 }
 
 const Dashboard: React.FC = () => {
@@ -86,6 +92,11 @@ const Dashboard: React.FC = () => {
             daily_water_intake: guestOnboarding.daily_water_intake,
             weight: guestOnboarding.weight,
             height: guestOnboarding.height,
+            mental_health_level: guestOnboarding.mental_health_level,
+            training_frequency: guestOnboarding.training_frequency,
+            sleep_quality: guestOnboarding.sleep_quality,
+            alcohol_consumption: guestOnboarding.alcohol_consumption,
+            biological_sex: guestOnboarding.biological_sex,
           });
           if (!guestOnboarding.completed) {
             navigate('/onboarding', { replace: true });
@@ -122,9 +133,9 @@ const Dashboard: React.FC = () => {
 
       const { data: onboardingData } = await supabase
         .from('onboarding_data')
-        .select('age, completed, health_goals, daily_water_intake, weight, height')
+        .select('age, completed, health_goals, daily_water_intake, weight, height, mental_health_level, training_frequency, sleep_quality, alcohol_consumption, biological_sex')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (onboardingData) {
         setOnboarding(onboardingData);
@@ -294,6 +305,9 @@ const Dashboard: React.FC = () => {
                 riskLevel={labResult.metabolic_risk_score as 'low' | 'moderate' | 'high' | null}
                 recommendationsCount={labResult.ai_recommendations?.length || 0}
               />
+
+              {/* Personalized Insights */}
+              <PersonalizedInsights onboardingData={onboarding} />
 
               {/* Biomarker Progress Bars */}
               <Card className="rounded-2xl shadow-card">
