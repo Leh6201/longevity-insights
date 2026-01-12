@@ -22,6 +22,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface OnboardingData {
   age?: number | null;
@@ -42,6 +43,7 @@ interface InsightsTabProps {
 
 interface CalculatedInsight {
   category: string;
+  categoryTooltip?: string;
   categoryIcon: React.ReactNode;
   reportedValue: string;
   calculatedValue?: string;
@@ -171,6 +173,7 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ onboardingData }) => {
 
       insights.push({
         category: t('insightCategoryBmi'),
+        categoryTooltip: t('insightCategoryBmiTooltip'),
         categoryIcon: <Scale className="w-5 h-5" />,
         reportedValue: `${weight} kg, ${height} cm`,
         calculatedValue: `IMC ${bmiValue} (${t(bmiData.statusKey)})`,
@@ -527,9 +530,24 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ onboardingData }) => {
                         <div className={styles.icon}>
                           {insight.categoryIcon}
                         </div>
-                        <span className="font-semibold text-foreground">
-                          {insight.category}
-                        </span>
+                        {insight.categoryTooltip ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="font-semibold text-foreground cursor-help underline decoration-dotted underline-offset-2">
+                                  {insight.category}
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{insight.categoryTooltip}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : (
+                          <span className="font-semibold text-foreground">
+                            {insight.category}
+                          </span>
+                        )}
                       </div>
                       <div className="flex items-center gap-2">
                         <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${styles.badge}`}>
