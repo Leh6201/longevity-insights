@@ -352,11 +352,94 @@ const resources = {
       tabInsights: "Insights",
       tabProfile: "Perfil",
       
-      // Insights Tab
+      // Insights Tab - Enhanced
       insightsDescription: "Entenda o que seus dados significam para sua saúde",
       noInsightsYet: "Complete seu perfil para receber insights personalizados",
-      priorityFocus: "Foco Principal",
+      priorityFocus: "Áreas de Atenção",
+      priorityFocusDescription: "Estes pontos merecem sua atenção prioritária",
       updateYourInfo: "Atualize suas informações de saúde",
+      goalsDriverDescription: "Seus insights são personalizados com base nestes objetivos",
+      calculatedInsights: "Análise Personalizada",
+      calculatedInsightsDescription: "Insights calculados a partir dos seus dados de saúde",
+      
+      // Insight Labels
+      insightReported: "Informado",
+      insightCalculated: "Calculado",
+      insightRecommended: "Recomendado",
+      insightDay: "dia",
+      insightYears: "anos",
+      insightRelatedTo: "Relacionado a",
+      
+      // Insight Categories
+      insightCategoryBmi: "Índice de Massa Corporal",
+      insightCategoryHydration: "Hidratação",
+      insightCategorySleep: "Qualidade do Sono",
+      insightCategoryActivity: "Atividade Física",
+      insightCategoryMentalHealth: "Saúde Mental",
+      insightCategoryAlcohol: "Consumo de Álcool",
+      insightCategoryAge: "Considerações pela Idade",
+      
+      // BMI Status Labels
+      bmiStatusUnderweight: "Abaixo do peso",
+      bmiStatusNormal: "Peso saudável",
+      bmiStatusOverweight: "Sobrepeso",
+      bmiStatusObese: "Obesidade",
+      
+      // BMI Insights
+      insightBmiUnderweightInterpretation: "Seu IMC indica que seu peso está abaixo do recomendado para sua altura.",
+      insightBmiUnderweightReason: "O peso abaixo do ideal pode afetar sua energia, imunidade e saúde óssea. Considere consultar um nutricionista para um plano alimentar adequado.",
+      insightBmiNormalInterpretation: "Seu IMC está dentro da faixa saudável, indicando um bom equilíbrio entre peso e altura.",
+      insightBmiNormalReason: "Manter o peso saudável reduz riscos de doenças cardiovasculares e metabólicas. Continue com seus hábitos positivos.",
+      insightBmiOverweightInterpretation: "Seu IMC indica sobrepeso, o que significa que há uma quantidade de gordura corporal acima do ideal.",
+      insightBmiOverweightReason: "O sobrepeso pode aumentar o risco de problemas como pressão alta, diabetes e doenças cardíacas. Pequenas mudanças na alimentação e atividade física podem fazer grande diferença.",
+      insightBmiObeseInterpretation: "Seu IMC indica obesidade, uma condição que requer atenção para sua saúde geral.",
+      insightBmiObeseReason: "A obesidade está associada a diversos riscos de saúde. Recomendamos buscar orientação de profissionais de saúde para um plano personalizado.",
+      
+      // Hydration Insights
+      insightHydrationAdequateInterpretation: "Sua ingestão de água atende ou supera a recomendação calculada para seu peso.",
+      insightHydrationAdequateReason: "Manter-se bem hidratado melhora a função cognitiva, digestão, e ajuda a eliminar toxinas do corpo.",
+      insightHydrationModerateInterpretation: "Sua ingestão de água está um pouco abaixo do ideal para seu peso corporal.",
+      insightHydrationModerateReason: "Tente aumentar gradualmente sua ingestão de água ao longo do dia para melhorar energia e concentração.",
+      insightHydrationLowInterpretation: "Sua ingestão de água está significativamente abaixo da recomendação para seu peso.",
+      insightHydrationLowReason: "A desidratação pode causar fadiga, dores de cabeça e afetar sua concentração. Considere usar lembretes para beber água.",
+      insightHydrationAgeReason: "Com a idade, a sensação de sede diminui naturalmente. É importante manter um hábito regular de hidratação mesmo sem sentir sede.",
+      insightHydrationAgeLowReason: "Após os 50 anos, a hidratação adequada é ainda mais importante para a saúde renal e função cognitiva. Estabeleça uma rotina de hidratação.",
+      
+      // Sleep Insights
+      insightSleepGoodInterpretation: "Você reportou uma boa qualidade de sono, essencial para sua saúde geral.",
+      insightSleepGoodReason: "O sono de qualidade fortalece o sistema imunológico, melhora a memória e ajuda na recuperação muscular. Continue priorizando seu descanso.",
+      insightSleepAverageInterpretation: "Sua qualidade de sono é mediana, indicando que há espaço para melhorias.",
+      insightSleepAverageReason: "Considere ajustar sua rotina noturna: evite telas antes de dormir, mantenha horários regulares e crie um ambiente escuro e silencioso.",
+      insightSleepPoorInterpretation: "Você reportou sono de baixa qualidade, o que pode estar afetando sua saúde e bem-estar.",
+      insightSleepPoorReason: "A falta de sono adequado afeta humor, concentração, metabolismo e imunidade. Priorizar a melhoria do sono pode trazer benefícios significativos para sua vida.",
+      
+      // Activity Insights
+      insightActivityHighInterpretation: "Você mantém uma excelente frequência de atividade física semanal.",
+      insightActivityHighReason: "A atividade física regular melhora a saúde cardiovascular, fortalece ossos e músculos, e contribui para o bem-estar mental.",
+      insightActivityModerateInterpretation: "Sua frequência de exercícios está em um bom nível, atendendo às recomendações de saúde.",
+      insightActivityModerateReason: "Continue assim! A consistência é mais importante que a intensidade. Sua rotina de exercícios contribui para sua longevidade.",
+      insightActivityLowInterpretation: "Sua frequência de atividade física está abaixo do ideal recomendado para a saúde.",
+      insightActivityLowReason: "Adicionar mais movimento ao seu dia pode melhorar sua energia, humor e saúde cardiovascular. Comece gradualmente.",
+      insightActivityNoneInterpretation: "Você reportou não praticar atividade física regular atualmente.",
+      insightActivityNoneReason: "A atividade física é um dos pilares da saúde. Mesmo caminhadas curtas podem trazer benefícios. Considere iniciar com atividades leves.",
+      
+      // Mental Health Insights
+      insightMentalHighInterpretation: "Seu nível de saúde mental reportado está excelente.",
+      insightMentalHighReason: "A saúde mental positiva melhora a qualidade de vida, relacionamentos e produtividade. Continue cuidando do seu bem-estar emocional.",
+      insightMentalModerateInterpretation: "Seu nível de saúde mental está em uma faixa intermediária.",
+      insightMentalModerateReason: "Reservar tempo para atividades prazerosas, conexões sociais e autocuidado pode ajudar a melhorar seu bem-estar mental.",
+      insightMentalLowInterpretation: "Seu nível de saúde mental reportado merece atenção especial.",
+      insightMentalLowReason: "Sua saúde mental é fundamental. Considere conversar com pessoas de confiança ou buscar apoio profissional. Você não precisa enfrentar isso sozinho.",
+      
+      // Alcohol Insights
+      insightAlcoholNoneInterpretation: "Você reportou não consumir álcool.",
+      insightAlcoholNoneReason: "Evitar o álcool contribui para melhor qualidade de sono, função hepática saudável e reduz riscos de diversas condições de saúde.",
+      insightAlcoholHighInterpretation: "Seu consumo de álcool reportado está em um nível elevado.",
+      insightAlcoholHighReason: "O consumo excessivo de álcool pode afetar o fígado, sono, peso e aumentar riscos de doenças. Considere reduzir gradualmente.",
+      
+      // Age Insights
+      insightAgeInterpretation: "A partir dos 50 anos, seu corpo passa por mudanças que requerem atenção especial.",
+      insightAgeReason: "Com a idade, a hidratação, recuperação muscular e prevenção tornam-se ainda mais importantes. Priorize check-ups regulares e mantenha hábitos saudáveis.",
     },
   },
 };
