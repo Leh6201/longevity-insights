@@ -38,7 +38,7 @@ const DashboardBottomNav: React.FC<DashboardBottomNavProps> = ({
               type: 'spring',
               stiffness: 400,
               damping: 30
-            }} className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-primary rounded-b-full mx-0 px-[29px]" />}
+            }} className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-primary rounded-b-full mx-0 px-[28px] py-0" />}
                 <Icon className={`w-5 h-5 mb-1 transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
                 <span className={`text-xs font-medium transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>
                   {tab.label}
