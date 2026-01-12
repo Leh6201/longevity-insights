@@ -19,6 +19,7 @@ import BiomarkerRangeCard from '@/components/dashboard/BiomarkerRangeCard';
 import TrendChartCard from '@/components/dashboard/TrendChartCard';
 import QuickRecommendationCard from '@/components/dashboard/QuickRecommendationCard';
 import PersonalizedRecommendationsSection from '@/components/dashboard/PersonalizedRecommendationsSection';
+import ExamsHistoryCard from '@/components/dashboard/ExamsHistoryCard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Sparkles, RefreshCw, Share2, Activity, Loader2 } from 'lucide-react';
@@ -395,21 +396,24 @@ const Dashboard: React.FC = () => {
                 isPremiumUser={false}
               />
 
-              {/* Upload & Actions */}
+              {/* Upload & Exams History */}
               <div className="grid lg:grid-cols-2 gap-6">
                 <LabUploadCard onUploadComplete={fetchData} />
+                <ExamsHistoryCard currentExamId={labResult?.id} />
 
-                {/* Actions Card */}
-                <Card className="rounded-2xl shadow-card">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Activity className="w-5 h-5" />
-                      {t('actions')}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
+              </div>
+
+              {/* Actions Section */}
+              <Card className="rounded-2xl shadow-card">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Activity className="w-5 h-5" />
+                    {t('actions')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-3">
                     <Button 
-                      className="w-full" 
                       variant="outline"
                       onClick={handleReanalyze}
                       disabled={reanalyzing}
@@ -422,21 +426,20 @@ const Dashboard: React.FC = () => {
                       {t('reanalyze')}
                     </Button>
                     <Button 
-                      className="w-full" 
                       variant="outline"
                       onClick={handleShare}
                     >
                       <Share2 className="w-4 h-4 mr-2" />
                       {t('shareWithDoctor')}
                     </Button>
-                    {labResult.upload_date && (
-                      <p className="text-xs text-muted-foreground text-center">
-                        {t('lastAnalysis')}: {new Date(labResult.upload_date).toLocaleDateString()}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
+                  </div>
+                  {labResult.upload_date && (
+                    <p className="text-xs text-muted-foreground mt-3">
+                      {t('lastAnalysis')}: {new Date(labResult.upload_date).toLocaleDateString()}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
             </>
           ) : (
             <LabUploadCard onUploadComplete={fetchData} />
