@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { fileBase64, fileType, userId, fileName, onboardingContext } = await req.json();
+    const { fileBase64, fileType, userId, fileName } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
@@ -21,23 +21,6 @@ serve(async (req) => {
 
     console.log('Analyzing lab results for user:', userId);
     console.log('File type:', fileType);
-    console.log('Has onboarding context:', !!onboardingContext);
-
-    // Build personalized context for AI
-    let personalContext = '';
-    if (onboardingContext) {
-      personalContext = `
-
-CONTEXTO DO PACIENTE (use para personalizar recomendações):
-${onboardingContext}
-
-IMPORTANTE: Use essas informações para:
-- Ajustar recomendações ao estilo de vida do paciente
-- Priorizar recomendações alinhadas aos objetivos de saúde
-- Considerar histórico médico e medicamentos ao fazer sugestões
-- Adaptar linguagem e abordagem ao perfil do paciente
-`;
-    }
 
     const systemPrompt = `Você é um assistente de análise de exames laboratoriais médicos.
 
@@ -69,19 +52,19 @@ Biomarcadores a procurar (retorne null se não encontrado):
 - Vitamina D (ng/mL)
 - TSH (mIU/L ou μUI/mL)
 - PCR/CRP (mg/L)
-${personalContext}
+
 Após extrair os biomarcadores:
-1. Estime a idade biológica baseada nos valores encontrados${onboardingContext ? ' e no perfil do paciente' : ''}
+1. Estime a idade biológica baseada nos valores encontrados
 2. Avalie o risco metabólico (low/moderate/high)
 3. Avalie o score de inflamação (low/moderate/high)
-4. Gere 5 recomendações PERSONALIZADAS em PORTUGUÊS BRASILEIRO${onboardingContext ? ' baseadas nos objetivos e estilo de vida do paciente' : ''}
+4. Gere 5 recomendações em PORTUGUÊS BRASILEIRO
 
 IMPORTANTE: Responda SOMENTE com JSON puro, SEM markdown, SEM \`\`\`json, SEM texto antes ou depois.
 
 Formato de resposta (JSON puro):
 {"biomarkers":{"total_cholesterol":number|null,"hdl":number|null,"ldl":number|null,"triglycerides":number|null,"glucose":number|null,"hemoglobin":number|null,"creatinine":number|null,"ast":number|null,"alt":number|null,"ggt":number|null,"vitamin_d":number|null,"tsh":number|null,"crp":number|null},"biological_age":number|null,"metabolic_risk_score":"low"|"moderate"|"high","inflammation_score":"low"|"moderate"|"high","recommendations":["recomendação 1","recomendação 2","recomendação 3","recomendação 4","recomendação 5"]}
 
-ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com sugestões de estilo de vida${onboardingContext ? ' personalizadas ao perfil do paciente' : ''}. Isto é apenas educacional - sempre recomende consultar profissionais de saúde.`;
+ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com sugestões de estilo de vida. Isto é apenas educacional - sempre recomende consultar profissionais de saúde.`;
 
     const messages: Array<{ role: string; content: Array<{ type: string; text?: string; image_url?: { url: string } }> }> = [
       {
