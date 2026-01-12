@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -120,28 +119,17 @@ const ExamsHistoryCard: React.FC<ExamsHistoryCardProps> = ({ onSelectExam, curre
 
   if (loading) {
     return (
-      <Card className="rounded-2xl shadow-card">
-        <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-primary" />
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      </div>
     );
   }
 
   return (
-    <Card className="rounded-2xl shadow-card overflow-hidden">
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <FolderOpen className="w-5 h-5 text-primary" />
-          </div>
-          {t('examsHistory')}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm text-muted-foreground mb-4">
-          {t('examsHistoryDescription')}
-        </p>
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        {t('examsHistoryDescription')}
+      </p>
 
         {exams.length === 0 ? (
           <motion.div
@@ -272,8 +260,7 @@ const ExamsHistoryCard: React.FC<ExamsHistoryCardProps> = ({ onSelectExam, curre
             </p>
           </div>
         )}
-      </CardContent>
-    </Card>
+    </div>
   );
 };
 

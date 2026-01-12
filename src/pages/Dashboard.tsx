@@ -22,7 +22,8 @@ import PersonalizedRecommendationsSection from '@/components/dashboard/Personali
 import ExamsHistoryCard from '@/components/dashboard/ExamsHistoryCard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, Sparkles, RefreshCw, Share2, Activity, Loader2 } from 'lucide-react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { AlertCircle, Sparkles, RefreshCw, Share2, Activity, Loader2, FolderOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateHealthReport } from '@/lib/generateHealthReport';
 
@@ -396,12 +397,8 @@ const Dashboard: React.FC = () => {
                 isPremiumUser={false}
               />
 
-              {/* Upload & Exams History */}
-              <div className="grid lg:grid-cols-2 gap-6">
-                <LabUploadCard onUploadComplete={fetchData} />
-                <ExamsHistoryCard currentExamId={labResult?.id} />
-
-              </div>
+              {/* Upload Section */}
+              <LabUploadCard onUploadComplete={fetchData} />
 
               {/* Actions Section */}
               <Card className="rounded-2xl shadow-card">
@@ -432,6 +429,25 @@ const Dashboard: React.FC = () => {
                       <Share2 className="w-4 h-4 mr-2" />
                       {t('shareWithDoctor')}
                     </Button>
+                    <Sheet>
+                      <SheetTrigger asChild>
+                        <Button variant="outline">
+                          <FolderOpen className="w-4 h-4 mr-2" />
+                          {t('examsHistory')}
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent className="w-full sm:max-w-md">
+                        <SheetHeader>
+                          <SheetTitle className="flex items-center gap-2">
+                            <FolderOpen className="w-5 h-5" />
+                            {t('examsHistory')}
+                          </SheetTitle>
+                        </SheetHeader>
+                        <div className="mt-6">
+                          <ExamsHistoryCard currentExamId={labResult?.id} />
+                        </div>
+                      </SheetContent>
+                    </Sheet>
                   </div>
                   {labResult.upload_date && (
                     <p className="text-xs text-muted-foreground mt-3">
