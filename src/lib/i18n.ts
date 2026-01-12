@@ -285,6 +285,15 @@ const resources = {
       uploadingFile: "Enviando...",
       analyzeLabResults: "Analisar Exame",
       biomarkersExtracted: "Seus biomarcadores foram extraídos com sucesso!",
+      
+      // Exams History
+      examsHistory: "Histórico de Exames",
+      examsHistoryDescription: "Seus exames são salvos automaticamente. Acesse e gerencie seu histórico a qualquer momento.",
+      noExamsYet: "Nenhum exame ainda",
+      uploadFirstExam: "Envie seu primeiro exame para descobrir sua idade biológica!",
+      exam: "Exame",
+      viewDetails: "Ver Detalhes",
+      totalExams: "{{count}} exame(s) no histórico",
       failedToAnalyze: "Falha ao analisar resultados do exame",
     },
   },
