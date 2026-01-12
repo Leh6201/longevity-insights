@@ -215,43 +215,66 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ onboardingData }) => {
       });
     }
 
-    // ===== HYDRATION INSIGHT =====
-    if (weight && daily_water_intake !== null && daily_water_intake !== undefined) {
-      const recommended = calculateRecommendedWaterIntake(weight, age);
-      const difference = daily_water_intake - recommended;
+    // ===== HYDRATION INSIGHT (ALWAYS SHOWN) =====
+    {
       const relatedGoals = userGoals.filter(g => getGoalRelations(g).includes('hydration'));
+      const intake = daily_water_intake ?? 0;
+      const recommended = weight ? calculateRecommendedWaterIntake(weight, age) : 2.5; // Default recommendation if no weight
+      
+      // Calculate percentage of recommended intake
+      const percentageOfRecommended = recommended > 0 ? (intake / recommended) * 100 : 0;
       
       let interpretation = '';
       let reason = '';
       let type: CalculatedInsight['type'] = 'neutral';
       let priority = 5;
+      let statusLabel = '';
 
-      if (difference >= 0) {
-        interpretation = t('insightHydrationAdequateInterpretation');
-        reason = t('insightHydrationAdequateReason');
-        type = 'positive';
-        priority = 8;
-      } else if (difference >= -0.5) {
-        interpretation = t('insightHydrationModerateInterpretation');
+      // Percentage-based status determination
+      if (intake === 0 || percentageOfRecommended < 50) {
+        // Critical: zero intake or less than 50% of recommended
+        statusLabel = t('hydrationStatusCritical', 'Crítico');
+        interpretation = t('insightHydrationCriticalInterpretation', 'Sua ingestão de água está criticamente baixa. A desidratação pode causar fadiga, dores de cabeça, dificuldade de concentração e prejudicar funções corporais essenciais.');
+        reason = intake === 0 
+          ? t('insightHydrationZeroReason', 'Nenhuma ingestão de água foi registrada. A hidratação adequada é fundamental para o funcionamento de todos os sistemas do corpo.')
+          : t('insightHydrationCriticalReason', 'Você está consumindo menos da metade da quantidade recomendada. Aumente gradualmente sua ingestão de água ao longo do dia.');
+        type = 'attention';
+        priority = 1;
+      } else if (percentageOfRecommended < 80) {
+        // Low: 50-79% of recommended
+        statusLabel = t('hydrationStatusLow', 'Baixo');
+        interpretation = t('insightHydrationLowInterpretation', 'Sua hidratação está abaixo do ideal. Aumentar a ingestão de água pode melhorar sua energia, concentração e bem-estar geral.');
         reason = age && age >= 50 
-          ? t('insightHydrationAgeReason')
-          : t('insightHydrationModerateReason');
+          ? t('insightHydrationAgeLowReason', 'Com a idade, a sensação de sede diminui. Estabeleça lembretes regulares para beber água ao longo do dia.')
+          : t('insightHydrationLowReason', 'Tente aumentar gradualmente sua ingestão de água, distribuindo ao longo do dia para melhor absorção.');
+        type = 'attention';
+        priority = 2;
+      } else if (percentageOfRecommended < 100) {
+        // Moderate: 80-99% of recommended (shown as adequate but could improve)
+        statusLabel = t('hydrationStatusAdequate', 'Adequado');
+        interpretation = t('insightHydrationModerateInterpretation', 'Sua hidratação está quase no nível ideal. Um pequeno aumento pode trazer benefícios adicionais.');
+        reason = t('insightHydrationModerateReason', 'Você está próximo da meta! Adicionar mais um ou dois copos de água por dia pode otimizar sua hidratação.');
         type = 'neutral';
         priority = 5;
       } else {
-        interpretation = t('insightHydrationLowInterpretation');
-        reason = age && age >= 50 
-          ? t('insightHydrationAgeLowReason')
-          : t('insightHydrationLowReason');
-        type = 'attention';
-        priority = 2;
+        // Adequate: 100% or more of recommended
+        statusLabel = t('hydrationStatusAdequate', 'Adequado');
+        interpretation = t('insightHydrationAdequateInterpretation', 'Excelente! Sua hidratação está adequada. Manter esse hábito contribui para energia, foco e saúde geral.');
+        reason = t('insightHydrationAdequateReason', 'A hidratação adequada melhora a função cognitiva, regula a temperatura corporal e auxilia na digestão.');
+        type = 'positive';
+        priority = 8;
       }
+
+      // Build calculated value string with status label
+      const calculatedValueWithStatus = weight 
+        ? `${t('insightRecommended')}: ${recommended.toFixed(1)} L/${t('insightDay')} • ${t('hydrationStatus', 'Status')}: ${statusLabel}`
+        : `${t('insightRecommended')}: ${recommended.toFixed(1)} L/${t('insightDay')} (${t('defaultRecommendation', 'padrão')}) • ${t('hydrationStatus', 'Status')}: ${statusLabel}`;
 
       insights.push({
         category: t('insightCategoryHydration'),
         categoryIcon: <Droplets className="w-5 h-5" />,
-        reportedValue: `${daily_water_intake.toFixed(1)} L/${t('insightDay')}`,
-        calculatedValue: `${t('insightRecommended')}: ${recommended.toFixed(1)} L/${t('insightDay')}`,
+        reportedValue: `${intake.toFixed(1)} L/${t('insightDay')}`,
+        calculatedValue: calculatedValueWithStatus,
         interpretation,
         reason,
         relatedGoals: relatedGoals.map(g => getGoalLabel(g)),
