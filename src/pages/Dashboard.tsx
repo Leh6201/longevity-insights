@@ -20,7 +20,9 @@ import TrendChartCard from '@/components/dashboard/TrendChartCard';
 import QuickRecommendationCard from '@/components/dashboard/QuickRecommendationCard';
 import PersonalizedRecommendationsSection from '@/components/dashboard/PersonalizedRecommendationsSection';
 import ExamsHistoryCard from '@/components/dashboard/ExamsHistoryCard';
+import HealthInsightsSection from '@/components/dashboard/HealthInsightsSection';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { OnboardingData as FullOnboardingData } from '@/lib/healthInsights';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { AlertCircle, Sparkles, RefreshCw, Share2, Activity, Loader2, FolderOpen } from 'lucide-react';
@@ -51,10 +53,14 @@ interface LabResult {
   file_url?: string;
 }
 
-interface OnboardingData {
+interface OnboardingDataMinimal {
   age: number | null;
   completed: boolean;
   health_goals?: string[];
+}
+
+interface OnboardingDataFull extends FullOnboardingData {
+  completed: boolean;
 }
 
 const Dashboard: React.FC = () => {
@@ -65,7 +71,7 @@ const Dashboard: React.FC = () => {
   const { isGuest, guestOnboarding, guestLabResult } = useGuest();
   
   const [labResult, setLabResult] = useState<LabResult | null>(null);
-  const [onboarding, setOnboarding] = useState<OnboardingData | null>(null);
+  const [onboarding, setOnboarding] = useState<OnboardingDataFull | null>(null);
   const [loading, setLoading] = useState(true);
   const [showTutorial, setShowTutorial] = useState(false);
   const [reanalyzing, setReanalyzing] = useState(false);
@@ -79,7 +85,17 @@ const Dashboard: React.FC = () => {
           setOnboarding({ 
             age: guestOnboarding.age, 
             completed: guestOnboarding.completed,
-            health_goals: guestOnboarding.health_goals 
+            health_goals: guestOnboarding.health_goals,
+            biological_sex: guestOnboarding.biological_sex,
+            weight: guestOnboarding.weight,
+            height: guestOnboarding.height,
+            training_frequency: guestOnboarding.training_frequency,
+            sleep_quality: guestOnboarding.sleep_quality,
+            alcohol_consumption: guestOnboarding.alcohol_consumption,
+            daily_water_intake: guestOnboarding.daily_water_intake,
+            mental_health_level: guestOnboarding.mental_health_level,
+            current_medications: guestOnboarding.current_medications,
+            medical_history: guestOnboarding.medical_history,
           });
           if (!guestOnboarding.completed) {
             navigate('/onboarding', { replace: true });
@@ -116,12 +132,26 @@ const Dashboard: React.FC = () => {
 
       const { data: onboardingData } = await supabase
         .from('onboarding_data')
-        .select('age, completed, health_goals')
+        .select('*')
         .eq('user_id', user.id)
         .single();
 
       if (onboardingData) {
-        setOnboarding(onboardingData);
+        setOnboarding({
+          age: onboardingData.age,
+          completed: onboardingData.completed ?? false,
+          health_goals: onboardingData.health_goals ?? [],
+          biological_sex: onboardingData.biological_sex,
+          weight: onboardingData.weight ? Number(onboardingData.weight) : null,
+          height: onboardingData.height ? Number(onboardingData.height) : null,
+          training_frequency: onboardingData.training_frequency,
+          sleep_quality: onboardingData.sleep_quality,
+          alcohol_consumption: onboardingData.alcohol_consumption,
+          daily_water_intake: onboardingData.daily_water_intake ? Number(onboardingData.daily_water_intake) : null,
+          mental_health_level: onboardingData.mental_health_level,
+          current_medications: onboardingData.current_medications,
+          medical_history: onboardingData.medical_history,
+        });
         if (!onboardingData.completed) {
           navigate('/onboarding', { replace: true });
           return;
@@ -288,6 +318,9 @@ const Dashboard: React.FC = () => {
 
           {labResult ? (
             <>
+              {/* Personalized Health Insights */}
+              <HealthInsightsSection onboardingData={onboarding} />
+
               {/* Summary Cards */}
               <HealthSummaryCards
                 biologicalAge={labResult.biological_age}

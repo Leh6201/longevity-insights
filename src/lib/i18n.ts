@@ -305,6 +305,57 @@ const resources = {
       viewDetails: "Ver Detalhes",
       totalExams: "{{count}} exame(s) no histórico",
       failedToAnalyze: "Falha ao analisar resultados do exame",
+      
+      // Health Insights
+      personalizedInsights: "Insights Personalizados",
+      goalsActive: "objetivos ativos",
+      perWeek: "por semana",
+      
+      // BMI Insights
+      bmiInsight: "Índice de Massa Corporal",
+      bmiUnderweightDesc: "Seu IMC é {{value}}. Está abaixo do peso ideal. Considere consultar um nutricionista para um plano alimentar adequado.",
+      bmiNormalDesc: "Seu IMC é {{value}}. Parabéns! Você está dentro da faixa de peso saudável.",
+      bmiOverweightDesc: "Seu IMC é {{value}}. Está um pouco acima do peso. Pequenas mudanças na alimentação e exercícios podem ajudar.",
+      bmiObeseDesc: "Seu IMC é {{value}}. Está na faixa de obesidade. Recomendamos acompanhamento profissional para melhorar sua saúde.",
+      
+      // Hydration Insights
+      hydrationInsight: "Hidratação",
+      hydrationGoodDesc: "Ótimo! Você está bem hidratado. Continue mantendo esse hábito saudável.",
+      hydrationLowDesc: "Você pode estar bebendo menos água do que o ideal. Recomendamos cerca de {{recommended}}L por dia.",
+      
+      // Sleep Insights
+      sleepInsight: "Qualidade do Sono",
+      sleepPoorInsight: "Sono de baixa qualidade pode afetar sua energia, humor e até sua idade biológica. Considere melhorar sua rotina de sono.",
+      sleepAverageInsight: "Seu sono está na média. Pequenos ajustes na rotina podem trazer grandes benefícios para sua saúde.",
+      sleepGoodInsight: "Excelente! Sono de qualidade é fundamental para a recuperação do corpo e longevidade.",
+      
+      // Activity Insights
+      activityInsight: "Nível de Atividade",
+      activity0Desc: "Você reportou não praticar exercícios. Comece com pequenas caminhadas para melhorar sua saúde.",
+      activity1to2Desc: "Você treina 1-2 vezes por semana. Bom começo! Tente aumentar gradualmente para melhores resultados.",
+      activity3to4Desc: "Ótimo! 3-4 treinos por semana é ideal para manter a saúde e energia.",
+      activity5plusDesc: "Excelente! Você é muito ativo. Lembre-se de respeitar os dias de descanso para recuperação.",
+      
+      // Alcohol Insight
+      alcoholInsight: "Consumo de Álcool",
+      alcoholConsiderationDesc: "O consumo de álcool pode afetar fígado, sono e marcadores metabólicos. Considere moderar para melhorar sua saúde.",
+      
+      // Mental Health Insight
+      mentalHealthInsight: "Bem-estar Mental",
+      mentalHealthSupportDesc: "Cuide também da sua saúde mental. Considere práticas como meditação, exercícios ou conversar com um profissional.",
+      
+      // Goals Insights
+      primaryGoalFocus: "Foco Principal",
+      lose_weightGoalInsight: "Perder peso de forma saudável envolve alimentação equilibrada e exercícios regulares. Seus resultados de exames ajudam a monitorar o progresso.",
+      improve_energyGoalInsight: "Para melhorar energia, foque em sono de qualidade, alimentação balanceada e atividade física regular.",
+      improve_sleepGoalInsight: "Para dormir melhor, estabeleça horários regulares, evite telas antes de dormir e crie um ambiente confortável.",
+      reduce_cholesterolGoalInsight: "Reduzir colesterol envolve diminuir gorduras saturadas, aumentar fibras e manter atividade física regular.",
+      reduce_blood_sugarGoalInsight: "Para controlar o açúcar no sangue, reduza carboidratos refinados, aumente fibras e mantenha peso saudável.",
+      increase_longevityGoalInsight: "Longevidade está ligada a sono, exercícios, alimentação saudável, relações sociais e controle do estresse.",
+      
+      // Medical Context
+      medicalContextNote: "Contexto de Saúde",
+      medicalContextDesc: "Suas informações médicas são consideradas nas recomendações. Sempre consulte seu médico antes de mudanças significativas.",
     },
   },
 };
