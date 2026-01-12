@@ -371,7 +371,7 @@ const resources = {
       insightRelatedTo: "Relacionado a",
       
       // Insight Categories
-      insightCategoryBmi: "Índice de Massa Corporal",
+      insightCategoryBmi: "IMC",
       insightCategoryHydration: "Hidratação",
       insightCategorySleep: "Qualidade do Sono",
       insightCategoryActivity: "Atividade Física",
