@@ -21,8 +21,8 @@ const DashboardBottomNav: React.FC<DashboardBottomNavProps> = ({ activeTab, onTa
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-t border-border safe-area-pb">
-      <div className="container mx-auto max-w-6xl">
-        <div className="flex items-center justify-around h-16">
+      <div className="w-full px-4 safe-area-x">
+        <div className="flex items-center justify-center h-16 max-w-md mx-auto">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             const Icon = tab.icon;
