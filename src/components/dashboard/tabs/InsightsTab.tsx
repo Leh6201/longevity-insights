@@ -23,7 +23,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import HydrationCard from '@/components/dashboard/HydrationCard';
 
 interface OnboardingData {
   age?: number | null;
@@ -498,13 +497,6 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ onboardingData }) => {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
-      {/* Dedicated Hydration Card - Always Displayed */}
-      <HydrationCard 
-        reportedIntake={onboardingData?.daily_water_intake}
-        weight={onboardingData?.weight}
-        age={onboardingData?.age}
-      />
-
       {/* Health Goals Section */}
       {onboardingData?.health_goals && onboardingData.health_goals.length > 0 && (
         <Card className="rounded-2xl shadow-card">
