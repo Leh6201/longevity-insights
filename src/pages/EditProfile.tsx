@@ -284,7 +284,7 @@ const EditProfile: React.FC = () => {
                 </div>
                 <div className="space-y-2">
                   <Label>{t('biologicalSex')}</Label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-2 items-start">
                     <button
                       type="button"
                       onClick={() => updateData('biological_sex', 'male')}
