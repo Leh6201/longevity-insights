@@ -273,7 +273,7 @@ const EditProfile: React.FC = () => {
                 <AlertTriangle className="w-4 h-4 text-warning" />
                 <p className="text-xs text-warning">{t('ageWarning')}</p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>{t('age')}</Label>
                   <Input
@@ -284,7 +284,7 @@ const EditProfile: React.FC = () => {
                 </div>
                 <div className="space-y-2">
                   <Label>{t('biologicalSex')}</Label>
-                  <div className="flex flex-col gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <SelectButton
                       selected={data.biological_sex === 'male'}
                       onClick={() => updateData('biological_sex', 'male')}
