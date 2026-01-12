@@ -350,6 +350,7 @@ const Dashboard: React.FC = () => {
                     monthlyChange={-3}
                     icon="metabolic"
                     delay={0}
+                    infoText={t('metabolicRiskInfo')}
                   />
                   <RiskProjectionCard
                     title={t('cardiovascularHealth')}
@@ -358,6 +359,7 @@ const Dashboard: React.FC = () => {
                     monthlyChange={-5}
                     icon="cardiovascular"
                     delay={0.1}
+                    infoText={t('cardiovascularInfo')}
                   />
                   <RiskProjectionCard
                     title={t('inflammatoryMarkers')}
@@ -366,6 +368,7 @@ const Dashboard: React.FC = () => {
                     monthlyChange={-2}
                     icon="inflammation"
                     delay={0.2}
+                    infoText={t('inflammatoryInfo')}
                   />
                 </div>
               </div>
@@ -382,6 +385,7 @@ const Dashboard: React.FC = () => {
                   optimalMin={70}
                   optimalMax={100}
                   delay={0.3}
+                  infoText={t('fastingGlucoseInfo')}
                 />
 
                 {/* Trend Chart */}
@@ -390,6 +394,7 @@ const Dashboard: React.FC = () => {
                   change={-15}
                   data={trendData}
                   delay={0.4}
+                  infoText={t('altTrendInfo')}
                 />
               </div>
               {/* Quick Recommendations */}

@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Activity, Heart, Flame, Pill, Sparkles, TrendingUp, TrendingDown } from 'lucide-react';
+import { Activity, Heart, Flame, Pill, Sparkles, TrendingUp, TrendingDown, HelpCircle } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface RiskProjectionCardProps {
   title: string;
@@ -10,6 +11,7 @@ interface RiskProjectionCardProps {
   monthlyChange: number;
   icon: 'metabolic' | 'cardiovascular' | 'inflammation' | 'liver' | 'longevity';
   delay?: number;
+  infoText?: string;
 }
 
 const iconMap: Record<string, LucideIcon> = {
@@ -27,6 +29,7 @@ const RiskProjectionCard: React.FC<RiskProjectionCardProps> = ({
   monthlyChange,
   icon,
   delay = 0,
+  infoText,
 }) => {
   const Icon = iconMap[icon];
   const isPositive = percentage > 0;
@@ -44,7 +47,26 @@ const RiskProjectionCard: React.FC<RiskProjectionCardProps> = ({
       </div>
       
       <div className="flex-1 min-w-0 overflow-hidden">
-        <h3 className="font-semibold text-foreground text-sm truncate">{title}</h3>
+        <div className="flex items-center gap-1.5">
+          <h3 className="font-semibold text-foreground text-sm truncate">{title}</h3>
+          {infoText && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button 
+                  className="inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-muted/80 transition-colors shrink-0"
+                  aria-label={`Info about ${title}`}
+                >
+                  <HelpCircle className="w-3 h-3 text-muted-foreground" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-3" align="start" side="top">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {infoText}
+                </p>
+              </PopoverContent>
+            </Popover>
+          )}
+        </div>
         <p className="text-xs text-muted-foreground truncate">{subtitle}</p>
       </div>
       
