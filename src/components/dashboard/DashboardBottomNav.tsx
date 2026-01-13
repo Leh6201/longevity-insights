@@ -33,7 +33,7 @@ const DashboardBottomNav: React.FC<DashboardBottomNavProps> = ({
           {tabs.map(tab => {
           const isActive = activeTab === tab.id;
           const Icon = tab.icon;
-          return <button key={tab.id} onClick={() => onTabChange(tab.id)} className="relative flex flex-col items-center justify-center h-full px-3 py-2 transition-colors">
+          return <motion.button key={tab.id} onClick={() => onTabChange(tab.id)} whileTap={{ scale: 0.92 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }} className="relative flex flex-col items-center justify-center h-full px-3 py-2 transition-colors">
                 {isActive && <motion.div layoutId="activeTabIndicator" transition={{
               type: 'spring',
               stiffness: 400,
@@ -43,7 +43,7 @@ const DashboardBottomNav: React.FC<DashboardBottomNavProps> = ({
                 <span className={`text-xs font-medium transition-colors whitespace-nowrap ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>
                   {tab.label}
                 </span>
-              </button>;
+              </motion.button>;
         })}
         </div>
       </div>
