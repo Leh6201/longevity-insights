@@ -243,6 +243,7 @@ const Dashboard: React.FC = () => {
             onReanalyze={handleReanalyze}
             onShare={handleShare}
             reanalyzing={reanalyzing}
+            onUploadComplete={fetchData}
           />
         ) : (
           <LabUploadCard onUploadComplete={fetchData} />
