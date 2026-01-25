@@ -12,6 +12,7 @@ import BiomarkerProgressCard from '@/components/dashboard/BiomarkerProgressCard'
 import BiomarkerRangeCard from '@/components/dashboard/BiomarkerRangeCard';
 import TrendChartCard from '@/components/dashboard/TrendChartCard';
 import ExamsHistoryCard from '@/components/dashboard/ExamsHistoryCard';
+import LabUploadCard from '@/components/dashboard/LabUploadCard';
 
 interface LabResult {
   id: string;
@@ -41,13 +42,15 @@ interface SummaryTabProps {
   onReanalyze: () => void;
   onShare: () => void;
   reanalyzing: boolean;
+  onUploadComplete: () => void;
 }
 
 const SummaryTab: React.FC<SummaryTabProps> = ({ 
   labResult, 
   onReanalyze, 
   onShare, 
-  reanalyzing 
+  reanalyzing,
+  onUploadComplete
 }) => {
   const { t } = useTranslation();
 
@@ -182,7 +185,10 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
         />
       </div>
 
-      {/* Actions Section */}
+      {/* Upload Exam Card - Primary Action */}
+      <LabUploadCard onUploadComplete={onUploadComplete} />
+
+      {/* Actions Section - Secondary/Management Actions */}
       <Card className="rounded-2xl shadow-card">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
