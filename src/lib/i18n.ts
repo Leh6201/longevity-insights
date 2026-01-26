@@ -263,9 +263,12 @@ const resources = {
       fastingGlucoseInfo: "Mede o açúcar no sangue após jejum. É o principal indicador para detectar diabetes e pré-diabetes precocemente.",
       altTrendInfo: "ALT é uma enzima do fígado. Níveis elevados podem indicar estresse hepático causado por alimentação, medicamentos ou outras condições.",
       normal: "Normal",
+      attention: "Atenção",
       actions: "Ações",
       updatedAt: "Atualizado em",
       updatedNow: "Atualizado agora",
+      noBiomarkersDetected: "Nenhum biomarcador detectado",
+      noBiomarkersDescription: "Não conseguimos identificar biomarcadores neste documento. Certifique-se de que o exame está legível e tente novamente.",
       
       // Profile Summary
       profileSummary: "Resumo do Perfil",
