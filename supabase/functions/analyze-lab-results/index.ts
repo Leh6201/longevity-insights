@@ -280,19 +280,25 @@ Recomendações em português brasileiro, educacionais, sempre orientando consul
     // Insert dynamic biomarkers into the table with AI-generated interpretation
     if (analysisResult.biomarkers && analysisResult.biomarkers.length > 0) {
       // Filter out invalid biomarkers - CRITICAL: Only keep biomarkers with REAL values
-      const invalidValuePatterns = [
-        /^[\*\-]+$/,                    // Just asterisks or dashes
-        /não\s*disponível/i,           // "Não disponível" in any form
-        /not\s*available/i,            // "Not available"
-        /n\/?a$/i,                      // "N/A" or "NA"
-        /^\s*$/,                        // Empty or whitespace only
-        /indisponível/i,               // "Indisponível"
-        /sem\s*resultado/i,            // "Sem resultado"
-      ];
-      
       const isInvalidValue = (val: string | null | undefined): boolean => {
-        if (!val || val.trim() === '') return true;
-        return invalidValuePatterns.some(pattern => pattern.test(val.trim()));
+        if (!val) return true;
+        const trimmed = val.trim();
+        if (trimmed === '') return true;
+        
+        // Reject values that are just "*" or contain "*" as the main content
+        if (/^\*/.test(trimmed)) return true;  // Starts with asterisk
+        if (/^[\*\-\s]+$/.test(trimmed)) return true;  // Only asterisks, dashes, spaces
+        
+        // Reject "unavailable" variations
+        if (/não\s*disponível/i.test(trimmed)) return true;
+        if (/not\s*available/i.test(trimmed)) return true;
+        if (/^n\/?a$/i.test(trimmed)) return true;
+        if (/indisponível/i.test(trimmed)) return true;
+        if (/sem\s*resultado/i.test(trimmed)) return true;
+        if (/prejudicad[ao]/i.test(trimmed)) return true;  // "análise prejudicada"
+        if (/não\s*realizado/i.test(trimmed)) return true;
+        
+        return false;
       };
 
       const biomarkersToInsert = analysisResult.biomarkers
@@ -300,20 +306,26 @@ Recomendações em português brasileiro, educacionais, sempre orientando consul
           // Must have a name
           if (!b.name) return false;
           
-          // Must have a valid value (either numeric or text)
-          const hasNumericValue = b.value !== null && !isNaN(Number(b.value));
-          const hasTextValue = b.value_text !== null && !isInvalidValue(b.value_text);
-          const hasDisplayValue = b.display_value !== null && !isInvalidValue(b.display_value);
-          
-          // Reject if no valid value exists
-          if (!hasNumericValue && !hasTextValue && !hasDisplayValue) {
-            console.log(`Rejecting biomarker "${b.name}": no valid value`);
+          // Check value_text first - if it's just "*" or invalid, reject
+          if (b.value_text && isInvalidValue(b.value_text)) {
+            console.log(`Rejecting biomarker "${b.name}": invalid value_text "${b.value_text}"`);
             return false;
           }
           
-          // Reject if display_value indicates unavailable data
+          // Check display_value - reject if it starts with "*" or is invalid
           if (b.display_value && isInvalidValue(b.display_value)) {
             console.log(`Rejecting biomarker "${b.name}": invalid display_value "${b.display_value}"`);
+            return false;
+          }
+          
+          // Must have a valid value (either numeric or valid text)
+          const hasNumericValue = b.value !== null && !isNaN(Number(b.value));
+          const hasValidTextValue = b.value_text !== null && !isInvalidValue(b.value_text);
+          const hasValidDisplayValue = b.display_value !== null && !isInvalidValue(b.display_value);
+          
+          // Reject if no valid value exists
+          if (!hasNumericValue && !hasValidTextValue && !hasValidDisplayValue) {
+            console.log(`Rejecting biomarker "${b.name}": no valid value`);
             return false;
           }
           
