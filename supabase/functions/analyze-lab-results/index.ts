@@ -53,8 +53,85 @@ Para CADA biomarcador encontrado, extraia:
 - unit: Unidade de medida (null se descritivo)
 - reference_min: Valor mínimo de referência (null se descritivo)
 - reference_max: Valor máximo de referência (null se descritivo)
-- is_normal: true se normal, false caso contrário
+- is_normal: INTERPRETAÇÃO CLÍNICA (veja regras abaixo)
 - category: Categoria do exame (sangue, urina, fezes, hormônio, vitamina, mineral, enzima, lipidio, etc.)
+
+═══════════════════════════════════════════════════════════════════════════════
+REGRAS CRÍTICAS PARA CLASSIFICAÇÃO is_normal (INTERPRETAÇÃO CLÍNICA INTELIGENTE)
+═══════════════════════════════════════════════════════════════════════════════
+
+A classificação is_normal deve refletir SIGNIFICÂNCIA CLÍNICA REAL, não apenas comparação com valores "ideais".
+
+PRINCÍPIO FUNDAMENTAL:
+- is_normal = true → Resultado clinicamente aceitável, não requer atenção especial
+- is_normal = false → Resultado que REALMENTE merece atenção do usuário
+
+REGRAS PARA BIOMARCADORES DESCRITIVOS:
+
+EXAME DE URINA - VALORES NORMAIS (is_normal = true):
+- Cor: "Amarelo", "Amarelo Claro", "Amarelo Pálido", "Amarelo Citrino", "Straw yellow", "Yellow" → NORMAL
+- Aspecto: "Límpido", "Ligeiramente Turvo", "Clear" → NORMAL  
+- pH: 5.0 a 8.0 → NORMAL
+- Densidade: 1.005 a 1.030 → NORMAL
+- Proteínas: "Negativo", "Traços", "Ausente", "Negative" → NORMAL
+- Glicose: "Negativo", "Ausente", "Negative" → NORMAL
+- Cetonas: "Negativo", "Ausente", "Negative" → NORMAL
+- Bilirrubina: "Negativo", "Ausente", "Negative" → NORMAL
+- Urobilinogênio: "Normal", "Negativo" → NORMAL
+- Nitrito: "Negativo", "Negative" → NORMAL
+- Leucócitos: "Ausentes", "Raros", "0-4/campo", "Negative" → NORMAL
+- Hemácias: "Ausentes", "Raras", "0-3/campo", "Negative" → NORMAL
+- Células Epiteliais: "Raras", "Algumas", "Escassas" → NORMAL
+- Cilindros: "Ausentes", "Raros hialinos" → NORMAL
+- Cristais: "Ausentes", "Raros" → NORMAL
+- Bactérias: "Ausentes", "Raras", "Negative" → NORMAL
+- Muco: "Ausente", "Escasso", "Raro" → NORMAL
+
+EXAME DE URINA - VALORES ANORMAIS (is_normal = false):
+- Cor: "Vermelho", "Marrom", "Verde", "Laranja escuro" → ATENÇÃO
+- Aspecto: "Muito Turvo", "Purulento" → ATENÇÃO
+- Proteínas: "+", "++", "+++", "Positivo" → ATENÇÃO
+- Glicose: "Positivo", "+", "++", "+++ " → ATENÇÃO
+- Nitrito: "Positivo", "Positive" → ATENÇÃO
+- Leucócitos: "Numerosos", "Aumentados", ">10/campo", "Positive" → ATENÇÃO
+- Hemácias: "Numerosas", "Aumentadas", ">5/campo" → ATENÇÃO
+- Bactérias: "Numerosas", "Aumentadas", "Positive" → ATENÇÃO
+
+EXAME DE FEZES - VALORES NORMAIS (is_normal = true):
+- Cor: "Marrom", "Castanho" → NORMAL
+- Consistência: "Pastosa", "Formada", "Moldada" → NORMAL
+- Sangue oculto: "Negativo", "Negative" → NORMAL
+- Leucócitos: "Ausentes", "Raros" → NORMAL
+- Parasitas: "Não detectado", "Negativo", "Ausente" → NORMAL
+
+REGRAS PARA BIOMARCADORES NUMÉRICOS:
+
+Para valores NUMÉRICOS, considere:
+- Dentro do intervalo de referência → is_normal = true
+- Levemente fora (até 10% da faixa) sem sintomas típicos → considere is_normal = true
+- Significativamente fora da faixa → is_normal = false
+
+EXEMPLOS DE INTERPRETAÇÃO CORRETA:
+
+1. Cor da Urina = "Yellow" ou "Amarelo" 
+   → is_normal = TRUE (cor completamente normal)
+
+2. Nitrito = "Negativo"
+   → is_normal = TRUE (ausência de infecção bacteriana)
+
+3. Proteínas = "Traços"
+   → is_normal = TRUE (quantidade mínima, geralmente sem significado clínico)
+
+4. Glicose urinária = "Positivo" ou "+"
+   → is_normal = FALSE (pode indicar diabetes, requer investigação)
+
+5. Hemácias = "Numerosas"
+   → is_normal = FALSE (hematúria significativa)
+
+IMPORTANTE: Não marque como is_normal = false apenas porque o valor não é "perfeito".
+Apenas marque is_normal = false quando o resultado REALMENTE indicar algo que o usuário deveria saber.
+
+═══════════════════════════════════════════════════════════════════════════════
 
 Após extrair os biomarcadores:
 1. Estime a idade biológica baseada nos valores encontrados (se aplicável para exames de sangue)
@@ -81,7 +158,7 @@ Formato de resposta (JSON puro):
     {
       "name": "Cor",
       "value": null,
-      "value_text": "Amarelo Claro",
+      "value_text": "Amarelo",
       "is_descriptive": true,
       "unit": null,
       "reference_min": null,
@@ -95,23 +172,6 @@ Formato de resposta (JSON puro):
   "inflammation_score": "low"|"moderate"|"high",
   "recommendations": ["recomendação 1", "recomendação 2", "recomendação 3", "recomendação 4", "recomendação 5"]
 }
-
-EXEMPLOS DE BIOMARCADORES NUMÉRICOS (sangue):
-- Glicose, Hemoglobina Glicada, Insulina
-- Colesterol Total, HDL, LDL, Triglicerídeos
-- Hemoglobina, Hematócrito, Leucócitos, Plaquetas
-- Creatinina, Ureia, Ácido Úrico
-- AST, ALT, GGT, TSH, T3, T4
-
-EXEMPLOS DE BIOMARCADORES DESCRITIVOS (urina):
-- Cor: "Amarelo Claro", "Amarelo", "Âmbar"
-- Aspecto: "Límpido", "Turvo", "Ligeiramente Turvo"
-- Proteínas: "Negativo", "Traços", "+"
-- Leucócitos: "Ausentes", "Raros", "Presentes"
-- Nitrito: "Negativo", "Positivo"
-- Hemácias: "Ausentes", "Raras", "Presentes"
-- Bactérias: "Ausentes", "Raras", "Presentes"
-- Células Epiteliais: "Raras", "Algumas", "Numerosas"
 
 ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com sugestões de estilo de vida baseadas nos resultados específicos encontrados. Isto é apenas educacional - sempre recomende consultar profissionais de saúde.`;
 
