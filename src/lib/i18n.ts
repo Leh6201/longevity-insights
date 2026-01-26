@@ -113,6 +113,8 @@ const resources = {
       processingTime: "Tempo de processamento",
       reanalyze: "Reanalisar",
       reanalyzing: "Reanalisando...",
+      confirmReanalyze: "Reanalisar Exame?",
+      reanalyzeWarning: "Isso irá reprocessar seu exame com a IA mais recente, substituindo a classificação anterior dos biomarcadores. Esta ação não pode ser desfeita.",
       pleaseWait: "Por favor aguarde enquanto processamos seus resultados.",
       resultsUpdated: "Seus resultados foram atualizados!",
       shareWithDoctor: "Compartilhar com Médico",
