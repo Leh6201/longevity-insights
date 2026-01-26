@@ -125,6 +125,9 @@ const resources = {
       greatJob: "Parabéns!",
       bioAgeImproved: "Sua idade biológica melhorou em {{years}} anos!",
       noFileToReanalyze: "Nenhum arquivo disponível para reanalisar",
+      noFileFound: "Nenhum arquivo encontrado",
+      downloadFailed: "Falha ao baixar arquivo",
+      failedToReanalyze: "Falha ao reanalisar. Tente novamente.",
       reportGenerated: "Relatório de saúde baixado com sucesso!",
       reportError: "Falha ao gerar relatório. Tente novamente.",
       

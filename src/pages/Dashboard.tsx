@@ -177,7 +177,7 @@ const Dashboard: React.FC = () => {
   };
 
   const handleReanalyze = async () => {
-    if (!labResult?.file_url) {
+    if (!labResult || !user) {
       toast({
         variant: "destructive",
         title: t('error'),
@@ -192,13 +192,75 @@ const Dashboard: React.FC = () => {
       description: t('pleaseWait'),
     });
     
-    setTimeout(() => {
-      setReanalyzing(false);
+    try {
+      // First, delete existing biomarkers for this lab result
+      await supabase
+        .from('detected_biomarkers')
+        .delete()
+        .eq('lab_result_id', labResult.id);
+
+      // List files in user's folder to find the most recent one
+      const { data: files, error: listError } = await supabase.storage
+        .from('lab-files')
+        .list(user.id, { sortBy: { column: 'created_at', order: 'desc' }, limit: 1 });
+
+      if (listError || !files || files.length === 0) {
+        throw new Error(t('noFileFound'));
+      }
+
+      // Download the file
+      const filePath = `${user.id}/${files[0].name}`;
+      const { data: fileData, error: downloadError } = await supabase.storage
+        .from('lab-files')
+        .download(filePath);
+
+      if (downloadError || !fileData) {
+        throw new Error(t('downloadFailed'));
+      }
+
+      // Convert to base64
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onload = () => {
+          const base64 = (reader.result as string).split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = reject;
+      });
+      reader.readAsDataURL(fileData);
+      const base64 = await base64Promise;
+
+      // Call edge function to re-analyze
+      const { error: analyzeError } = await supabase.functions.invoke('analyze-lab-results', {
+        body: { 
+          fileBase64: base64,
+          fileType: fileData.type,
+          userId: user.id,
+          fileName: files[0].name,
+          reanalyze: true,
+          existingLabResultId: labResult.id,
+        },
+      });
+
+      if (analyzeError) throw analyzeError;
+
       toast({
         title: t('analysisComplete'),
         description: t('resultsUpdated'),
       });
-    }, 3000);
+
+      // Refresh data
+      await fetchData();
+    } catch (error: any) {
+      console.error('Reanalyze error:', error);
+      toast({
+        variant: "destructive",
+        title: t('error'),
+        description: error.message || t('failedToReanalyze'),
+      });
+    } finally {
+      setReanalyzing(false);
+    }
   };
 
   const handleShare = () => {

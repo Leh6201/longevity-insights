@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { fileBase64, fileType, userId, fileName } = await req.json();
+    const { fileBase64, fileType, userId, fileName, reanalyze, existingLabResultId } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
@@ -282,26 +282,55 @@ ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com s
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Create the lab result record first
-    const { data: labResult, error: labError } = await supabase
-      .from('lab_results')
-      .insert({
-        user_id: userId,
-        file_name: fileName,
-        biological_age: analysisResult.biological_age,
-        metabolic_risk_score: analysisResult.metabolic_risk_score,
-        inflammation_score: analysisResult.inflammation_score,
-        ai_recommendations: analysisResult.recommendations,
-      })
-      .select()
-      .single();
+    let labResult;
+    
+    if (reanalyze && existingLabResultId) {
+      // Update existing lab result
+      console.log('Reanalyzing existing lab result:', existingLabResultId);
+      
+      const { data: updatedLabResult, error: updateError } = await supabase
+        .from('lab_results')
+        .update({
+          biological_age: analysisResult.biological_age,
+          metabolic_risk_score: analysisResult.metabolic_risk_score,
+          inflammation_score: analysisResult.inflammation_score,
+          ai_recommendations: analysisResult.recommendations,
+        })
+        .eq('id', existingLabResultId)
+        .eq('user_id', userId)
+        .select()
+        .single();
 
-    if (labError) {
-      console.error('Database error creating lab result:', labError);
-      throw labError;
+      if (updateError) {
+        console.error('Database error updating lab result:', updateError);
+        throw updateError;
+      }
+      
+      labResult = updatedLabResult;
+      console.log('Lab result updated:', labResult.id);
+    } else {
+      // Create new lab result record
+      const { data: newLabResult, error: labError } = await supabase
+        .from('lab_results')
+        .insert({
+          user_id: userId,
+          file_name: fileName,
+          biological_age: analysisResult.biological_age,
+          metabolic_risk_score: analysisResult.metabolic_risk_score,
+          inflammation_score: analysisResult.inflammation_score,
+          ai_recommendations: analysisResult.recommendations,
+        })
+        .select()
+        .single();
+
+      if (labError) {
+        console.error('Database error creating lab result:', labError);
+        throw labError;
+      }
+      
+      labResult = newLabResult;
+      console.log('Lab result created:', labResult.id);
     }
-
-    console.log('Lab result created:', labResult.id);
 
     // Insert dynamic biomarkers into the new table
     if (analysisResult.biomarkers && analysisResult.biomarkers.length > 0) {
