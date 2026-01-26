@@ -15,6 +15,16 @@ import SummaryTab from '@/components/dashboard/tabs/SummaryTab';
 import InsightsTab from '@/components/dashboard/tabs/InsightsTab';
 import ProfileTab from '@/components/dashboard/tabs/ProfileTab';
 import { Sparkles } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 import { useToast } from '@/hooks/use-toast';
 import { generateHealthReport } from '@/lib/generateHealthReport';
@@ -72,6 +82,7 @@ const Dashboard: React.FC = () => {
   const [showImprovement, setShowImprovement] = useState(false);
   const [improvementYears, setImprovementYears] = useState(0);
   const [activeTab, setActiveTab] = useState<DashboardTab>('summary');
+  const [showReanalyzeDialog, setShowReanalyzeDialog] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -176,7 +187,7 @@ const Dashboard: React.FC = () => {
     setShowTutorial(false);
   };
 
-  const handleReanalyze = async () => {
+  const handleReanalyzeClick = () => {
     if (!labResult || !user) {
       toast({
         variant: "destructive",
@@ -185,6 +196,13 @@ const Dashboard: React.FC = () => {
       });
       return;
     }
+    setShowReanalyzeDialog(true);
+  };
+
+  const handleReanalyzeConfirm = async () => {
+    if (!labResult || !user) return;
+    
+    setShowReanalyzeDialog(false);
     
     setReanalyzing(true);
     toast({
@@ -302,7 +320,7 @@ const Dashboard: React.FC = () => {
         return labResult ? (
           <SummaryTab
             labResult={labResult}
-            onReanalyze={handleReanalyze}
+            onReanalyze={handleReanalyzeClick}
             onShare={handleShare}
             reanalyzing={reanalyzing}
             onUploadComplete={fetchData}
@@ -397,6 +415,24 @@ const Dashboard: React.FC = () => {
       <DashboardBottomNav activeTab={activeTab} onTabChange={setActiveTab} />
 
       <GuestBanner />
+
+      {/* Reanalyze Confirmation Dialog */}
+      <AlertDialog open={showReanalyzeDialog} onOpenChange={setShowReanalyzeDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('confirmReanalyze')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('reanalyzeWarning')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleReanalyzeConfirm}>
+              {t('reanalyze')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
