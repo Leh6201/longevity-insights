@@ -13,6 +13,10 @@ import {
   isDescriptiveBiomarker,
   getBiomarkerDisplayValue,
 } from '@/hooks/useDynamicBiomarkers';
+import { 
+  translateBiomarkerName, 
+  getBiomarkerExplanation 
+} from '@/lib/biomarkerLocalization';
 
 interface DynamicBiomarkersListProps {
   biomarkers: DetectedBiomarker[];
@@ -109,7 +113,7 @@ const DynamicBiomarkersList: React.FC<DynamicBiomarkersListProps> = ({
                   {numericInCategory.map((biomarker, index) => (
                     <BiomarkerProgressCard
                       key={biomarker.id}
-                      name={biomarker.name}
+                      name={translateBiomarkerName(biomarker.name)}
                       percentage={calculateBiomarkerPercentage(
                         biomarker.value,
                         biomarker.reference_min,
@@ -117,7 +121,7 @@ const DynamicBiomarkersList: React.FC<DynamicBiomarkersListProps> = ({
                       )}
                       isNormal={biomarker.is_normal}
                       delay={categoryIndex * 0.1 + index * 0.05}
-                      infoText={formatNumericBiomarkerInfo(biomarker)}
+                      infoText={getBiomarkerExplanation(biomarker.name) || formatNumericBiomarkerInfo(biomarker)}
                     />
                   ))}
                 </div>
@@ -133,7 +137,6 @@ const DynamicBiomarkersList: React.FC<DynamicBiomarkersListProps> = ({
                       value={getBiomarkerDisplayValue(biomarker)}
                       isNormal={biomarker.is_normal}
                       delay={categoryIndex * 0.1 + (numericInCategory.length + index) * 0.05}
-                      infoText={formatDescriptiveBiomarkerInfo(biomarker)}
                     />
                   ))}
                 </div>
@@ -192,14 +195,5 @@ const formatNumericBiomarkerInfo = (biomarker: DetectedBiomarker): string => {
   return parts.join('\n');
 };
 
-// Helper function to format descriptive biomarker info for tooltip
-const formatDescriptiveBiomarkerInfo = (biomarker: DetectedBiomarker): string => {
-  const parts: string[] = [];
-  
-  parts.push(`Resultado: ${biomarker.value_text || '-'}`);
-  parts.push(biomarker.is_normal ? 'Status: Normal ✓' : 'Status: Atenção ⚠');
-  
-  return parts.join('\n');
-};
 
 export default DynamicBiomarkersList;
