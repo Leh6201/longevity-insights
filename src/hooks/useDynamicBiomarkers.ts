@@ -12,6 +12,8 @@ export interface DetectedBiomarker {
   reference_min: number | null;
   reference_max: number | null;
   is_normal: boolean;
+  display_value: string | null;
+  explanation: string | null;
   category: string | null;
   created_at: string;
 }
@@ -44,7 +46,7 @@ export const useDynamicBiomarkers = (labResultId: string | null) => {
           throw fetchError;
         }
 
-        // Map database results to our interface, handling the new columns
+        // Map database results to our interface
         const mappedData: DetectedBiomarker[] = (data || []).map((item: Record<string, unknown>) => ({
           id: item.id as string,
           lab_result_id: item.lab_result_id as string,
@@ -56,6 +58,8 @@ export const useDynamicBiomarkers = (labResultId: string | null) => {
           reference_min: item.reference_min as number | null,
           reference_max: item.reference_max as number | null,
           is_normal: (item.is_normal as boolean) ?? true,
+          display_value: (item.display_value as string | null) || null,
+          explanation: (item.explanation as string | null) || null,
           category: item.category as string | null,
           created_at: item.created_at as string,
         }));
@@ -111,6 +115,8 @@ export const getCategoryDisplayName = (category: string): string => {
     sangue: 'Exame de Sangue',
     urina: 'Exame de Urina',
     fezes: 'Exame de Fezes',
+    virologia: 'Virologia',
+    parasitologia: 'Parasitologia',
     hormonio: 'Hormônios',
     vitamina: 'Vitaminas',
     mineral: 'Minerais',
@@ -126,8 +132,14 @@ export const isDescriptiveBiomarker = (biomarker: DetectedBiomarker): boolean =>
   return biomarker.is_descriptive === true || (biomarker.value === null && biomarker.value_text !== null);
 };
 
-// Get display value for a biomarker
+// Get display value for a biomarker - uses AI-generated display_value if available
 export const getBiomarkerDisplayValue = (biomarker: DetectedBiomarker): string => {
+  // Prefer AI-generated display_value
+  if (biomarker.display_value) {
+    return biomarker.display_value;
+  }
+  
+  // Fallback to raw values
   if (isDescriptiveBiomarker(biomarker)) {
     return biomarker.value_text || '-';
   }

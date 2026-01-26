@@ -16,10 +16,7 @@ import {
   isDescriptiveBiomarker,
   getBiomarkerDisplayValue,
 } from '@/hooks/useDynamicBiomarkers';
-import { 
-  translateBiomarkerName, 
-  getBiomarkerExplanation 
-} from '@/lib/biomarkerLocalization';
+import { translateBiomarkerName } from '@/lib/biomarkerLocalization';
 
 interface DynamicBiomarkersListProps {
   biomarkers: DetectedBiomarker[];
@@ -84,22 +81,27 @@ const DynamicBiomarkersList: React.FC<DynamicBiomarkersListProps> = ({
     );
   }
 
-  // Group biomarkers by status
+  // Group biomarkers by status - UI driven ONLY by is_normal from database
   const attentionBiomarkers = biomarkers.filter(b => !b.is_normal);
   const normalBiomarkers = biomarkers.filter(b => b.is_normal);
 
   const renderBiomarkerItem = (biomarker: DetectedBiomarker, index: number, baseDelay: number) => {
+    // Get AI-generated display value
+    const displayValue = getBiomarkerDisplayValue(biomarker);
+    
     if (isDescriptiveBiomarker(biomarker)) {
       return (
         <DescriptiveBiomarkerCard
           key={biomarker.id}
           name={biomarker.name}
-          value={getBiomarkerDisplayValue(biomarker)}
+          value={displayValue}
           isNormal={biomarker.is_normal}
+          explanation={biomarker.explanation}
           delay={baseDelay + index * 0.05}
         />
       );
     }
+    
     return (
       <BiomarkerProgressCard
         key={biomarker.id}
@@ -111,7 +113,7 @@ const DynamicBiomarkersList: React.FC<DynamicBiomarkersListProps> = ({
         )}
         isNormal={biomarker.is_normal}
         delay={baseDelay + index * 0.05}
-        infoText={getBiomarkerExplanation(biomarker.name) || formatNumericBiomarkerInfo(biomarker)}
+        infoText={biomarker.explanation || formatNumericBiomarkerInfo(biomarker)}
       />
     );
   };
@@ -222,7 +224,7 @@ const DynamicBiomarkersList: React.FC<DynamicBiomarkersListProps> = ({
   );
 };
 
-// Helper function to format numeric biomarker info for tooltip
+// Fallback helper for numeric biomarker info when AI explanation is missing
 const formatNumericBiomarkerInfo = (biomarker: DetectedBiomarker): string => {
   const parts: string[] = [];
   
