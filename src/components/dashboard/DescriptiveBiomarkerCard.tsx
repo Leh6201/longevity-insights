@@ -4,8 +4,9 @@ import { HelpCircle, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   translateBiomarkerName, 
-  translateBiomarkerValue, 
-  getBiomarkerExplanation 
+  getBiomarkerExplanation,
+  normalizeToResult,
+  getExplanatoryText,
 } from '@/lib/biomarkerLocalization';
 
 interface DescriptiveBiomarkerCardProps {
@@ -22,8 +23,20 @@ const DescriptiveBiomarkerCard: React.FC<DescriptiveBiomarkerCardProps> = ({
   delay = 0,
 }) => {
   const translatedName = translateBiomarkerName(name);
-  const translatedValue = translateBiomarkerValue(value);
-  const explanation = getBiomarkerExplanation(name);
+  
+  // Normalize long explanatory text to concise result
+  const displayValue = normalizeToResult(value);
+  
+  // Get explanatory text for tooltip (if value was long/explanatory)
+  const explanatoryText = getExplanatoryText(value);
+  
+  // Combine standard explanation with any explanatory text from the value
+  const biomarkerExplanation = getBiomarkerExplanation(name);
+  const tooltipContent = explanatoryText 
+    ? (biomarkerExplanation ? `${biomarkerExplanation}\n\n📋 Resultado: ${explanatoryText}` : explanatoryText)
+    : biomarkerExplanation;
+
+  const hasTooltip = !!tooltipContent;
 
   return (
     <motion.div
@@ -36,7 +49,7 @@ const DescriptiveBiomarkerCard: React.FC<DescriptiveBiomarkerCardProps> = ({
     >
       <div className="flex items-center gap-3">
         <motion.div 
-          className={`w-8 h-8 rounded-full flex items-center justify-center ${
+          className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
             isNormal ? 'bg-primary/10' : 'bg-warning/10'
           }`}
           animate={!isNormal ? { 
@@ -60,29 +73,29 @@ const DescriptiveBiomarkerCard: React.FC<DescriptiveBiomarkerCardProps> = ({
             </motion.div>
           )}
         </motion.div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-foreground">{translatedName}</span>
-          {explanation && (
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-sm font-medium text-foreground truncate">{translatedName}</span>
+          {hasTooltip && (
             <Popover>
               <PopoverTrigger asChild>
                 <button 
-                  className="inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-muted/80 transition-colors"
+                  className="inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-muted/80 transition-colors flex-shrink-0"
                   aria-label={`Informação sobre ${translatedName}`}
                 >
                   <HelpCircle className="w-3 h-3 text-muted-foreground" />
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-72 p-3" align="start" side="top">
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {explanation}
+              <PopoverContent className="w-80 p-3" align="start" side="top">
+                <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">
+                  {tooltipContent}
                 </p>
               </PopoverContent>
             </Popover>
           )}
         </div>
       </div>
-      <span className={`text-xs ${isNormal ? 'text-muted-foreground' : 'text-warning font-medium'}`}>
-        {translatedValue}
+      <span className={`text-xs flex-shrink-0 ml-2 ${isNormal ? 'text-muted-foreground' : 'text-warning font-medium'}`}>
+        {displayValue}
       </span>
     </motion.div>
   );

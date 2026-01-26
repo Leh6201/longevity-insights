@@ -302,3 +302,82 @@ export function getBiomarkerExplanation(name: string): string | undefined {
 export function hasExplanation(name: string): boolean {
   return getBiomarkerExplanation(name) !== undefined;
 }
+
+// Patterns that indicate explanatory text rather than a simple result
+const explanatoryPatterns = [
+  /não houve/i,
+  /após.*incubação/i,
+  /crescimento.*bacteriano/i,
+  /resultado.*indica/i,
+  /presença de/i,
+  /ausência de/i,
+  /dentro.*limites/i,
+  /valores.*referência/i,
+  /observa-se/i,
+  /detectado.*presença/i,
+];
+
+// Map explanatory text patterns to concise results
+const explanatoryToResult: Array<{ pattern: RegExp; result: string }> = [
+  { pattern: /não houve crescimento/i, result: 'Negativo' },
+  { pattern: /sem crescimento/i, result: 'Negativo' },
+  { pattern: /ausência de/i, result: 'Ausente' },
+  { pattern: /não detectad[oa]/i, result: 'Não Detectado' },
+  { pattern: /não observad[oa]/i, result: 'Ausente' },
+  { pattern: /negativo para/i, result: 'Negativo' },
+  { pattern: /positivo para/i, result: 'Positivo' },
+  { pattern: /presença de/i, result: 'Presente' },
+  { pattern: /dentro.*normais?/i, result: 'Normal' },
+  { pattern: /dentro.*limites/i, result: 'Normal' },
+  { pattern: /valores? normal/i, result: 'Normal' },
+];
+
+/**
+ * Checks if a value is explanatory text rather than a concise result
+ */
+export function isExplanatoryValue(value: string): boolean {
+  if (!value) return false;
+  
+  // If value is very long, it's likely explanatory
+  if (value.length > 40) return true;
+  
+  // Check for explanatory patterns
+  return explanatoryPatterns.some(pattern => pattern.test(value));
+}
+
+/**
+ * Normalizes an explanatory value to a concise result
+ * Returns the original value if it's already concise
+ */
+export function normalizeToResult(value: string): string {
+  if (!value) return value;
+  
+  // If not explanatory, return as-is (with translation)
+  if (!isExplanatoryValue(value)) {
+    return translateBiomarkerValue(value);
+  }
+  
+  // Try to map to a concise result
+  for (const { pattern, result } of explanatoryToResult) {
+    if (pattern.test(value)) {
+      return result;
+    }
+  }
+  
+  // Fallback: if we can't determine, return "Ver detalhes"
+  return 'Ver detalhes';
+}
+
+/**
+ * Gets explanatory text for the tooltip
+ * Returns the original value if it's explanatory, otherwise undefined
+ */
+export function getExplanatoryText(value: string): string | undefined {
+  if (!value) return undefined;
+  
+  if (isExplanatoryValue(value)) {
+    return value;
+  }
+  
+  return undefined;
+}
