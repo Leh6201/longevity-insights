@@ -30,18 +30,36 @@ const DescriptiveBiomarkerCard: React.FC<DescriptiveBiomarkerCardProps> = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
-      className="flex items-center justify-between py-3 px-4 bg-muted/30 rounded-xl"
+      className={`flex items-center justify-between py-3 px-4 rounded-xl transition-all duration-300 ${
+        isNormal ? 'bg-muted/30' : 'bg-warning/5 ring-1 ring-warning/20'
+      }`}
     >
       <div className="flex items-center gap-3">
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-          isNormal ? 'bg-primary/10' : 'bg-warning/10'
-        }`}>
+        <motion.div 
+          className={`w-8 h-8 rounded-full flex items-center justify-center ${
+            isNormal ? 'bg-primary/10' : 'bg-warning/10'
+          }`}
+          animate={!isNormal ? { 
+            scale: [1, 1.05, 1],
+            opacity: [1, 0.8, 1]
+          } : {}}
+          transition={!isNormal ? { 
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          } : {}}
+        >
           {isNormal ? (
             <CheckCircle2 className="w-4 h-4 text-primary" />
           ) : (
-            <AlertCircle className="w-4 h-4 text-warning" />
+            <motion.div
+              animate={{ rotate: [0, 5, -5, 0] }}
+              transition={{ duration: 0.5, delay: 1, repeat: Infinity, repeatDelay: 3 }}
+            >
+              <AlertCircle className="w-4 h-4 text-warning" />
+            </motion.div>
           )}
-        </div>
+        </motion.div>
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-foreground">{translatedName}</span>
           {explanation && (
