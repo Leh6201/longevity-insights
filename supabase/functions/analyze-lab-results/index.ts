@@ -22,139 +22,96 @@ serve(async (req) => {
     console.log('Analyzing lab results for user:', userId);
     console.log('File type:', fileType);
 
-const systemPrompt = `Você é um assistente de análise de exames laboratoriais médicos especializado em extrair QUALQUER tipo de biomarcador de QUALQUER tipo de exame (sangue, urina, fezes, hormônios, vitaminas, etc.).
-
-TAREFA PRINCIPAL: Extrair TODOS os biomarcadores presentes no documento, independentemente do tipo de exame.
-
-REGRAS CRÍTICAS:
-- Extraia APENAS dados que estão EXPLICITAMENTE presentes no documento
-- NÃO invente ou assuma valores que não estão visíveis
-- Extraia TODOS os biomarcadores encontrados, não apenas uma lista predefinida
-- Identifique a categoria do exame (sangue, urina, fezes, hormônios, etc.)
-- IMPORTANTE: Diferencie entre biomarcadores NUMÉRICOS e DESCRITIVOS
-
-TIPOS DE BIOMARCADORES:
-
-1. NUMÉRICOS: Valores com números e unidades (ex: Glicose = 95 mg/dL)
-   - value: número exato
-   - value_text: null
-   - is_descriptive: false
-
-2. DESCRITIVOS: Valores qualitativos/texto (ex: Cor = Amarelo Claro, Nitrito = Negativo)
-   - value: null
-   - value_text: texto exato do resultado (ex: "Amarelo Claro", "Negativo", "Ausente")
-   - is_descriptive: true
-
-Para CADA biomarcador encontrado, extraia:
-- name: Nome do biomarcador em português
-- value: Valor numérico (null se descritivo)
-- value_text: Valor em texto (null se numérico)
-- is_descriptive: true se for descritivo, false se numérico
-- unit: Unidade de medida (null se descritivo)
-- reference_min: Valor mínimo de referência (null se descritivo)
-- reference_max: Valor máximo de referência (null se descritivo)
-- is_normal: INTERPRETAÇÃO CLÍNICA (veja regras abaixo)
-- category: Categoria do exame (sangue, urina, fezes, hormônio, vitamina, mineral, enzima, lipidio, etc.)
+const systemPrompt = `Você é um assistente de análise de exames laboratoriais médicos especializado em extrair e interpretar QUALQUER tipo de biomarcador de QUALQUER tipo de exame.
 
 ═══════════════════════════════════════════════════════════════════════════════
-REGRAS CRÍTICAS PARA CLASSIFICAÇÃO is_normal (INTERPRETAÇÃO CLÍNICA INTELIGENTE)
+FILOSOFIA CENTRAL: INTERPRETAÇÃO DINÂMICA PELA IA
 ═══════════════════════════════════════════════════════════════════════════════
 
-A classificação is_normal deve refletir SIGNIFICÂNCIA CLÍNICA REAL, não apenas comparação com valores "ideais".
+Você é EXAM-AGNOSTIC (agnóstico ao tipo de exame). Não existem regras pré-definidas.
+Você deve usar seu conhecimento clínico para interpretar QUALQUER resultado de:
+- Exames de sangue (hemograma, bioquímica, hormônios, etc.)
+- Exames de urina (EAS, urocultura, etc.)
+- Exames de fezes
+- Exames virológicos (HIV, Hepatite, etc.)
+- Exames parasitológicos
+- Qualquer outro tipo de exame laboratorial
 
-PRINCÍPIO FUNDAMENTAL:
-- is_normal = true → Resultado clinicamente aceitável, não requer atenção especial
+═══════════════════════════════════════════════════════════════════════════════
+TAREFA: EXTRAIR E INTERPRETAR
+═══════════════════════════════════════════════════════════════════════════════
+
+Para CADA biomarcador encontrado no documento, extraia:
+
+1. DADOS FACTUAIS (extraídos do documento):
+   - name: Nome do biomarcador em português
+   - value: Valor numérico (null se qualitativo)
+   - value_text: Valor original em texto (para resultados qualitativos)
+   - unit: Unidade de medida (null se qualitativo)
+   - reference_min/max: Valores de referência (null se qualitativo)
+   - is_descriptive: true se qualitativo, false se numérico
+   - category: Categoria do exame (sangue, urina, fezes, virologia, parasitologia, hormônio, etc.)
+
+2. INTERPRETAÇÃO PELA IA (você deve gerar):
+   - is_normal: Sua interpretação clínica se o resultado é normal (true) ou requer atenção (false)
+   - display_value: Valor CONCISO para exibição na UI (ex: "Negativo", "Amarelo", "95 mg/dL")
+   - explanation: Explicação EDUCACIONAL em português para o usuário entender o resultado
+
+═══════════════════════════════════════════════════════════════════════════════
+REGRAS PARA INTERPRETAÇÃO (is_normal)
+═══════════════════════════════════════════════════════════════════════════════
+
+Use seu conhecimento clínico para determinar:
+- is_normal = true → Resultado clinicamente aceitável, dentro do esperado
 - is_normal = false → Resultado que REALMENTE merece atenção do usuário
 
-REGRAS PARA BIOMARCADORES DESCRITIVOS:
+EXEMPLOS DE INTERPRETAÇÃO:
+- Cor da urina "Amarelo" ou "Yellow" → is_normal: true (cor normal)
+- Nitrito "Negativo" → is_normal: true (sem infecção bacteriana)
+- HIV "Não Reagente" → is_normal: true (sem evidência de infecção)
+- Glicose "Positivo" na urina → is_normal: false (requer investigação)
+- Hemácias "Numerosas" → is_normal: false (hematúria significativa)
+- Parasitas "Detectado" → is_normal: false (requer tratamento)
 
-EXAME DE URINA - VALORES NORMAIS (is_normal = true):
-- Cor: "Amarelo", "Amarelo Claro", "Amarelo Pálido", "Amarelo Citrino", "Straw yellow", "Yellow" → NORMAL
-- Aspecto: "Límpido", "Ligeiramente Turvo", "Clear" → NORMAL  
-- pH: 5.0 a 8.0 → NORMAL
-- Densidade: 1.005 a 1.030 → NORMAL
-- Proteínas: "Negativo", "Traços", "Ausente", "Negative" → NORMAL
-- Glicose: "Negativo", "Ausente", "Negative" → NORMAL
-- Cetonas: "Negativo", "Ausente", "Negative" → NORMAL
-- Bilirrubina: "Negativo", "Ausente", "Negative" → NORMAL
-- Urobilinogênio: "Normal", "Negativo" → NORMAL
-- Nitrito: "Negativo", "Negative" → NORMAL
-- Leucócitos: "Ausentes", "Raros", "0-4/campo", "Negative" → NORMAL
-- Hemácias: "Ausentes", "Raras", "0-3/campo", "Negative" → NORMAL
-- Células Epiteliais: "Raras", "Algumas", "Escassas" → NORMAL
-- Cilindros: "Ausentes", "Raros hialinos" → NORMAL
-- Cristais: "Ausentes", "Raros" → NORMAL
-- Bactérias: "Ausentes", "Raras", "Negative" → NORMAL
-- Muco: "Ausente", "Escasso", "Raro" → NORMAL
+═══════════════════════════════════════════════════════════════════════════════
+REGRAS PARA display_value (valor conciso)
+═══════════════════════════════════════════════════════════════════════════════
 
-EXAME DE URINA - VALORES ANORMAIS (is_normal = false):
-- Cor: "Vermelho", "Marrom", "Verde", "Laranja escuro" → ATENÇÃO
-- Aspecto: "Muito Turvo", "Purulento" → ATENÇÃO
-- Proteínas: "+", "++", "+++", "Positivo" → ATENÇÃO
-- Glicose: "Positivo", "+", "++", "+++ " → ATENÇÃO
-- Nitrito: "Positivo", "Positive" → ATENÇÃO
-- Leucócitos: "Numerosos", "Aumentados", ">10/campo", "Positive" → ATENÇÃO
-- Hemácias: "Numerosas", "Aumentadas", ">5/campo" → ATENÇÃO
-- Bactérias: "Numerosas", "Aumentadas", "Positive" → ATENÇÃO
+O display_value deve ser CURTO e OBJETIVO:
+- Para numéricos: "95 mg/dL", "5.5", "1.025"
+- Para qualitativos: "Negativo", "Positivo", "Amarelo", "Não Reagente", "Ausente"
+- NUNCA coloque frases longas como "Não houve crescimento bacteriano após 48h..."
+- Simplifique para: "Negativo" ou "Ausente"
 
-EXAME DE FEZES - VALORES NORMAIS (is_normal = true):
-- Cor: "Marrom", "Castanho" → NORMAL
-- Consistência: "Pastosa", "Formada", "Moldada" → NORMAL
-- Sangue oculto: "Negativo", "Negative" → NORMAL
-- Leucócitos: "Ausentes", "Raros" → NORMAL
-- Parasitas: "Não detectado", "Negativo", "Ausente" → NORMAL
+EXEMPLOS:
+- "Não houve crescimento bacteriano patogênico após 48 hs de incubação" → display_value: "Negativo"
+- "Ausência de parasitas" → display_value: "Ausente"
+- "Presença de cristais de oxalato" → display_value: "Presente"
+- "Yellow" ou "Amarelo claro" → display_value: "Amarelo"
 
-REGRAS PARA BIOMARCADORES NUMÉRICOS:
+═══════════════════════════════════════════════════════════════════════════════
+REGRAS PARA explanation (explicação educacional)
+═══════════════════════════════════════════════════════════════════════════════
 
-Para valores NUMÉRICOS, considere:
-- Dentro do intervalo de referência → is_normal = true
-- Levemente fora (até 10% da faixa) sem sintomas típicos → considere is_normal = true
-- Significativamente fora da faixa → is_normal = false
+A explicação deve ser:
+- Em PORTUGUÊS BRASILEIRO
+- Linguagem SIMPLES e AMIGÁVEL (não-médica)
+- EDUCACIONAL (ajudar o usuário a entender o que significa)
+- Máximo de 2-3 frases
 
-EXEMPLOS DE INTERPRETAÇÃO CORRETA:
-
-1. Cor da Urina = "Yellow" ou "Amarelo" 
-   → is_normal = TRUE (cor completamente normal)
-
-2. Nitrito = "Negativo"
-   → is_normal = TRUE (ausência de infecção bacteriana)
-
-3. Proteínas = "Traços"
-   → is_normal = TRUE (quantidade mínima, geralmente sem significado clínico)
-
-4. Glicose urinária = "Positivo" ou "+"
-   → is_normal = FALSE (pode indicar diabetes, requer investigação)
-
-5. Hemácias = "Numerosas"
-   → is_normal = FALSE (hematúria significativa)
-
-IMPORTANTE: Não marque como is_normal = false apenas porque o valor não é "perfeito".
-Apenas marque is_normal = false quando o resultado REALMENTE indicar algo que o usuário deveria saber.
+EXEMPLOS:
+- Cor da urina: "A cor da urina indica seu nível de hidratação. Urina amarelo claro geralmente significa boa hidratação."
+- Nitrito: "Resultado negativo significa que não há sinais de infecção bacteriana no trato urinário."
+- HIV: "Resultado não reagente indica que não há evidência de infecção pelo vírus HIV nesta amostra."
+- Glicose elevada: "A presença de glicose na urina pode indicar níveis elevados de açúcar no sangue. Recomenda-se acompanhamento médico."
 
 ═══════════════════════════════════════════════════════════════════════════════
 
-Após extrair os biomarcadores:
-1. Estime a idade biológica baseada nos valores encontrados (se aplicável para exames de sangue)
-2. Avalie o risco metabólico (low/moderate/high) baseado nos achados
-3. Avalie o score de inflamação (low/moderate/high) baseado nos achados
-4. Gere 5 recomendações personalizadas em PORTUGUÊS BRASILEIRO baseadas nos resultados específicos
+IMPORTANTE: Responda SOMENTE com JSON puro, SEM markdown, SEM \`\`\`json.
 
-IMPORTANTE: Responda SOMENTE com JSON puro, SEM markdown, SEM \`\`\`json, SEM texto antes ou depois.
-
-Formato de resposta (JSON puro):
+Formato de resposta:
 {
   "biomarkers": [
-    {
-      "name": "Glicose",
-      "value": 95,
-      "value_text": null,
-      "is_descriptive": false,
-      "unit": "mg/dL",
-      "reference_min": 70,
-      "reference_max": 100,
-      "is_normal": true,
-      "category": "sangue"
-    },
     {
       "name": "Cor",
       "value": null,
@@ -164,7 +121,22 @@ Formato de resposta (JSON puro):
       "reference_min": null,
       "reference_max": null,
       "is_normal": true,
+      "display_value": "Amarelo",
+      "explanation": "A cor da urina indica seu nível de hidratação. Amarelo claro é considerado normal.",
       "category": "urina"
+    },
+    {
+      "name": "Glicose",
+      "value": 95,
+      "value_text": null,
+      "is_descriptive": false,
+      "unit": "mg/dL",
+      "reference_min": 70,
+      "reference_max": 100,
+      "is_normal": true,
+      "display_value": "95 mg/dL",
+      "explanation": "Nível de açúcar no sangue dentro da faixa normal. Indica bom controle glicêmico.",
+      "category": "sangue"
     }
   ],
   "biological_age": number|null,
@@ -173,7 +145,7 @@ Formato de resposta (JSON puro):
   "recommendations": ["recomendação 1", "recomendação 2", "recomendação 3", "recomendação 4", "recomendação 5"]
 }
 
-ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com sugestões de estilo de vida baseadas nos resultados específicos encontrados. Isto é apenas educacional - sempre recomende consultar profissionais de saúde.`;
+Recomendações devem ser em português brasileiro, educacionais e sempre orientar consulta com profissionais de saúde.`;
 
     const messages: Array<{ role: string; content: Array<{ type: string; text?: string; image_url?: { url: string } }> }> = [
       {
@@ -181,7 +153,7 @@ ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com s
         content: [
           {
             type: "text",
-            text: "Por favor, analise este exame laboratorial e extraia TODOS os valores dos biomarcadores presentes. Identifique o tipo de exame e forneça recomendações de saúde em português brasileiro."
+            text: "Por favor, analise este exame laboratorial e extraia TODOS os valores dos biomarcadores presentes. Para cada um, forneça sua interpretação clínica (is_normal), um valor conciso (display_value) e uma explicação educacional (explanation) em português."
           },
           {
             type: "image_url",
@@ -243,6 +215,8 @@ ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com s
       reference_min?: number;
       reference_max?: number;
       is_normal?: boolean;
+      display_value?: string;
+      explanation?: string;
       category?: string;
     }
 
@@ -263,7 +237,7 @@ ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com s
       if (jsonMatch) {
         analysisResult = JSON.parse(jsonMatch[0]);
         console.log('Successfully parsed biomarkers count:', analysisResult.biomarkers?.length || 0);
-        console.log('Biomarkers found:', analysisResult.biomarkers?.map(b => b.name));
+        console.log('Biomarkers found:', analysisResult.biomarkers?.map(b => `${b.name}: ${b.display_value} (normal: ${b.is_normal})`));
       } else {
         throw new Error('No JSON found in response');
       }
@@ -332,7 +306,7 @@ ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com s
       console.log('Lab result created:', labResult.id);
     }
 
-    // Insert dynamic biomarkers into the new table
+    // Insert dynamic biomarkers into the table with AI-generated interpretation
     if (analysisResult.biomarkers && analysisResult.biomarkers.length > 0) {
       const biomarkersToInsert = analysisResult.biomarkers
         .filter(b => b.name && (b.value !== null || b.value_text !== null))
@@ -348,13 +322,14 @@ ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com s
             reference_min: isDescriptive ? null : (biomarker.reference_min ?? null),
             reference_max: isDescriptive ? null : (biomarker.reference_max ?? null),
             is_normal: biomarker.is_normal ?? true,
+            display_value: biomarker.display_value || null,
+            explanation: biomarker.explanation || null,
             category: biomarker.category || 'geral',
           };
         });
 
       console.log('Inserting biomarkers:', biomarkersToInsert.length);
-      console.log('Descriptive biomarkers:', biomarkersToInsert.filter(b => b.is_descriptive).length);
-      console.log('Numeric biomarkers:', biomarkersToInsert.filter(b => !b.is_descriptive).length);
+      console.log('Sample biomarker:', JSON.stringify(biomarkersToInsert[0], null, 2));
 
       if (biomarkersToInsert.length > 0) {
         const { error: biomarkerError } = await supabase

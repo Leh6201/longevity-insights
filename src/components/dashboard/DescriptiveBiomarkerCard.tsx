@@ -2,17 +2,13 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { HelpCircle, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { 
-  translateBiomarkerName, 
-  getBiomarkerExplanation,
-  normalizeToResult,
-  getExplanatoryText,
-} from '@/lib/biomarkerLocalization';
+import { translateBiomarkerName } from '@/lib/biomarkerLocalization';
 
 interface DescriptiveBiomarkerCardProps {
   name: string;
   value: string;
   isNormal: boolean;
+  explanation?: string | null;
   delay?: number;
 }
 
@@ -20,23 +16,11 @@ const DescriptiveBiomarkerCard: React.FC<DescriptiveBiomarkerCardProps> = ({
   name,
   value,
   isNormal,
+  explanation,
   delay = 0,
 }) => {
   const translatedName = translateBiomarkerName(name);
-  
-  // Normalize long explanatory text to concise result
-  const displayValue = normalizeToResult(value);
-  
-  // Get explanatory text for tooltip (if value was long/explanatory)
-  const explanatoryText = getExplanatoryText(value);
-  
-  // Combine standard explanation with any explanatory text from the value
-  const biomarkerExplanation = getBiomarkerExplanation(name);
-  const tooltipContent = explanatoryText 
-    ? (biomarkerExplanation ? `${biomarkerExplanation}\n\n📋 Resultado: ${explanatoryText}` : explanatoryText)
-    : biomarkerExplanation;
-
-  const hasTooltip = !!tooltipContent;
+  const hasTooltip = !!explanation;
 
   return (
     <motion.div
@@ -87,7 +71,7 @@ const DescriptiveBiomarkerCard: React.FC<DescriptiveBiomarkerCardProps> = ({
               </PopoverTrigger>
               <PopoverContent className="w-80 p-3" align="start" side="top">
                 <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">
-                  {tooltipContent}
+                  {explanation}
                 </p>
               </PopoverContent>
             </Popover>
@@ -95,7 +79,7 @@ const DescriptiveBiomarkerCard: React.FC<DescriptiveBiomarkerCardProps> = ({
         </div>
       </div>
       <span className={`text-xs flex-shrink-0 ml-2 ${isNormal ? 'text-muted-foreground' : 'text-warning font-medium'}`}>
-        {displayValue}
+        {value}
       </span>
     </motion.div>
   );
