@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      detected_biomarkers: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          is_normal: boolean | null
+          lab_result_id: string
+          name: string
+          reference_max: number | null
+          reference_min: number | null
+          unit: string | null
+          value: number
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_normal?: boolean | null
+          lab_result_id: string
+          name: string
+          reference_max?: number | null
+          reference_min?: number | null
+          unit?: string | null
+          value: number
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_normal?: boolean | null
+          lab_result_id?: string
+          name?: string
+          reference_max?: number | null
+          reference_min?: number | null
+          unit?: string | null
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "detected_biomarkers_lab_result_id_fkey"
+            columns: ["lab_result_id"]
+            isOneToOne: false
+            referencedRelation: "lab_results"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lab_results: {
         Row: {
           ai_recommendations: string[] | null

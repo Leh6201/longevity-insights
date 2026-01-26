@@ -22,49 +22,76 @@ serve(async (req) => {
     console.log('Analyzing lab results for user:', userId);
     console.log('File type:', fileType);
 
-    const systemPrompt = `Você é um assistente de análise de exames laboratoriais médicos.
+    const systemPrompt = `Você é um assistente de análise de exames laboratoriais médicos especializado em extrair QUALQUER tipo de biomarcador de QUALQUER tipo de exame (sangue, urina, fezes, hormônios, vitaminas, etc.).
 
-TAREFA PRINCIPAL: Extrair TODOS os biomarcadores presentes no documento.
+TAREFA PRINCIPAL: Extrair TODOS os biomarcadores presentes no documento, independentemente do tipo de exame.
 
 REGRAS CRÍTICAS:
 - Extraia APENAS dados que estão EXPLICITAMENTE presentes no documento
 - NÃO invente ou assuma valores que não estão visíveis
-- Se um biomarcador não está presente, retorne null
-- Extraia o valor numérico exato conforme mostrado no documento
+- Extraia TODOS os biomarcadores encontrados, não apenas uma lista predefinida
+- Identifique a categoria do exame (sangue, urina, fezes, hormônios, etc.)
 
-Para cada biomarcador encontrado, extraia:
-- Nome do biomarcador
-- Valor numérico
-- Unidade de medida
-- Faixa de referência (se disponível)
-
-Biomarcadores a procurar (retorne null se não encontrado):
-- Colesterol Total (mg/dL)
-- HDL (mg/dL)
-- LDL (mg/dL)
-- Triglicerídeos (mg/dL)
-- Glicose (mg/dL)
-- Hemoglobina (g/dL)
-- Creatinina (mg/dL)
-- AST/TGO (U/L)
-- ALT/TGP (U/L)
-- GGT (U/L)
-- Vitamina D (ng/mL)
-- TSH (mIU/L ou μUI/mL)
-- PCR/CRP (mg/L)
+Para CADA biomarcador encontrado no documento, extraia:
+- name: Nome do biomarcador em português
+- value: Valor numérico exato
+- unit: Unidade de medida
+- reference_min: Valor mínimo de referência (se disponível)
+- reference_max: Valor máximo de referência (se disponível)
+- is_normal: true se o valor está dentro da faixa normal, false caso contrário
+- category: Categoria do biomarcador (sangue, urina, fezes, hormônio, vitamina, mineral, enzima, lipidio, etc.)
 
 Após extrair os biomarcadores:
-1. Estime a idade biológica baseada nos valores encontrados
-2. Avalie o risco metabólico (low/moderate/high)
-3. Avalie o score de inflamação (low/moderate/high)
-4. Gere 5 recomendações em PORTUGUÊS BRASILEIRO
+1. Estime a idade biológica baseada nos valores encontrados (se aplicável para exames de sangue)
+2. Avalie o risco metabólico (low/moderate/high) baseado nos achados
+3. Avalie o score de inflamação (low/moderate/high) baseado nos achados
+4. Gere 5 recomendações personalizadas em PORTUGUÊS BRASILEIRO baseadas nos resultados específicos
 
 IMPORTANTE: Responda SOMENTE com JSON puro, SEM markdown, SEM \`\`\`json, SEM texto antes ou depois.
 
 Formato de resposta (JSON puro):
-{"biomarkers":{"total_cholesterol":number|null,"hdl":number|null,"ldl":number|null,"triglycerides":number|null,"glucose":number|null,"hemoglobin":number|null,"creatinine":number|null,"ast":number|null,"alt":number|null,"ggt":number|null,"vitamin_d":number|null,"tsh":number|null,"crp":number|null},"biological_age":number|null,"metabolic_risk_score":"low"|"moderate"|"high","inflammation_score":"low"|"moderate"|"high","recommendations":["recomendação 1","recomendação 2","recomendação 3","recomendação 4","recomendação 5"]}
+{
+  "biomarkers": [
+    {
+      "name": "Nome do Biomarcador",
+      "value": 123.45,
+      "unit": "mg/dL",
+      "reference_min": 70,
+      "reference_max": 100,
+      "is_normal": true,
+      "category": "sangue"
+    }
+  ],
+  "biological_age": number|null,
+  "metabolic_risk_score": "low"|"moderate"|"high",
+  "inflammation_score": "low"|"moderate"|"high",
+  "recommendations": ["recomendação 1", "recomendação 2", "recomendação 3", "recomendação 4", "recomendação 5"]
+}
 
-ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com sugestões de estilo de vida. Isto é apenas educacional - sempre recomende consultar profissionais de saúde.`;
+EXEMPLOS DE BIOMARCADORES A PROCURAR (não limitado a estes):
+
+Exames de Sangue:
+- Glicose, Hemoglobina Glicada, Insulina
+- Colesterol Total, HDL, LDL, Triglicerídeos, VLDL
+- Hemoglobina, Hematócrito, Hemácias, Leucócitos, Plaquetas
+- Creatinina, Ureia, Ácido Úrico
+- AST/TGO, ALT/TGP, GGT, Fosfatase Alcalina, Bilirrubinas
+- TSH, T3, T4 Livre
+- Vitamina D, B12, Ácido Fólico, Ferro, Ferritina
+- PCR, VHS
+- Sódio, Potássio, Cálcio, Magnésio
+
+Exames de Urina:
+- pH, Densidade, Proteínas, Glicose
+- Leucócitos, Hemácias, Bactérias
+- Nitritos, Cetonas, Bilirrubina, Urobilinogênio
+- Células Epiteliais, Cristais, Cilindros
+
+Exames de Fezes:
+- Sangue Oculto, Parasitas, Leucócitos
+- pH, Gordura, Fibras
+
+ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com sugestões de estilo de vida baseadas nos resultados específicos encontrados. Isto é apenas educacional - sempre recomende consultar profissionais de saúde.`;
 
     const messages: Array<{ role: string; content: Array<{ type: string; text?: string; image_url?: { url: string } }> }> = [
       {
@@ -72,7 +99,7 @@ ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com s
         content: [
           {
             type: "text",
-            text: "Por favor, analise este exame laboratorial e extraia todos os valores dos biomarcadores. Forneça uma estimativa de idade biológica e recomendações de saúde em português brasileiro."
+            text: "Por favor, analise este exame laboratorial e extraia TODOS os valores dos biomarcadores presentes. Identifique o tipo de exame e forneça recomendações de saúde em português brasileiro."
           },
           {
             type: "image_url",
@@ -125,13 +152,24 @@ ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com s
     
     console.log('AI Response:', content);
 
+    interface Biomarker {
+      name: string;
+      value: number;
+      unit?: string;
+      reference_min?: number;
+      reference_max?: number;
+      is_normal?: boolean;
+      category?: string;
+    }
+
     let analysisResult: {
-      biomarkers: Record<string, unknown>;
+      biomarkers: Biomarker[];
       biological_age: number | null;
       metabolic_risk_score: string | null;
       inflammation_score: string | null;
       recommendations: string[];
     };
+
     try {
       // Remove markdown code blocks if present
       let cleanContent = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
@@ -140,14 +178,15 @@ ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com s
       const jsonMatch = cleanContent.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         analysisResult = JSON.parse(jsonMatch[0]);
-        console.log('Successfully parsed biomarkers:', Object.keys(analysisResult.biomarkers || {}).filter(k => analysisResult.biomarkers[k] !== null));
+        console.log('Successfully parsed biomarkers count:', analysisResult.biomarkers?.length || 0);
+        console.log('Biomarkers found:', analysisResult.biomarkers?.map(b => b.name));
       } else {
         throw new Error('No JSON found in response');
       }
     } catch (parseError) {
       console.error('Failed to parse AI response:', parseError);
       analysisResult = {
-        biomarkers: {},
+        biomarkers: [],
         biological_age: null,
         metabolic_risk_score: null,
         inflammation_score: null,
@@ -155,45 +194,16 @@ ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com s
       };
     }
 
-    // Extract numeric values from biomarkers (AI may return objects with {value, unit, reference_range})
-    const extractNumericValue = (val: unknown): number | null => {
-      if (val === null || val === undefined) return null;
-      if (typeof val === 'number') return val;
-      if (typeof val === 'object' && val !== null && 'value' in val) {
-        const numVal = (val as { value: unknown }).value;
-        return typeof numVal === 'number' ? numVal : null;
-      }
-      return null;
-    };
-
-    const normalizedBiomarkers = {
-      total_cholesterol: extractNumericValue(analysisResult.biomarkers?.total_cholesterol),
-      hdl: extractNumericValue(analysisResult.biomarkers?.hdl),
-      ldl: extractNumericValue(analysisResult.biomarkers?.ldl),
-      triglycerides: extractNumericValue(analysisResult.biomarkers?.triglycerides),
-      glucose: extractNumericValue(analysisResult.biomarkers?.glucose),
-      hemoglobin: extractNumericValue(analysisResult.biomarkers?.hemoglobin),
-      creatinine: extractNumericValue(analysisResult.biomarkers?.creatinine),
-      ast: extractNumericValue(analysisResult.biomarkers?.ast),
-      alt: extractNumericValue(analysisResult.biomarkers?.alt),
-      ggt: extractNumericValue(analysisResult.biomarkers?.ggt),
-      vitamin_d: extractNumericValue(analysisResult.biomarkers?.vitamin_d),
-      tsh: extractNumericValue(analysisResult.biomarkers?.tsh),
-      crp: extractNumericValue(analysisResult.biomarkers?.crp),
-    };
-
-    console.log('Normalized biomarkers for DB:', normalizedBiomarkers);
-
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { data, error } = await supabase
+    // Create the lab result record first
+    const { data: labResult, error: labError } = await supabase
       .from('lab_results')
       .insert({
         user_id: userId,
         file_name: fileName,
-        ...normalizedBiomarkers,
         biological_age: analysisResult.biological_age,
         metabolic_risk_score: analysisResult.metabolic_risk_score,
         inflammation_score: analysisResult.inflammation_score,
@@ -202,14 +212,51 @@ ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com s
       .select()
       .single();
 
-    if (error) {
-      console.error('Database error:', error);
-      throw error;
+    if (labError) {
+      console.error('Database error creating lab result:', labError);
+      throw labError;
     }
 
-    console.log('Lab results saved:', data.id);
+    console.log('Lab result created:', labResult.id);
 
-    return new Response(JSON.stringify({ success: true, data }), {
+    // Insert dynamic biomarkers into the new table
+    if (analysisResult.biomarkers && analysisResult.biomarkers.length > 0) {
+      const biomarkersToInsert = analysisResult.biomarkers
+        .filter(b => b.name && b.value !== null && b.value !== undefined)
+        .map(biomarker => ({
+          lab_result_id: labResult.id,
+          name: biomarker.name,
+          value: typeof biomarker.value === 'number' ? biomarker.value : parseFloat(String(biomarker.value)) || 0,
+          unit: biomarker.unit || null,
+          reference_min: biomarker.reference_min ?? null,
+          reference_max: biomarker.reference_max ?? null,
+          is_normal: biomarker.is_normal ?? true,
+          category: biomarker.category || 'geral',
+        }));
+
+      console.log('Inserting biomarkers:', biomarkersToInsert.length);
+
+      if (biomarkersToInsert.length > 0) {
+        const { error: biomarkerError } = await supabase
+          .from('detected_biomarkers')
+          .insert(biomarkersToInsert);
+
+        if (biomarkerError) {
+          console.error('Error inserting biomarkers:', biomarkerError);
+          // Don't fail the whole request, just log the error
+        } else {
+          console.log('Biomarkers inserted successfully');
+        }
+      }
+    } else {
+      console.log('No biomarkers detected in the exam');
+    }
+
+    return new Response(JSON.stringify({ 
+      success: true, 
+      data: labResult,
+      biomarkersCount: analysisResult.biomarkers?.length || 0
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
