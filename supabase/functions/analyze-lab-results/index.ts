@@ -22,7 +22,7 @@ serve(async (req) => {
     console.log('Analyzing lab results for user:', userId);
     console.log('File type:', fileType);
 
-    const systemPrompt = `Você é um assistente de análise de exames laboratoriais médicos especializado em extrair QUALQUER tipo de biomarcador de QUALQUER tipo de exame (sangue, urina, fezes, hormônios, vitaminas, etc.).
+const systemPrompt = `Você é um assistente de análise de exames laboratoriais médicos especializado em extrair QUALQUER tipo de biomarcador de QUALQUER tipo de exame (sangue, urina, fezes, hormônios, vitaminas, etc.).
 
 TAREFA PRINCIPAL: Extrair TODOS os biomarcadores presentes no documento, independentemente do tipo de exame.
 
@@ -31,15 +31,30 @@ REGRAS CRÍTICAS:
 - NÃO invente ou assuma valores que não estão visíveis
 - Extraia TODOS os biomarcadores encontrados, não apenas uma lista predefinida
 - Identifique a categoria do exame (sangue, urina, fezes, hormônios, etc.)
+- IMPORTANTE: Diferencie entre biomarcadores NUMÉRICOS e DESCRITIVOS
 
-Para CADA biomarcador encontrado no documento, extraia:
+TIPOS DE BIOMARCADORES:
+
+1. NUMÉRICOS: Valores com números e unidades (ex: Glicose = 95 mg/dL)
+   - value: número exato
+   - value_text: null
+   - is_descriptive: false
+
+2. DESCRITIVOS: Valores qualitativos/texto (ex: Cor = Amarelo Claro, Nitrito = Negativo)
+   - value: null
+   - value_text: texto exato do resultado (ex: "Amarelo Claro", "Negativo", "Ausente")
+   - is_descriptive: true
+
+Para CADA biomarcador encontrado, extraia:
 - name: Nome do biomarcador em português
-- value: Valor numérico exato
-- unit: Unidade de medida
-- reference_min: Valor mínimo de referência (se disponível)
-- reference_max: Valor máximo de referência (se disponível)
-- is_normal: true se o valor está dentro da faixa normal, false caso contrário
-- category: Categoria do biomarcador (sangue, urina, fezes, hormônio, vitamina, mineral, enzima, lipidio, etc.)
+- value: Valor numérico (null se descritivo)
+- value_text: Valor em texto (null se numérico)
+- is_descriptive: true se for descritivo, false se numérico
+- unit: Unidade de medida (null se descritivo)
+- reference_min: Valor mínimo de referência (null se descritivo)
+- reference_max: Valor máximo de referência (null se descritivo)
+- is_normal: true se normal, false caso contrário
+- category: Categoria do exame (sangue, urina, fezes, hormônio, vitamina, mineral, enzima, lipidio, etc.)
 
 Após extrair os biomarcadores:
 1. Estime a idade biológica baseada nos valores encontrados (se aplicável para exames de sangue)
@@ -53,13 +68,26 @@ Formato de resposta (JSON puro):
 {
   "biomarkers": [
     {
-      "name": "Nome do Biomarcador",
-      "value": 123.45,
+      "name": "Glicose",
+      "value": 95,
+      "value_text": null,
+      "is_descriptive": false,
       "unit": "mg/dL",
       "reference_min": 70,
       "reference_max": 100,
       "is_normal": true,
       "category": "sangue"
+    },
+    {
+      "name": "Cor",
+      "value": null,
+      "value_text": "Amarelo Claro",
+      "is_descriptive": true,
+      "unit": null,
+      "reference_min": null,
+      "reference_max": null,
+      "is_normal": true,
+      "category": "urina"
     }
   ],
   "biological_age": number|null,
@@ -68,28 +96,22 @@ Formato de resposta (JSON puro):
   "recommendations": ["recomendação 1", "recomendação 2", "recomendação 3", "recomendação 4", "recomendação 5"]
 }
 
-EXEMPLOS DE BIOMARCADORES A PROCURAR (não limitado a estes):
-
-Exames de Sangue:
+EXEMPLOS DE BIOMARCADORES NUMÉRICOS (sangue):
 - Glicose, Hemoglobina Glicada, Insulina
-- Colesterol Total, HDL, LDL, Triglicerídeos, VLDL
-- Hemoglobina, Hematócrito, Hemácias, Leucócitos, Plaquetas
+- Colesterol Total, HDL, LDL, Triglicerídeos
+- Hemoglobina, Hematócrito, Leucócitos, Plaquetas
 - Creatinina, Ureia, Ácido Úrico
-- AST/TGO, ALT/TGP, GGT, Fosfatase Alcalina, Bilirrubinas
-- TSH, T3, T4 Livre
-- Vitamina D, B12, Ácido Fólico, Ferro, Ferritina
-- PCR, VHS
-- Sódio, Potássio, Cálcio, Magnésio
+- AST, ALT, GGT, TSH, T3, T4
 
-Exames de Urina:
-- pH, Densidade, Proteínas, Glicose
-- Leucócitos, Hemácias, Bactérias
-- Nitritos, Cetonas, Bilirrubina, Urobilinogênio
-- Células Epiteliais, Cristais, Cilindros
-
-Exames de Fezes:
-- Sangue Oculto, Parasitas, Leucócitos
-- pH, Gordura, Fibras
+EXEMPLOS DE BIOMARCADORES DESCRITIVOS (urina):
+- Cor: "Amarelo Claro", "Amarelo", "Âmbar"
+- Aspecto: "Límpido", "Turvo", "Ligeiramente Turvo"
+- Proteínas: "Negativo", "Traços", "+"
+- Leucócitos: "Ausentes", "Raros", "Presentes"
+- Nitrito: "Negativo", "Positivo"
+- Hemácias: "Ausentes", "Raras", "Presentes"
+- Bactérias: "Ausentes", "Raras", "Presentes"
+- Células Epiteliais: "Raras", "Algumas", "Numerosas"
 
 ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com sugestões de estilo de vida baseadas nos resultados específicos encontrados. Isto é apenas educacional - sempre recomende consultar profissionais de saúde.`;
 
@@ -154,7 +176,9 @@ ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com s
 
     interface Biomarker {
       name: string;
-      value: number;
+      value: number | null;
+      value_text: string | null;
+      is_descriptive: boolean;
       unit?: string;
       reference_min?: number;
       reference_max?: number;
@@ -222,19 +246,26 @@ ATENÇÃO: Recomendações devem ser em português brasileiro, amigáveis, com s
     // Insert dynamic biomarkers into the new table
     if (analysisResult.biomarkers && analysisResult.biomarkers.length > 0) {
       const biomarkersToInsert = analysisResult.biomarkers
-        .filter(b => b.name && b.value !== null && b.value !== undefined)
-        .map(biomarker => ({
-          lab_result_id: labResult.id,
-          name: biomarker.name,
-          value: typeof biomarker.value === 'number' ? biomarker.value : parseFloat(String(biomarker.value)) || 0,
-          unit: biomarker.unit || null,
-          reference_min: biomarker.reference_min ?? null,
-          reference_max: biomarker.reference_max ?? null,
-          is_normal: biomarker.is_normal ?? true,
-          category: biomarker.category || 'geral',
-        }));
+        .filter(b => b.name && (b.value !== null || b.value_text !== null))
+        .map(biomarker => {
+          const isDescriptive = biomarker.is_descriptive === true || (biomarker.value === null && biomarker.value_text !== null);
+          return {
+            lab_result_id: labResult.id,
+            name: biomarker.name,
+            value: isDescriptive ? null : (typeof biomarker.value === 'number' ? biomarker.value : parseFloat(String(biomarker.value)) || null),
+            value_text: isDescriptive ? (biomarker.value_text || String(biomarker.value)) : null,
+            is_descriptive: isDescriptive,
+            unit: isDescriptive ? null : (biomarker.unit || null),
+            reference_min: isDescriptive ? null : (biomarker.reference_min ?? null),
+            reference_max: isDescriptive ? null : (biomarker.reference_max ?? null),
+            is_normal: biomarker.is_normal ?? true,
+            category: biomarker.category || 'geral',
+          };
+        });
 
       console.log('Inserting biomarkers:', biomarkersToInsert.length);
+      console.log('Descriptive biomarkers:', biomarkersToInsert.filter(b => b.is_descriptive).length);
+      console.log('Numeric biomarkers:', biomarkersToInsert.filter(b => !b.is_descriptive).length);
 
       if (biomarkersToInsert.length > 0) {
         const { error: biomarkerError } = await supabase

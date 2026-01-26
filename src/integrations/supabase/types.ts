@@ -19,37 +19,43 @@ export type Database = {
           category: string | null
           created_at: string
           id: string
+          is_descriptive: boolean | null
           is_normal: boolean | null
           lab_result_id: string
           name: string
           reference_max: number | null
           reference_min: number | null
           unit: string | null
-          value: number
+          value: number | null
+          value_text: string | null
         }
         Insert: {
           category?: string | null
           created_at?: string
           id?: string
+          is_descriptive?: boolean | null
           is_normal?: boolean | null
           lab_result_id: string
           name: string
           reference_max?: number | null
           reference_min?: number | null
           unit?: string | null
-          value: number
+          value?: number | null
+          value_text?: string | null
         }
         Update: {
           category?: string | null
           created_at?: string
           id?: string
+          is_descriptive?: boolean | null
           is_normal?: boolean | null
           lab_result_id?: string
           name?: string
           reference_max?: number | null
           reference_min?: number | null
           unit?: string | null
-          value?: number
+          value?: number | null
+          value_text?: string | null
         }
         Relationships: [
           {
