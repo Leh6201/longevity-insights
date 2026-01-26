@@ -63,7 +63,7 @@ const DescriptiveBiomarkerCard: React.FC<DescriptiveBiomarkerCardProps> = ({
           )}
         </div>
       </div>
-      <span className={`text-sm font-semibold ${isNormal ? 'text-foreground' : 'text-warning'}`}>
+      <span className={`text-xs ${isNormal ? 'text-muted-foreground' : 'text-warning font-medium'}`}>
         {translatedValue}
       </span>
     </motion.div>
