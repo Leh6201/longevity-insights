@@ -5,7 +5,9 @@ export interface DetectedBiomarker {
   id: string;
   lab_result_id: string;
   name: string;
-  value: number;
+  value: number | null;
+  value_text: string | null;
+  is_descriptive: boolean;
   unit: string | null;
   reference_min: number | null;
   reference_max: number | null;
@@ -42,7 +44,23 @@ export const useDynamicBiomarkers = (labResultId: string | null) => {
           throw fetchError;
         }
 
-        setBiomarkers(data || []);
+        // Map database results to our interface, handling the new columns
+        const mappedData: DetectedBiomarker[] = (data || []).map((item: Record<string, unknown>) => ({
+          id: item.id as string,
+          lab_result_id: item.lab_result_id as string,
+          name: item.name as string,
+          value: item.value as number | null,
+          value_text: (item.value_text as string | null) || null,
+          is_descriptive: (item.is_descriptive as boolean) || false,
+          unit: item.unit as string | null,
+          reference_min: item.reference_min as number | null,
+          reference_max: item.reference_max as number | null,
+          is_normal: (item.is_normal as boolean) ?? true,
+          category: item.category as string | null,
+          created_at: item.created_at as string,
+        }));
+
+        setBiomarkers(mappedData);
       } catch (err) {
         console.error('Error fetching biomarkers:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch biomarkers');
@@ -58,22 +76,19 @@ export const useDynamicBiomarkers = (labResultId: string | null) => {
   return { biomarkers, loading, error };
 };
 
-// Helper function to calculate percentage for display
+// Helper function to calculate percentage for numeric biomarkers
 export const calculateBiomarkerPercentage = (
-  value: number,
+  value: number | null,
   referenceMin: number | null,
   referenceMax: number | null
 ): number => {
-  if (referenceMin === null || referenceMax === null) {
-    // If no reference range, return 50% as neutral
+  if (value === null || referenceMin === null || referenceMax === null) {
     return 50;
   }
   
   const range = referenceMax - referenceMin;
   if (range <= 0) return 50;
   
-  // Calculate how far the value is within the reference range
-  // 100% = at min (good), 0% = at max (concerning for most markers)
   const percentage = Math.min(100, Math.max(0, ((referenceMax - value) / range) * 100));
   return Math.round(percentage);
 };
@@ -104,4 +119,18 @@ export const getCategoryDisplayName = (category: string): string => {
     geral: 'Outros',
   };
   return categoryNames[category.toLowerCase()] || category;
+};
+
+// Check if biomarker is descriptive (text value)
+export const isDescriptiveBiomarker = (biomarker: DetectedBiomarker): boolean => {
+  return biomarker.is_descriptive === true || (biomarker.value === null && biomarker.value_text !== null);
+};
+
+// Get display value for a biomarker
+export const getBiomarkerDisplayValue = (biomarker: DetectedBiomarker): string => {
+  if (isDescriptiveBiomarker(biomarker)) {
+    return biomarker.value_text || '-';
+  }
+  const value = biomarker.value?.toString() || '-';
+  return biomarker.unit ? `${value} ${biomarker.unit}` : value;
 };
