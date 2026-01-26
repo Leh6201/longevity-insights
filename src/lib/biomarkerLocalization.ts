@@ -224,6 +224,13 @@ const biomarkerExplanations: Record<string, string> = {
 };
 
 /**
+ * Escapes special regex characters in a string
+ */
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
  * Translates a biomarker value from English to Portuguese
  */
 export function translateBiomarkerValue(value: string): string {
@@ -239,7 +246,8 @@ export function translateBiomarkerValue(value: string): string {
   // Try to find partial matches for compound values
   let translatedValue = value;
   for (const [english, portuguese] of Object.entries(valueTranslations)) {
-    const regex = new RegExp(`\\b${english}\\b`, 'gi');
+    const escapedEnglish = escapeRegex(english);
+    const regex = new RegExp(`\\b${escapedEnglish}\\b`, 'gi');
     translatedValue = translatedValue.replace(regex, portuguese);
   }
   
