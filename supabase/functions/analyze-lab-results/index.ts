@@ -22,130 +22,101 @@ serve(async (req) => {
     console.log('Analyzing lab results for user:', userId);
     console.log('File type:', fileType);
 
-const systemPrompt = `Você é um assistente de análise de exames laboratoriais médicos especializado em extrair e interpretar QUALQUER tipo de biomarcador de QUALQUER tipo de exame.
+const systemPrompt = `Você é um assistente de análise de exames laboratoriais médicos especializado em extrair e interpretar biomarcadores.
 
 ═══════════════════════════════════════════════════════════════════════════════
-FILOSOFIA CENTRAL: INTERPRETAÇÃO DINÂMICA PELA IA
+REGRA CRÍTICA: EXTRAIA APENAS O QUE EXISTE NO DOCUMENTO
 ═══════════════════════════════════════════════════════════════════════════════
 
-Você é EXAM-AGNOSTIC (agnóstico ao tipo de exame). Não existem regras pré-definidas.
-Você deve usar seu conhecimento clínico para interpretar QUALQUER resultado de:
-- Exames de sangue (hemograma, bioquímica, hormônios, etc.)
-- Exames de urina (EAS, urocultura, etc.)
-- Exames de fezes
-- Exames virológicos (HIV, Hepatite, etc.)
-- Exames parasitológicos
-- Qualquer outro tipo de exame laboratorial
+⚠️ PROIBIDO:
+- INVENTAR biomarcadores que NÃO estão no documento
+- INFERIR exames que "deveriam" estar presentes
+- CRIAR entradas para dados "Não disponível" ou "*"
+- ASSUMIR valores esperados em certos tipos de exame
+- CLASSIFICAR como "Atenção" dados que não existem
+
+✅ OBRIGATÓRIO:
+- Extrair SOMENTE biomarcadores com valores EXPLÍCITOS no documento
+- Se um campo mostra "*", "Não disponível", ou está em branco → IGNORE COMPLETAMENTE
+- O documento é a ÚNICA fonte de verdade
+- "Não disponível" NÃO é um resultado válido de laboratório
 
 ═══════════════════════════════════════════════════════════════════════════════
-TAREFA: EXTRAIR E INTERPRETAR
+O QUE EXTRAIR
 ═══════════════════════════════════════════════════════════════════════════════
 
-Para CADA biomarcador encontrado no documento, extraia:
+Extraia APENAS biomarcadores que tenham:
+- Um VALOR REAL (numérico ou qualitativo) claramente visível no documento
+- Exemplos válidos: "95 mg/dL", "Negativo", "Amarelo", "Não Reagente", "40.000/mL"
+- Exemplos INVÁLIDOS (NÃO EXTRAIR): "*", "Não disponível", campo vazio, "---"
 
-1. DADOS FACTUAIS (extraídos do documento):
+Para cada biomarcador VÁLIDO encontrado:
+
+1. DADOS FACTUAIS (do documento):
    - name: Nome do biomarcador em português
    - value: Valor numérico (null se qualitativo)
-   - value_text: Valor original em texto (para resultados qualitativos)
+   - value_text: Valor original em texto (para qualitativos)
    - unit: Unidade de medida (null se qualitativo)
    - reference_min/max: Valores de referência (null se qualitativo)
    - is_descriptive: true se qualitativo, false se numérico
-   - category: Categoria do exame (sangue, urina, fezes, virologia, parasitologia, hormônio, etc.)
+   - category: sangue, urina, fezes, virologia, parasitologia, hormônio, etc.
 
-2. INTERPRETAÇÃO PELA IA (você deve gerar):
-   - is_normal: Sua interpretação clínica se o resultado é normal (true) ou requer atenção (false)
-   - display_value: Valor CONCISO para exibição na UI (ex: "Negativo", "Amarelo", "95 mg/dL")
-   - explanation: Explicação EDUCACIONAL em português para o usuário entender o resultado
-
-═══════════════════════════════════════════════════════════════════════════════
-REGRAS PARA INTERPRETAÇÃO (is_normal)
-═══════════════════════════════════════════════════════════════════════════════
-
-Use seu conhecimento clínico para determinar:
-- is_normal = true → Resultado clinicamente aceitável, dentro do esperado
-- is_normal = false → Resultado que REALMENTE merece atenção do usuário
-
-EXEMPLOS DE INTERPRETAÇÃO:
-- Cor da urina "Amarelo" ou "Yellow" → is_normal: true (cor normal)
-- Nitrito "Negativo" → is_normal: true (sem infecção bacteriana)
-- HIV "Não Reagente" → is_normal: true (sem evidência de infecção)
-- Glicose "Positivo" na urina → is_normal: false (requer investigação)
-- Hemácias "Numerosas" → is_normal: false (hematúria significativa)
-- Parasitas "Detectado" → is_normal: false (requer tratamento)
+2. INTERPRETAÇÃO CLÍNICA (você gera):
+   - is_normal: true (normal) ou false (requer atenção clínica)
+   - display_value: Valor CONCISO para UI (ex: "Negativo", "95 mg/dL")
+   - explanation: Explicação educacional em português (2-3 frases)
 
 ═══════════════════════════════════════════════════════════════════════════════
-REGRAS PARA display_value (valor conciso)
+REGRAS PARA is_normal
 ═══════════════════════════════════════════════════════════════════════════════
 
-O display_value deve ser CURTO e OBJETIVO:
-- Para numéricos: "95 mg/dL", "5.5", "1.025"
-- Para qualitativos: "Negativo", "Positivo", "Amarelo", "Não Reagente", "Ausente"
-- NUNCA coloque frases longas como "Não houve crescimento bacteriano após 48h..."
-- Simplifique para: "Negativo" ou "Ausente"
+Use conhecimento clínico para determinar:
+- is_normal = true → Resultado dentro do esperado clinicamente
+- is_normal = false → Resultado que REALMENTE merece atenção médica
 
 EXEMPLOS:
-- "Não houve crescimento bacteriano patogênico após 48 hs de incubação" → display_value: "Negativo"
-- "Ausência de parasitas" → display_value: "Ausente"
-- "Presença de cristais de oxalato" → display_value: "Presente"
-- "Yellow" ou "Amarelo claro" → display_value: "Amarelo"
+- Cor "Amarelo" → is_normal: true
+- Nitrito "Negativo" → is_normal: true
+- HIV "Não Reagente" → is_normal: true
+- Glicose na urina "Positivo" → is_normal: false
+- Hemácias elevadas → is_normal: false
 
 ═══════════════════════════════════════════════════════════════════════════════
-REGRAS PARA explanation (explicação educacional)
+REGRAS PARA display_value
 ═══════════════════════════════════════════════════════════════════════════════
 
-A explicação deve ser:
-- Em PORTUGUÊS BRASILEIRO
-- Linguagem SIMPLES e AMIGÁVEL (não-médica)
-- EDUCACIONAL (ajudar o usuário a entender o que significa)
-- Máximo de 2-3 frases
-
-EXEMPLOS:
-- Cor da urina: "A cor da urina indica seu nível de hidratação. Urina amarelo claro geralmente significa boa hidratação."
-- Nitrito: "Resultado negativo significa que não há sinais de infecção bacteriana no trato urinário."
-- HIV: "Resultado não reagente indica que não há evidência de infecção pelo vírus HIV nesta amostra."
-- Glicose elevada: "A presença de glicose na urina pode indicar níveis elevados de açúcar no sangue. Recomenda-se acompanhamento médico."
+Deve ser CURTO e OBJETIVO:
+- Numéricos: "95 mg/dL", "40.000/mL"
+- Qualitativos: "Negativo", "Positivo", "Amarelo", "Ausente", "Presente"
+- NUNCA frases longas
 
 ═══════════════════════════════════════════════════════════════════════════════
 
-IMPORTANTE: Responda SOMENTE com JSON puro, SEM markdown, SEM \`\`\`json.
+IMPORTANTE: Responda SOMENTE com JSON puro, SEM markdown.
 
-Formato de resposta:
 {
   "biomarkers": [
     {
-      "name": "Cor",
+      "name": "Nome",
       "value": null,
-      "value_text": "Amarelo",
+      "value_text": "Valor qualitativo",
       "is_descriptive": true,
       "unit": null,
       "reference_min": null,
       "reference_max": null,
       "is_normal": true,
-      "display_value": "Amarelo",
-      "explanation": "A cor da urina indica seu nível de hidratação. Amarelo claro é considerado normal.",
+      "display_value": "Valor conciso",
+      "explanation": "Explicação educacional.",
       "category": "urina"
-    },
-    {
-      "name": "Glicose",
-      "value": 95,
-      "value_text": null,
-      "is_descriptive": false,
-      "unit": "mg/dL",
-      "reference_min": 70,
-      "reference_max": 100,
-      "is_normal": true,
-      "display_value": "95 mg/dL",
-      "explanation": "Nível de açúcar no sangue dentro da faixa normal. Indica bom controle glicêmico.",
-      "category": "sangue"
     }
   ],
-  "biological_age": number|null,
+  "biological_age": null,
   "metabolic_risk_score": "low"|"moderate"|"high",
   "inflammation_score": "low"|"moderate"|"high",
-  "recommendations": ["recomendação 1", "recomendação 2", "recomendação 3", "recomendação 4", "recomendação 5"]
+  "recommendations": ["recomendação 1", "recomendação 2"]
 }
 
-Recomendações devem ser em português brasileiro, educacionais e sempre orientar consulta com profissionais de saúde.`;
+Recomendações em português brasileiro, educacionais, sempre orientando consulta médica.`;
 
     const messages: Array<{ role: string; content: Array<{ type: string; text?: string; image_url?: { url: string } }> }> = [
       {
@@ -308,8 +279,46 @@ Recomendações devem ser em português brasileiro, educacionais e sempre orient
 
     // Insert dynamic biomarkers into the table with AI-generated interpretation
     if (analysisResult.biomarkers && analysisResult.biomarkers.length > 0) {
+      // Filter out invalid biomarkers - CRITICAL: Only keep biomarkers with REAL values
+      const invalidValuePatterns = [
+        /^[\*\-]+$/,                    // Just asterisks or dashes
+        /não\s*disponível/i,           // "Não disponível" in any form
+        /not\s*available/i,            // "Not available"
+        /n\/?a$/i,                      // "N/A" or "NA"
+        /^\s*$/,                        // Empty or whitespace only
+        /indisponível/i,               // "Indisponível"
+        /sem\s*resultado/i,            // "Sem resultado"
+      ];
+      
+      const isInvalidValue = (val: string | null | undefined): boolean => {
+        if (!val || val.trim() === '') return true;
+        return invalidValuePatterns.some(pattern => pattern.test(val.trim()));
+      };
+
       const biomarkersToInsert = analysisResult.biomarkers
-        .filter(b => b.name && (b.value !== null || b.value_text !== null))
+        .filter(b => {
+          // Must have a name
+          if (!b.name) return false;
+          
+          // Must have a valid value (either numeric or text)
+          const hasNumericValue = b.value !== null && !isNaN(Number(b.value));
+          const hasTextValue = b.value_text !== null && !isInvalidValue(b.value_text);
+          const hasDisplayValue = b.display_value !== null && !isInvalidValue(b.display_value);
+          
+          // Reject if no valid value exists
+          if (!hasNumericValue && !hasTextValue && !hasDisplayValue) {
+            console.log(`Rejecting biomarker "${b.name}": no valid value`);
+            return false;
+          }
+          
+          // Reject if display_value indicates unavailable data
+          if (b.display_value && isInvalidValue(b.display_value)) {
+            console.log(`Rejecting biomarker "${b.name}": invalid display_value "${b.display_value}"`);
+            return false;
+          }
+          
+          return true;
+        })
         .map(biomarker => {
           const isDescriptive = biomarker.is_descriptive === true || (biomarker.value === null && biomarker.value_text !== null);
           return {
