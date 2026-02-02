@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, CheckCircle2, Activity, ChevronDown } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Activity, ChevronDown, Beaker, Droplets, FlaskConical, Pill, Heart } from 'lucide-react';
 import {
   Collapsible,
   CollapsibleContent,
@@ -15,6 +15,8 @@ import {
   calculateBiomarkerPercentage,
   isDescriptiveBiomarker,
   getBiomarkerDisplayValue,
+  groupBiomarkersByCategory,
+  getCategoryDisplayName,
 } from '@/hooks/useDynamicBiomarkers';
 import { translateBiomarkerName } from '@/lib/biomarkerLocalization';
 
@@ -23,6 +25,24 @@ interface DynamicBiomarkersListProps {
   loading: boolean;
 }
 
+// Get icon for category
+const getCategoryIcon = (category: string) => {
+  const iconMap: Record<string, React.ReactNode> = {
+    sangue: <Droplets className="w-4 h-4" />,
+    urina: <Beaker className="w-4 h-4" />,
+    fezes: <FlaskConical className="w-4 h-4" />,
+    hormonio: <Pill className="w-4 h-4" />,
+    vitamina: <Pill className="w-4 h-4" />,
+    mineral: <FlaskConical className="w-4 h-4" />,
+    lipidio: <Heart className="w-4 h-4" />,
+    enzima: <FlaskConical className="w-4 h-4" />,
+    virologia: <Beaker className="w-4 h-4" />,
+    parasitologia: <Beaker className="w-4 h-4" />,
+    geral: <Activity className="w-4 h-4" />,
+  };
+  return iconMap[category.toLowerCase()] || <Activity className="w-4 h-4" />;
+};
+
 const DynamicBiomarkersList: React.FC<DynamicBiomarkersListProps> = ({
   biomarkers,
   loading,
@@ -30,6 +50,20 @@ const DynamicBiomarkersList: React.FC<DynamicBiomarkersListProps> = ({
   const { t } = useTranslation();
   const [attentionOpen, setAttentionOpen] = React.useState(true);
   const [normalOpen, setNormalOpen] = React.useState(true);
+  const [openCategories, setOpenCategories] = React.useState<Record<string, boolean>>({});
+
+  // Toggle category collapse state
+  const toggleCategory = (key: string) => {
+    setOpenCategories(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  // Check if category is open (default to open)
+  const isCategoryOpen = (key: string) => {
+    return openCategories[key] !== false;
+  };
 
   if (loading) {
     return (
@@ -85,6 +119,10 @@ const DynamicBiomarkersList: React.FC<DynamicBiomarkersListProps> = ({
   const attentionBiomarkers = biomarkers.filter(b => !b.is_normal);
   const normalBiomarkers = biomarkers.filter(b => b.is_normal);
 
+  // Further group by category
+  const attentionByCategory = groupBiomarkersByCategory(attentionBiomarkers);
+  const normalByCategory = groupBiomarkersByCategory(normalBiomarkers);
+
   const renderBiomarkerItem = (biomarker: DetectedBiomarker, index: number, baseDelay: number) => {
     // Get AI-generated display value
     const displayValue = getBiomarkerDisplayValue(biomarker);
@@ -118,6 +156,60 @@ const DynamicBiomarkersList: React.FC<DynamicBiomarkersListProps> = ({
     );
   };
 
+  const renderCategorySection = (
+    category: string, 
+    categoryBiomarkers: DetectedBiomarker[], 
+    sectionType: 'attention' | 'normal',
+    categoryIndex: number
+  ) => {
+    const categoryKey = `${sectionType}-${category}`;
+    const isOpen = isCategoryOpen(categoryKey);
+    
+    return (
+      <Collapsible 
+        key={categoryKey}
+        open={isOpen} 
+        onOpenChange={() => toggleCategory(categoryKey)}
+      >
+        <CollapsibleTrigger asChild>
+          <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/40 hover:bg-muted/60 transition-colors cursor-pointer">
+            <div className="flex items-center gap-2">
+              <div className={`w-6 h-6 rounded-md flex items-center justify-center ${
+                sectionType === 'attention' ? 'bg-warning/20 text-warning' : 'bg-primary/20 text-primary'
+              }`}>
+                {getCategoryIcon(category)}
+              </div>
+              <span className="text-sm font-medium">{getCategoryDisplayName(category)}</span>
+              <span className="text-xs text-muted-foreground">({categoryBiomarkers.length})</span>
+            </div>
+            <ChevronDown 
+              className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${
+                isOpen ? 'rotate-180' : ''
+              }`} 
+            />
+          </div>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="space-y-2 pt-2 pl-2">
+            {categoryBiomarkers.map((biomarker, index) => 
+              renderBiomarkerItem(biomarker, index, categoryIndex * 0.1)
+            )}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    );
+  };
+
+  // Sort categories for consistent display order
+  const sortedCategories = (grouped: Record<string, DetectedBiomarker[]>) => {
+    const categoryOrder = ['sangue', 'urina', 'fezes', 'hormonio', 'vitamina', 'mineral', 'lipidio', 'enzima', 'virologia', 'parasitologia', 'geral'];
+    return Object.keys(grouped).sort((a, b) => {
+      const aIndex = categoryOrder.indexOf(a.toLowerCase());
+      const bIndex = categoryOrder.indexOf(b.toLowerCase());
+      return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+    });
+  };
+
   return (
     <div className="space-y-4">
       {/* Attention Section */}
@@ -146,8 +238,8 @@ const DynamicBiomarkersList: React.FC<DynamicBiomarkersListProps> = ({
             </CollapsibleTrigger>
             <CollapsibleContent>
               <CardContent className="space-y-3 pt-0">
-                {attentionBiomarkers.map((biomarker, index) => 
-                  renderBiomarkerItem(biomarker, index, 0)
+                {sortedCategories(attentionByCategory).map((category, index) => 
+                  renderCategorySection(category, attentionByCategory[category], 'attention', index)
                 )}
               </CardContent>
             </CollapsibleContent>
@@ -181,8 +273,8 @@ const DynamicBiomarkersList: React.FC<DynamicBiomarkersListProps> = ({
             </CollapsibleTrigger>
             <CollapsibleContent>
               <CardContent className="space-y-3 pt-0">
-                {normalBiomarkers.map((biomarker, index) => 
-                  renderBiomarkerItem(biomarker, index, 0.1)
+                {sortedCategories(normalByCategory).map((category, index) => 
+                  renderCategorySection(category, normalByCategory[category], 'normal', index)
                 )}
               </CardContent>
             </CollapsibleContent>
