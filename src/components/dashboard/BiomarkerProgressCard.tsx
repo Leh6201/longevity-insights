@@ -6,6 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 interface BiomarkerProgressCardProps {
   name: string;
   percentage: number;
+  displayValue?: string;
   isNormal: boolean;
   delay?: number;
   infoText?: string;
@@ -14,6 +15,7 @@ interface BiomarkerProgressCardProps {
 const BiomarkerProgressCard: React.FC<BiomarkerProgressCardProps> = ({
   name,
   percentage,
+  displayValue,
   isNormal,
   delay = 0,
   infoText,
@@ -64,7 +66,7 @@ const BiomarkerProgressCard: React.FC<BiomarkerProgressCardProps> = ({
           )}
         </div>
         <span className={`text-sm font-semibold ${isNormal ? 'text-primary' : 'text-warning'}`}>
-          {percentage}%
+          {displayValue || `${percentage}%`}
         </span>
       </div>
       <div className="h-2 bg-muted rounded-full overflow-hidden">

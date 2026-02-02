@@ -149,6 +149,7 @@ const DynamicBiomarkersList: React.FC<DynamicBiomarkersListProps> = ({
           biomarker.reference_min,
           biomarker.reference_max
         )}
+        displayValue={displayValue}
         isNormal={biomarker.is_normal}
         delay={baseDelay + index * 0.05}
         infoText={biomarker.explanation || formatNumericBiomarkerInfo(biomarker)}
