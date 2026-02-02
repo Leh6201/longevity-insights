@@ -63,16 +63,19 @@ const DescriptiveBiomarkerCard: React.FC<DescriptiveBiomarkerCardProps> = ({
             <Popover>
               <PopoverTrigger asChild>
                 <button 
-                  className="inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-muted/80 transition-colors flex-shrink-0"
+                  className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors flex-shrink-0"
                   aria-label={`Informação sobre ${translatedName}`}
                 >
-                  <HelpCircle className="w-3 h-3 text-muted-foreground" />
+                  <HelpCircle className="w-3.5 h-3.5 text-primary" />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-80 p-3" align="start" side="top">
-                <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">
-                  {explanation}
-                </p>
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-foreground">Explicação AI</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">
+                    {explanation}
+                  </p>
+                </div>
               </PopoverContent>
             </Popover>
           )}
