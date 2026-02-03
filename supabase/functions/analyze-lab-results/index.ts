@@ -167,7 +167,7 @@ Extraia APENAS biomarcadores que tenham:
 Para cada biomarcador VÁLIDO encontrado:
 
 1. DADOS FACTUAIS (do documento):
-   - name: Nome do biomarcador em português
+   - name: Nome do biomarcador em português, usando capitalização normal (primeira letra maiúscula, resto minúsculo). Exemplo: "Glicose", "Hemoglobina", "Colesterol total", "Basófilos". NÃO use MAIÚSCULAS.
    - value: Valor numérico (null se qualitativo)
    - value_text: Valor original em texto (para qualitativos)
    - unit: Unidade de medida (null se qualitativo)
