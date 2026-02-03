@@ -117,7 +117,14 @@ const Terms: React.FC = () => {
             {/* Action Button */}
             <div className="pt-4 pb-8">
               <Button
-                onClick={() => navigate(-1)}
+                onClick={() => {
+                  // Try to go back in history, fallback to accept-terms if no history
+                  if (window.history.length > 1) {
+                    navigate(-1);
+                  } else {
+                    navigate('/accept-terms');
+                  }
+                }}
                 className="w-full"
                 size="lg"
               >
