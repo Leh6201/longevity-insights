@@ -14,6 +14,7 @@ import DashboardBottomNav, { DashboardTab } from '@/components/dashboard/Dashboa
 import SummaryTab from '@/components/dashboard/tabs/SummaryTab';
 import InsightsTab from '@/components/dashboard/tabs/InsightsTab';
 import ProfileTab from '@/components/dashboard/tabs/ProfileTab';
+import { useDynamicBiomarkers } from '@/hooks/useDynamicBiomarkers';
 import { Sparkles, Lock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -86,6 +87,9 @@ const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<DashboardTab>('summary');
   const [showReanalyzeDialog, setShowReanalyzeDialog] = useState(false);
   const [hasAcceptedTerms, setHasAcceptedTerms] = useState<boolean | null>(null);
+
+  // Fetch biomarkers using the hook
+  const { biomarkers } = useDynamicBiomarkers(labResult?.id || null);
 
   const fetchData = async () => {
     try {
@@ -361,7 +365,13 @@ const Dashboard: React.FC = () => {
         if (!hasAcceptedTerms && !isGuest) {
           return <InsightsLockedCard />;
         }
-        return <InsightsTab onboardingData={onboarding} />;
+        return (
+          <InsightsTab 
+            onboardingData={onboarding} 
+            labResult={labResult}
+            biomarkers={biomarkers}
+          />
+        );
       case 'profile':
         return (
           <ProfileTab 

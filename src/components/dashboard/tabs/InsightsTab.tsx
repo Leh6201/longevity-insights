@@ -24,6 +24,9 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
+import SmartSummaryCard from '@/components/dashboard/SmartSummaryCard';
+import { DetectedBiomarker } from '@/hooks/useDynamicBiomarkers';
+
 interface OnboardingData {
   age?: number | null;
   weight?: number | null;
@@ -37,8 +40,19 @@ interface OnboardingData {
   biological_sex?: string | null;
 }
 
+interface LabResult {
+  id: string;
+  biological_age: number | null;
+  metabolic_risk_score: string | null;
+  inflammation_score: string | null;
+  ai_recommendations: string[] | null;
+  upload_date: string;
+}
+
 interface InsightsTabProps {
   onboardingData: OnboardingData | null;
+  labResult?: LabResult | null;
+  biomarkers?: DetectedBiomarker[];
 }
 
 interface CalculatedInsight {
@@ -98,7 +112,7 @@ const getGoalRelations = (goalKey: string): string[] => {
   return relations[goalKey] || [];
 };
 
-const InsightsTab: React.FC<InsightsTabProps> = ({ onboardingData }) => {
+const InsightsTab: React.FC<InsightsTabProps> = ({ onboardingData, labResult, biomarkers = [] }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -520,6 +534,12 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ onboardingData }) => {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
+      {/* Smart Summary Card - First thing the user sees */}
+      <SmartSummaryCard 
+        onboardingData={onboardingData}
+        labResult={labResult || null}
+        biomarkers={biomarkers}
+      />
       {/* Health Goals Section */}
       {onboardingData?.health_goals && onboardingData.health_goals.length > 0 && (
         <Card className="rounded-2xl shadow-card">
