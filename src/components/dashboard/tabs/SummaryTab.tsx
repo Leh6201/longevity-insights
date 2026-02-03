@@ -14,6 +14,7 @@ import ExamsHistoryCard from '@/components/dashboard/ExamsHistoryCard';
 import LabUploadCard from '@/components/dashboard/LabUploadCard';
 import DynamicBiomarkersList from '@/components/dashboard/DynamicBiomarkersList';
 import { useDynamicBiomarkers } from '@/hooks/useDynamicBiomarkers';
+import { translateBiomarkerName } from '@/lib/biomarkerLocalization';
 
 interface LabResult {
   id: string;
@@ -112,7 +113,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Biomarker Range Card */}
           <BiomarkerRangeCard
-            name={glucoseBiomarker.name}
+            name={translateBiomarkerName(glucoseBiomarker.name)}
             value={glucoseBiomarker.value}
             unit={glucoseBiomarker.unit || "mg/dL"}
             min={glucoseBiomarker.reference_min || 70}
@@ -125,7 +126,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
 
           {/* Trend Chart */}
           <TrendChartCard
-            title={`${t('trend')} ${glucoseBiomarker.name}`}
+            title={`${t('trend')} ${translateBiomarkerName(glucoseBiomarker.name)}`}
             change={-15}
             data={trendData}
             delay={0.4}

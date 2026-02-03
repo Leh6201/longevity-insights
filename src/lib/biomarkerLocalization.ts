@@ -29,6 +29,68 @@ const nameTranslations: Record<string, string> = {
   'vitamin d': 'Vitamina D',
 };
 
+// Acrônimos comuns que devem permanecer em caixa alta
+const knownAcronyms = new Set([
+  'HDL',
+  'LDL',
+  'VLDL',
+  'TGO',
+  'TGP',
+  'AST',
+  'ALT',
+  'GGT',
+  'TSH',
+  'T3',
+  'T4',
+  'HIV',
+  'HBV',
+  'HCV',
+  'CRP',
+  'PCR',
+  'INR',
+  'RNI',
+  'DHL',
+  'CK',
+  'CHCM',
+  'VCM',
+  'HCM',
+  'RDW',
+]);
+
+/**
+ * Normaliza nomes que chegam em CAIXA ALTA (ex.: do OCR/IA) para uma capitalização
+ * mais natural na UI, preservando siglas (LDL, HDL, TGO...).
+ */
+export function normalizeBiomarkerNameCase(input: string): string {
+  if (!input) return input;
+
+  // Mantém separadores (espaços, hífens, parênteses, etc.) para não "quebrar" o layout
+  const parts = input.match(/[A-Za-zÀ-ÖØ-öø-ÿ0-9]+|[^A-Za-zÀ-ÖØ-öø-ÿ0-9]+/g);
+  if (!parts) return input;
+
+  return parts
+    .map((part) => {
+      // Se não é uma palavra (ex.: " - ", "(")
+      if (!/^[A-Za-zÀ-ÖØ-öø-ÿ0-9]+$/.test(part)) return part;
+
+      const upper = part.toLocaleUpperCase('pt-BR');
+      const lower = part.toLocaleLowerCase('pt-BR');
+
+      // Se já contém minúsculas (ex.: eGFR, pH), não mexe
+      if (part !== upper) return part;
+
+      // Preserva siglas
+      if (knownAcronyms.has(upper)) return upper;
+
+      // Heurística: tokens curtos em caixa alta geralmente são siglas (ex.: U/L)
+      if (upper.length <= 4 && /[A-ZÀ-ÖØ-Ý]/.test(upper)) return upper;
+
+      // Caso padrão: "COLESTEROL" -> "Colesterol"
+      return lower.charAt(0).toLocaleUpperCase('pt-BR') + lower.slice(1);
+    })
+    .join('');
+}
+
 /**
  * Translates a biomarker name from English to Portuguese
  * Used as fallback when AI provides English names
@@ -40,11 +102,11 @@ export function translateBiomarkerName(name: string): string {
   
   // Check direct translation
   if (nameTranslations[normalizedName]) {
-    return nameTranslations[normalizedName];
+    return normalizeBiomarkerNameCase(nameTranslations[normalizedName]);
   }
   
   // Return original if already in Portuguese or no translation found
-  return name;
+  return normalizeBiomarkerNameCase(name);
 }
 
 /**
