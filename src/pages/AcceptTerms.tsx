@@ -89,7 +89,7 @@ const AcceptTerms: React.FC = () => {
 
           {/* Link to full terms */}
           <Link 
-            to="/terms" 
+            to="/terms?from=accept-terms" 
             state={{ from: '/accept-terms' }}
             className="flex items-center gap-2 text-sm text-primary hover:underline"
           >
