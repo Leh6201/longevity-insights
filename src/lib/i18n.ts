@@ -449,6 +449,40 @@ const resources = {
       // Age Insights
       insightAgeInterpretation: "A partir dos 50 anos, seu corpo passa por mudanças que requerem atenção especial.",
       insightAgeReason: "Com a idade, a hidratação, recuperação muscular e prevenção tornam-se ainda mais importantes. Priorize check-ups regulares e mantenha hábitos saudáveis.",
+      
+      // Terms Acceptance
+      acceptTermsTitle: "Antes de continuar",
+      acceptTermsDescription: "O LongLife AI é um aplicativo com finalidade exclusivamente informativa e educacional. Ele não substitui avaliação, diagnóstico ou acompanhamento médico. Sempre consulte um profissional de saúde qualificado para orientações sobre sua saúde.",
+      acceptTermsCheckbox: "Li e concordo com os Termos de Uso e Responsabilidade",
+      readFullTerms: "Ler termos completos",
+      continueToInsights: "Continuar para meus insights",
+      termsAccepted: "Termos aceitos!",
+      termsAcceptedDescription: "Você agora tem acesso completo aos seus insights de saúde.",
+      termsAcceptError: "Não foi possível salvar sua aceitação. Tente novamente.",
+      termsSkipInfo: "Você precisa aceitar os termos para acessar os insights de saúde personalizados.",
+      
+      // Terms Page
+      termsTitle: "Termos de Uso e Responsabilidade",
+      termsSection1Title: "1. Natureza Informativa do Aplicativo",
+      termsSection1Content: "O LongLife AI é uma ferramenta digital desenvolvida exclusivamente para fins informativos e educacionais. O aplicativo utiliza inteligência artificial para analisar dados de saúde fornecidos pelo usuário e gerar insights personalizados. Todas as informações apresentadas têm caráter orientativo e não constituem diagnóstico médico, prescrição de tratamentos ou substituição de consultas com profissionais de saúde.",
+      termsSection2Title: "2. Limitações e Isenção de Responsabilidade",
+      termsSection2Content: "As análises, cálculos de idade biológica, scores de risco e recomendações geradas pelo aplicativo são baseados em algoritmos e modelos estatísticos que utilizam dados populacionais como referência. Estes resultados podem não refletir com precisão sua condição individual de saúde. O aplicativo não realiza diagnósticos clínicos, não prescreve medicamentos ou tratamentos, não substitui exames médicos ou laboratoriais e não deve ser utilizado como única fonte para decisões relacionadas à sua saúde.",
+      termsSection3Title: "3. Consulta Profissional Obrigatória",
+      termsSection3Content: "Recomendamos enfaticamente que você consulte regularmente médicos, nutricionistas e outros profissionais de saúde qualificados. Antes de fazer qualquer alteração em sua dieta, rotina de exercícios, medicamentos ou estilo de vida com base nas informações fornecidas pelo aplicativo, busque orientação profissional adequada. Em caso de emergência médica, procure atendimento imediatamente.",
+      termsSection4Title: "4. Uso de Dados e Privacidade",
+      termsSection4Content: "Os dados de saúde fornecidos são tratados com confidencialidade e utilizados exclusivamente para gerar seus insights personalizados. Não compartilhamos suas informações pessoais de saúde com terceiros sem seu consentimento expresso. Para mais detalhes sobre como seus dados são coletados, armazenados e protegidos, consulte nossa Política de Privacidade.",
+      termsSection5Title: "5. Precisão das Informações",
+      termsSection5Content: "A qualidade dos insights gerados depende diretamente da precisão e completude dos dados fornecidos por você. Resultados de exames, medidas corporais e informações sobre estilo de vida devem ser inseridos corretamente para que as análises sejam relevantes. O aplicativo não se responsabiliza por interpretações incorretas decorrentes de dados imprecisos ou incompletos.",
+      termsSection6Title: "6. Atualizações e Modificações",
+      termsSection6Content: "Reservamo-nos o direito de atualizar estes Termos de Uso e Responsabilidade a qualquer momento. Alterações significativas serão comunicadas através do aplicativo. O uso continuado do serviço após tais alterações constitui sua aceitação dos novos termos.",
+      termsSection7Title: "7. Aceitação dos Termos",
+      termsSection7Content: "Ao utilizar o LongLife AI, você declara ter lido, compreendido e aceito integralmente estes Termos de Uso e Responsabilidade. Você reconhece que o aplicativo é uma ferramenta complementar e não substitui o acompanhamento médico profissional. A responsabilidade pelas decisões tomadas com base nas informações do aplicativo é exclusivamente sua.",
+      termsLastUpdated: "Última atualização: Fevereiro de 2026",
+      
+      // Insights Locked
+      insightsLocked: "Insights Bloqueados",
+      insightsLockedDescription: "Para acessar seus insights de saúde personalizados, você precisa aceitar os Termos de Uso e Responsabilidade.",
+      acceptTermsToUnlock: "Aceitar Termos para Desbloquear",
     },
   },
 };

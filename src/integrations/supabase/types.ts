@@ -218,6 +218,7 @@ export type Database = {
           id: string
           language: string | null
           name: string | null
+          terms_accepted_at: string | null
           theme: string | null
           updated_at: string | null
           user_id: string
@@ -228,6 +229,7 @@ export type Database = {
           id?: string
           language?: string | null
           name?: string | null
+          terms_accepted_at?: string | null
           theme?: string | null
           updated_at?: string | null
           user_id: string
@@ -238,6 +240,7 @@ export type Database = {
           id?: string
           language?: string | null
           name?: string | null
+          terms_accepted_at?: string | null
           theme?: string | null
           updated_at?: string | null
           user_id?: string
