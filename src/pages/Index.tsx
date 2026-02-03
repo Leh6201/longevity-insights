@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const rotatingPhrases = [
   { prefix: 'Descubra sua', highlight: 'Idade Biológica' },
@@ -927,8 +927,8 @@ const Index: React.FC = () => {
             </p>
             
             <div className="flex items-center gap-8 text-sm">
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">Termos de Uso</a>
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">Privacidade</a>
+              <Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors">Termos de Uso</Link>
+              <Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors">Privacidade</Link>
             </div>
           </div>
         </div>
