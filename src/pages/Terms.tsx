@@ -59,8 +59,27 @@ const Terms: React.FC = () => {
   const location = useLocation();
   const { t } = useTranslation();
 
-  // Check if user came from accept-terms page
-  const cameFromAcceptTerms = location.state?.from === '/accept-terms';
+  const fromQuery = new URLSearchParams(location.search).get('from');
+  const fromState = (location.state as { from?: string } | null)?.from;
+
+  const returnTo =
+    fromQuery === 'accept-terms'
+      ? '/accept-terms'
+      : fromQuery === 'settings'
+        ? '/settings'
+        : fromState;
+
+  const handleReturn = () => {
+    if (returnTo) {
+      navigate(returnTo);
+      return;
+    }
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+    navigate('/');
+  };
 
   const sections = [
     { title: 'termsSection1Title', content: 'termsSection1Content' },
@@ -80,7 +99,7 @@ const Terms: React.FC = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate(-1)}
+            onClick={handleReturn}
             className="shrink-0"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -122,15 +141,7 @@ const Terms: React.FC = () => {
             <div className="pt-4 pb-8">
               <Button
                 onClick={() => {
-                  // If we came from accept-terms, go back there
-                  // Otherwise, use history back or fallback to home
-                  if (cameFromAcceptTerms) {
-                    navigate('/accept-terms');
-                  } else if (window.history.length > 1) {
-                    navigate(-1);
-                  } else {
-                    navigate('/');
-                  }
+                  handleReturn();
                 }}
                 className="w-full"
                 size="lg"
