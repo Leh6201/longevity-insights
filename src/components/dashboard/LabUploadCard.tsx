@@ -84,43 +84,71 @@ const LabUploadCard: React.FC<LabUploadCardProps> = ({ onUploadComplete }) => {
       setUploading(false);
       setAnalyzing(true);
 
-      // Convert file to base64 for AI analysis
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const base64 = (reader.result as string).split(',')[1];
-        
-        try {
-          // Call edge function to analyze lab results
-          const { data, error } = await supabase.functions.invoke('analyze-lab-results', {
-            body: { 
-              fileBase64: base64,
-              fileType: file.type,
-              userId: user.id,
-              fileName: file.name,
-            },
-          });
-
-          if (error) throw error;
-
-          toast({
-            title: t('analysisComplete'),
-            description: t('biomarkersExtracted'),
-          });
-
-          onUploadComplete();
-        } catch (err: any) {
-          console.error('Analysis error:', err);
-          toast({
-            variant: "destructive",
-            title: t('error'),
-            description: err.message || t('failedToAnalyze'),
-          });
-        } finally {
-          setAnalyzing(false);
-          setFile(null);
-        }
+      // Convert file to base64 for AI analysis with timeout
+      const readFileAsBase64 = (): Promise<string> => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          
+          const timeout = setTimeout(() => {
+            reader.abort();
+            reject(new Error('File reading timeout'));
+          }, 30000); // 30 second timeout
+          
+          reader.onload = () => {
+            clearTimeout(timeout);
+            const base64 = (reader.result as string).split(',')[1];
+            resolve(base64);
+          };
+          
+          reader.onerror = () => {
+            clearTimeout(timeout);
+            reject(new Error('Failed to read file'));
+          };
+          
+          reader.readAsDataURL(file);
+        });
       };
-      reader.readAsDataURL(file);
+
+      try {
+        const base64 = await readFileAsBase64();
+        
+        // Call edge function to analyze lab results with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
+        
+        const { data, error } = await supabase.functions.invoke('analyze-lab-results', {
+          body: { 
+            fileBase64: base64,
+            fileType: file.type,
+            userId: user.id,
+            fileName: file.name,
+          },
+        });
+
+        clearTimeout(timeoutId);
+
+        if (error) throw error;
+
+        toast({
+          title: t('analysisComplete'),
+          description: t('biomarkersExtracted'),
+        });
+
+        onUploadComplete();
+      } catch (err: any) {
+        console.error('Analysis error:', err);
+        const errorMessage = err.name === 'AbortError' 
+          ? t('analysisTimeout') 
+          : err.message || t('failedToAnalyze');
+        toast({
+          variant: "destructive",
+          title: t('error'),
+          description: errorMessage,
+        });
+      } finally {
+        setAnalyzing(false);
+        setFile(null);
+      }
 
     } catch (error: any) {
       console.error('Upload error:', error);
@@ -130,6 +158,7 @@ const LabUploadCard: React.FC<LabUploadCardProps> = ({ onUploadComplete }) => {
         description: error.message,
       });
       setUploading(false);
+      setAnalyzing(false);
     }
   };
 

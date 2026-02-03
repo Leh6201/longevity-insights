@@ -354,6 +354,7 @@ const resources = {
       viewDetails: "Ver Detalhes",
       totalExams: "{{count}} exame(s) no histórico",
       failedToAnalyze: "Falha ao analisar resultados do exame",
+      analysisTimeout: "A análise está demorando muito. Por favor, tente novamente.",
       
       // Dashboard Tabs
       tabSummary: "Resumo",
