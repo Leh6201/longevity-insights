@@ -128,8 +128,8 @@ const Onboarding: React.FC = () => {
         description: t('profileSaved')
       });
 
-      // Use hard redirect for production compatibility
-      window.location.href = '/dashboard';
+      // Redirect to terms acceptance page after onboarding
+      window.location.href = '/accept-terms';
     } catch (error: any) {
       toast({
         variant: "destructive",

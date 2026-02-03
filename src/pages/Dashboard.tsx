@@ -14,7 +14,9 @@ import DashboardBottomNav, { DashboardTab } from '@/components/dashboard/Dashboa
 import SummaryTab from '@/components/dashboard/tabs/SummaryTab';
 import InsightsTab from '@/components/dashboard/tabs/InsightsTab';
 import ProfileTab from '@/components/dashboard/tabs/ProfileTab';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Lock } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -83,6 +85,7 @@ const Dashboard: React.FC = () => {
   const [improvementYears, setImprovementYears] = useState(0);
   const [activeTab, setActiveTab] = useState<DashboardTab>('summary');
   const [showReanalyzeDialog, setShowReanalyzeDialog] = useState(false);
+  const [hasAcceptedTerms, setHasAcceptedTerms] = useState<boolean | null>(null);
 
   const fetchData = async () => {
     try {
@@ -114,16 +117,19 @@ const Dashboard: React.FC = () => {
 
       if (!user) return;
 
-      // Fetch user profile name
+      // Fetch user profile name and terms acceptance
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('name')
+        .select('name, terms_accepted_at')
         .eq('user_id', user.id)
         .single();
 
       if (profileData?.name) {
         setUserName(profileData.name);
       }
+      
+      // Check terms acceptance status
+      setHasAcceptedTerms(profileData?.terms_accepted_at !== null);
 
       const { data: labData } = await supabase
         .from('lab_results')
@@ -314,6 +320,28 @@ const Dashboard: React.FC = () => {
     );
   }
 
+  // Component to show when insights are locked
+  const InsightsLockedCard = () => (
+    <Card className="border-border/50 bg-muted/30">
+      <CardContent className="flex flex-col items-center justify-center py-12 text-center space-y-4">
+        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+          <Lock className="w-8 h-8 text-primary" />
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold text-foreground">
+            {t('insightsLocked')}
+          </h3>
+          <p className="text-sm text-muted-foreground max-w-md">
+            {t('insightsLockedDescription')}
+          </p>
+        </div>
+        <Button onClick={() => navigate('/accept-terms')}>
+          {t('acceptTermsToUnlock')}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'summary':
@@ -329,6 +357,10 @@ const Dashboard: React.FC = () => {
           <LabUploadCard onUploadComplete={fetchData} />
         );
       case 'insights':
+        // Block insights if terms not accepted
+        if (!hasAcceptedTerms && !isGuest) {
+          return <InsightsLockedCard />;
+        }
         return <InsightsTab onboardingData={onboarding} />;
       case 'profile':
         return (
