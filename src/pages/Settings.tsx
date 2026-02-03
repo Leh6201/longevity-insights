@@ -340,7 +340,7 @@ const Settings: React.FC = () => {
               <Button 
                 variant="ghost" 
                 className="w-full justify-between"
-                onClick={() => toast({ title: t('privacyPolicy'), description: t('featureComingSoon') })}
+                onClick={() => navigate('/privacy')}
               >
                 <span className="flex items-center gap-2">
                   <Shield className="w-4 h-4" />

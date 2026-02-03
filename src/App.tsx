@@ -19,6 +19,7 @@ import EditProfile from "./pages/EditProfile";
 import NotFound from "./pages/NotFound";
 import AcceptTerms from "./pages/AcceptTerms";
 import Terms from "./pages/Terms";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
                 <Route path="/onboarding" element={<Onboarding />} />
                 <Route path="/accept-terms" element={<AcceptTerms />} />
                 <Route path="/terms" element={<Terms />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/premium" element={<Premium />} />
