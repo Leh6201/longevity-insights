@@ -105,7 +105,7 @@ const Terms: React.FC = () => {
                 <h2 className="text-base font-semibold text-foreground tracking-tight">
                   {t(section.title)}
                 </h2>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <p className="text-sm text-muted-foreground leading-relaxed text-justify">
                   {highlightKeyPhrases(t(section.content))}
                 </p>
               </section>
