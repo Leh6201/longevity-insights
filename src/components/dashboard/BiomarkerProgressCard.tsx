@@ -29,45 +29,47 @@ const BiomarkerProgressCard: React.FC<BiomarkerProgressCardProps> = ({
         !isNormal ? 'bg-warning/5 ring-1 ring-warning/20' : ''
       }`}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <motion.div 
-            className={`w-2 h-2 rounded-full ${isNormal ? 'bg-primary' : 'bg-warning'}`}
-            animate={!isNormal ? { 
-              scale: [1, 1.3, 1],
-              opacity: [1, 0.7, 1]
-            } : {}}
-            transition={!isNormal ? { 
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut"
-            } : {}}
-          />
-          <span className="text-sm font-medium text-foreground">{name}</span>
-          {infoText && (
-            <Popover>
-              <PopoverTrigger asChild>
-                <button 
-                  className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
-                  aria-label={`Informação sobre ${name}`}
-                >
-                  <HelpCircle className="w-3.5 h-3.5 text-primary" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-72 p-3" align="start" side="top">
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-foreground">Explicação AI</p>
-                  <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">
-                    {infoText}
-                  </p>
-                </div>
-              </PopoverContent>
-            </Popover>
-          )}
+      <div className="flex items-start gap-2">
+        <motion.div 
+          className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${isNormal ? 'bg-primary' : 'bg-warning'}`}
+          animate={!isNormal ? { 
+            scale: [1, 1.3, 1],
+            opacity: [1, 0.7, 1]
+          } : {}}
+          transition={!isNormal ? { 
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          } : {}}
+        />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-medium text-foreground">{name}</span>
+            {infoText && (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button 
+                    className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors flex-shrink-0"
+                    aria-label={`Informação sobre ${name}`}
+                  >
+                    <HelpCircle className="w-3.5 h-3.5 text-primary" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-72 p-3" align="start" side="top">
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-foreground">Explicação AI</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">
+                      {infoText}
+                    </p>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            )}
+            <span className={`text-sm font-semibold ${isNormal ? 'text-primary' : 'text-warning'}`}>
+              {displayValue || `${percentage}%`}
+            </span>
+          </div>
         </div>
-        <span className={`text-sm font-semibold ${isNormal ? 'text-primary' : 'text-warning'}`}>
-          {displayValue || `${percentage}%`}
-        </span>
       </div>
       <div className="h-2 bg-muted rounded-full overflow-hidden">
         <motion.div
