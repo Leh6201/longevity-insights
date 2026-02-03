@@ -167,7 +167,7 @@ Extraia APENAS biomarcadores que tenham:
 Para cada biomarcador VÁLIDO encontrado:
 
 1. DADOS FACTUAIS (do documento):
-   - name: Nome do biomarcador em português, usando capitalização normal (primeira letra maiúscula, resto minúsculo). Exemplo: "Glicose", "Hemoglobina", "Colesterol total", "Basófilos". NÃO use MAIÚSCULAS.
+   - name: Nome CURTO do biomarcador em português, capitalização normal (primeira letra maiúscula). Use o nome mais comum/simples. NUNCA inclua explicações entre parênteses ou descrições longas. Exemplos CORRETOS: "TGO", "TGP", "Glicose", "Hemoglobina", "HDL". Exemplos ERRADOS: "TGO (Aspartato Amino Transferase)", "Transaminase Oxalacética - TGO". A explicação completa vai no campo "explanation".
    - value: Valor numérico (null se qualitativo)
    - value_text: Valor original em texto (para qualitativos)
    - unit: Unidade de medida (null se qualitativo)
