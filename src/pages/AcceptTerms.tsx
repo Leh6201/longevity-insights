@@ -90,6 +90,7 @@ const AcceptTerms: React.FC = () => {
           {/* Link to full terms */}
           <Link 
             to="/terms" 
+            state={{ from: '/accept-terms' }}
             className="flex items-center gap-2 text-sm text-primary hover:underline"
           >
             <FileText className="w-4 h-4" />

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Shield, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -56,7 +56,11 @@ const highlightKeyPhrases = (text: string): React.ReactNode => {
 
 const Terms: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
+
+  // Check if user came from accept-terms page
+  const cameFromAcceptTerms = location.state?.from === '/accept-terms';
 
   const sections = [
     { title: 'termsSection1Title', content: 'termsSection1Content' },
@@ -118,11 +122,14 @@ const Terms: React.FC = () => {
             <div className="pt-4 pb-8">
               <Button
                 onClick={() => {
-                  // Try to go back in history, fallback to accept-terms if no history
-                  if (window.history.length > 1) {
+                  // If we came from accept-terms, go back there
+                  // Otherwise, use history back or fallback to home
+                  if (cameFromAcceptTerms) {
+                    navigate('/accept-terms');
+                  } else if (window.history.length > 1) {
                     navigate(-1);
                   } else {
-                    navigate('/accept-terms');
+                    navigate('/');
                   }
                 }}
                 className="w-full"
