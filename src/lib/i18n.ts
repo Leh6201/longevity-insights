@@ -479,6 +479,7 @@ const resources = {
       termsSection7Title: "7. Aceitação dos Termos",
       termsSection7Content: "Ao utilizar o LongLife AI, você declara ter lido, compreendido e aceito integralmente estes Termos de Uso e Responsabilidade. Você reconhece que o aplicativo é uma ferramenta complementar e não substitui o acompanhamento médico profissional. A responsabilidade pelas decisões tomadas com base nas informações do aplicativo é exclusivamente sua.",
       termsLastUpdated: "Última atualização: Fevereiro de 2026",
+      understood: "Entendi",
       
       // Insights Locked
       insightsLocked: "Insights Bloqueados",
