@@ -11,6 +11,120 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const stripCodeFences = (text: string) =>
+    text.replace(/```(?:json)?\s*/gi, '').replace(/```\s*/g, '').trim();
+
+  // Extract the first JSON object from a string using brace matching (safer than a greedy regex)
+  const extractFirstJsonObject = (text: string): string | null => {
+    const start = text.indexOf('{');
+    if (start === -1) return null;
+
+    let depth = 0;
+    let inString = false;
+    let escape = false;
+
+    for (let i = start; i < text.length; i++) {
+      const ch = text[i];
+
+      if (escape) {
+        escape = false;
+        continue;
+      }
+      if (ch === '\\') {
+        escape = true;
+        continue;
+      }
+
+      if (ch === '"') {
+        inString = !inString;
+        continue;
+      }
+      if (inString) continue;
+
+      if (ch === '{') depth++;
+      if (ch === '}') depth--;
+
+      if (depth === 0) {
+        return text.slice(start, i + 1);
+      }
+    }
+
+    return null;
+  };
+
+  // Best-effort repair for common model mistakes (missing commas between objects, trailing commas, etc.)
+  const repairJson = (jsonText: string): string => {
+    let out = jsonText;
+    // Remove common truncation markers (seen in logs/tools, sometimes leaked into output)
+    out = out.replace(/\.{3,}\s*\[truncated\][\s\S]*$/gi, '');
+    // Insert missing commas between adjacent objects (common in large arrays)
+    out = out.replace(/}\s*\n\s*{/g, '},\n{');
+    out = out.replace(/}\s*{/g, '},{');
+    // Remove trailing commas before closing brackets/braces
+    out = out.replace(/,\s*([}\]])/g, '$1');
+    return out.trim();
+  };
+
+  const safeParseAnalysisResult = async (rawContent: string, lovableApiKey: string) => {
+    const attempts: string[] = [];
+    attempts.push(rawContent);
+    attempts.push(stripCodeFences(rawContent));
+
+    for (const attempt of attempts) {
+      const candidate = extractFirstJsonObject(attempt);
+      if (!candidate) continue;
+      try {
+        return JSON.parse(candidate);
+      } catch {
+        // continue
+      }
+
+      try {
+        return JSON.parse(repairJson(candidate));
+      } catch {
+        // continue
+      }
+    }
+
+    // Last resort: ask the model to repair its own JSON WITHOUT adding new information.
+    // If the original was truncated, the repair step will drop incomplete items.
+    const repairResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${lovableApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash-lite',
+        temperature: 0,
+        messages: [
+          {
+            role: 'system',
+            content:
+              'Você é um reparador de JSON. Retorne APENAS JSON válido. Não invente dados. Se o conteúdo estiver incompleto, remova entradas incompletas para manter o JSON válido.',
+          },
+          {
+            role: 'user',
+            content: `Conserte este JSON para ser válido. Preserve os valores existentes e não adicione biomarcadores novos.\n\n${rawContent}`,
+          },
+        ],
+      }),
+    });
+
+    if (!repairResponse.ok) return null;
+    const repairJsonResp = await repairResponse.json();
+    const repairedContent = repairJsonResp.choices?.[0]?.message?.content;
+    if (typeof repairedContent !== 'string') return null;
+
+    const repairedClean = stripCodeFences(repairedContent);
+    const repairedCandidate = extractFirstJsonObject(repairedClean) ?? repairedClean;
+    try {
+      return JSON.parse(repairJson(repairedCandidate));
+    } catch {
+      return null;
+    }
+  };
+
   try {
     const { fileBase64, fileType, userId, fileName, reanalyze, existingLabResultId } = await req.json();
     
@@ -146,6 +260,7 @@ Recomendações em português brasileiro, educacionais, sempre orientando consul
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
+        temperature: 0.2,
         messages: [
           { role: 'system', content: systemPrompt },
           ...messages
@@ -199,29 +314,27 @@ Recomendações em português brasileiro, educacionais, sempre orientando consul
       recommendations: string[];
     };
 
-    try {
-      // Remove markdown code blocks if present
-      let cleanContent = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-      
-      // Find the JSON object
-      const jsonMatch = cleanContent.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        analysisResult = JSON.parse(jsonMatch[0]);
-        console.log('Successfully parsed biomarkers count:', analysisResult.biomarkers?.length || 0);
-        console.log('Biomarkers found:', analysisResult.biomarkers?.map(b => `${b.name}: ${b.display_value} (normal: ${b.is_normal})`));
-      } else {
-        throw new Error('No JSON found in response');
-      }
-    } catch (parseError) {
-      console.error('Failed to parse AI response:', parseError);
-      analysisResult = {
-        biomarkers: [],
-        biological_age: null,
-        metabolic_risk_score: null,
-        inflammation_score: null,
-        recommendations: ["Não foi possível extrair os biomarcadores. Por favor, certifique-se de que a imagem do exame está clara e legível."]
-      };
+    const rawContent = typeof content === 'string' ? content : JSON.stringify(content ?? '');
+
+    const parsed = await safeParseAnalysisResult(rawContent, LOVABLE_API_KEY);
+    if (!parsed) {
+      // Fail fast (frontend will show error toast). Avoid creating an empty lab_result.
+      console.error('Failed to parse AI response after repair attempts');
+      return new Response(
+        JSON.stringify({
+          error:
+            'Não foi possível interpretar a resposta da IA. Tente novamente (ou envie um PDF/imagem mais legível).',
+        }),
+        {
+          status: 502,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     }
+
+    analysisResult = parsed;
+    console.log('Successfully parsed biomarkers count:', analysisResult.biomarkers?.length || 0);
+    console.log('Biomarkers found:', analysisResult.biomarkers?.map((b: Biomarker) => `${b.name}: ${b.display_value} (normal: ${b.is_normal})`));
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
