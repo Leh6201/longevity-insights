@@ -141,7 +141,7 @@ const NumericBiomarkerCard: React.FC<NumericBiomarkerCardProps> = ({
 
       {/* Simple aesthetic bar - only for intuitive markers */}
       {showBar && (
-        <BiomarkerRangeIndicator />
+        <BiomarkerRangeIndicator isNormal={isNormal} />
       )}
     </motion.div>
   );
