@@ -534,12 +534,7 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ onboardingData, labResult, bi
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
-      {/* Smart Summary Card - First thing the user sees */}
-      <SmartSummaryCard 
-        biomarkers={biomarkers}
-        hasLabResult={!!labResult}
-      />
-      {/* Health Goals Section */}
+      {/* Health Goals Section - First thing the user sees */}
       {onboardingData?.health_goals && onboardingData.health_goals.length > 0 && (
         <Card className="rounded-2xl shadow-card">
           <CardHeader className="pb-3">
@@ -582,6 +577,12 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ onboardingData, labResult, bi
           </CardContent>
         </Card>
       )}
+
+      {/* Smart Summary Card - After goals */}
+      <SmartSummaryCard 
+        biomarkers={biomarkers}
+        hasLabResult={!!labResult}
+      />
 
       {/* Calculated Insights Section */}
       <Card className="rounded-2xl shadow-card">
