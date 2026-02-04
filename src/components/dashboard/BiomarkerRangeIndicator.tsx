@@ -1,13 +1,8 @@
 import React from 'react';
 
-interface BiomarkerRangeIndicatorProps {
-  animate?: boolean;
-  animationDelay?: number;
-}
-
-const BiomarkerRangeIndicator: React.FC<BiomarkerRangeIndicatorProps> = () => {
-  // Simple neutral bar - purely aesthetic, no value positioning
-  return <div className="h-1 rounded-full bg-primary/15" />;
+const BiomarkerRangeIndicator: React.FC = () => {
+  // Simple neutral bar - solid teal color, purely aesthetic
+  return <div className="h-1.5 rounded-full bg-[hsl(174,60%,50%)]" />;
 };
 
 export default BiomarkerRangeIndicator;
