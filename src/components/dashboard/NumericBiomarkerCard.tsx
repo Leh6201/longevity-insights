@@ -139,9 +139,14 @@ const NumericBiomarkerCard: React.FC<NumericBiomarkerCardProps> = ({
         </div>
       </div>
 
-      {/* Simple aesthetic bar - only for intuitive markers */}
+      {/* Proportional range bar - shows value position within reference range */}
       {showBar && (
-        <BiomarkerRangeIndicator isNormal={isNormal} />
+        <BiomarkerRangeIndicator 
+          isNormal={isNormal}
+          value={value}
+          referenceMin={referenceMin}
+          referenceMax={referenceMax}
+        />
       )}
     </motion.div>
   );
