@@ -8,7 +8,7 @@ import { RefreshCw, Share2, Activity, Loader2, FolderOpen } from 'lucide-react';
 
 import HealthSummaryCards from '@/components/dashboard/HealthSummaryCards';
 import RiskProjectionCard from '@/components/dashboard/RiskProjectionCard';
-import BiomarkerRangeCard from '@/components/dashboard/BiomarkerRangeCard';
+
 import TrendChartCard from '@/components/dashboard/TrendChartCard';
 import ExamsHistoryCard from '@/components/dashboard/ExamsHistoryCard';
 import LabUploadCard from '@/components/dashboard/LabUploadCard';
@@ -108,31 +108,15 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
         </div>
       </div>
 
-      {/* Two Column Layout for Desktop - Show only if we have glucose data */}
+      {/* Trend Chart - Show only if we have glucose data */}
       {glucoseBiomarker && (
-        <div className="grid lg:grid-cols-2 gap-6">
-          {/* Biomarker Range Card */}
-          <BiomarkerRangeCard
-            name={translateBiomarkerName(glucoseBiomarker.name)}
-            value={glucoseBiomarker.value}
-            unit={glucoseBiomarker.unit || "mg/dL"}
-            min={glucoseBiomarker.reference_min || 70}
-            max={glucoseBiomarker.reference_max || 126}
-            optimalMin={glucoseBiomarker.reference_min || 70}
-            optimalMax={glucoseBiomarker.reference_max || 100}
-            delay={0.3}
-            infoText={t('fastingGlucoseInfo')}
-          />
-
-          {/* Trend Chart */}
-          <TrendChartCard
-            title={`${t('trend')} ${translateBiomarkerName(glucoseBiomarker.name)}`}
-            change={-15}
-            data={trendData}
-            delay={0.4}
-            infoText={t('altTrendInfo')}
-          />
-        </div>
+        <TrendChartCard
+          title={`${t('trend')} ${translateBiomarkerName(glucoseBiomarker.name)}`}
+          change={-15}
+          data={trendData}
+          delay={0.3}
+          infoText={t('altTrendInfo')}
+        />
       )}
 
       {/* Upload Exam Card - Primary Action */}
