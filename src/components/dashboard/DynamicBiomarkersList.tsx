@@ -8,17 +8,44 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import BiomarkerProgressCard from './BiomarkerProgressCard';
+import NumericBiomarkerCard from './NumericBiomarkerCard';
 import DescriptiveBiomarkerCard from './DescriptiveBiomarkerCard';
 import {
   DetectedBiomarker,
-  calculateBiomarkerPercentage,
   isDescriptiveBiomarker,
   getBiomarkerDisplayValue,
   groupBiomarkersByCategory,
   getCategoryDisplayName,
 } from '@/hooks/useDynamicBiomarkers';
 import { translateBiomarkerName } from '@/lib/biomarkerLocalization';
+
+// Biomarkers that should display a visual range bar (intuitive for users)
+const INTUITIVE_BAR_MARKERS = [
+  'colesterol', 'cholesterol',
+  'glicose', 'glucose', 'glicemia',
+  'triglicerideos', 'triglicerídeos', 'triglycerides',
+  'insulina', 'insulin',
+  'hdl', 'ldl', 'vldl',
+  'hemoglobina', 'hemoglobin',
+  'vitamina', 'vitamin',
+  'ferro', 'iron',
+  'calcio', 'cálcio', 'calcium',
+  'potassio', 'potássio', 'potassium',
+  'sodio', 'sódio', 'sodium',
+  'magnesio', 'magnésio', 'magnesium',
+  'acido urico', 'ácido úrico', 'uric acid',
+  'creatinina', 'creatinine',
+  'ureia', 'urea',
+  'proteina', 'proteína', 'protein',
+  'albumina', 'albumin',
+  'bilirrubina', 'bilirubin',
+];
+
+// Check if a biomarker should show a visual bar
+const shouldShowBar = (biomarkerName: string): boolean => {
+  const normalizedName = biomarkerName.toLowerCase().trim();
+  return INTUITIVE_BAR_MARKERS.some(marker => normalizedName.includes(marker));
+};
 
 interface DynamicBiomarkersListProps {
   biomarkers: DetectedBiomarker[];
@@ -140,19 +167,21 @@ const DynamicBiomarkersList: React.FC<DynamicBiomarkersListProps> = ({
       );
     }
     
+    // Determine if this biomarker should show a visual bar
+    const showBar = shouldShowBar(biomarker.name);
+    
     return (
-      <BiomarkerProgressCard
+      <NumericBiomarkerCard
         key={biomarker.id}
         name={translateBiomarkerName(biomarker.name)}
-        percentage={calculateBiomarkerPercentage(
-          biomarker.value,
-          biomarker.reference_min,
-          biomarker.reference_max
-        )}
         displayValue={displayValue}
         isNormal={biomarker.is_normal}
         delay={baseDelay + index * 0.05}
         infoText={biomarker.explanation || formatNumericBiomarkerInfo(biomarker)}
+        value={biomarker.value}
+        referenceMin={biomarker.reference_min}
+        referenceMax={biomarker.reference_max}
+        showBar={showBar}
       />
     );
   };
