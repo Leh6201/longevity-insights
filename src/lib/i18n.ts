@@ -256,7 +256,23 @@ const resources = {
       inflammatoryMarkers: "Marcadores Inflamatórios",
       fastingGlucose: "Glicose em Jejum",
       trend: "Tendência",
+      comparison: "Comparação",
       biomarkers: "Biomarcadores",
+      
+      // Trend/History Messages
+      trendNotAvailable: "Gráfico de tendência",
+      trendNotAvailableDesc: "Envie mais exames para acompanhar a evolução deste biomarcador ao longo do tempo.",
+      trendMinimumExams: "Mínimo de 3 exames necessários",
+      comparisonWithPrevious: "Em comparação com o exame anterior",
+      comparisonImproved: "Melhora",
+      comparisonWorsened: "Atenção",
+      comparisonStable: "Estável",
+      
+      // Biological Age Messages
+      bioAgeNotAvailable: "Idade Biológica",
+      bioAgeNotAvailableDesc: "A idade biológica requer análise de múltiplos exames ao longo do tempo para uma estimativa precisa.",
+      bioAgeMinimumExams: "Envie pelo menos 5 exames para calcular sua idade biológica",
+      bioAgeProgress: "{{count}}/5 exames enviados",
       glucoseInfo: "Mede o nível de açúcar no sangue. Valores elevados podem indicar risco de diabetes. Manter níveis saudáveis ajuda a prevenir problemas de saúde.",
       cholesterolInfo: "Gordura essencial no sangue. Em excesso, pode se acumular nas artérias e aumentar o risco de doenças cardíacas.",
       hemoglobinInfo: "Proteína que transporta oxigênio no sangue. Níveis baixos podem indicar anemia, causando cansaço e fraqueza.",
