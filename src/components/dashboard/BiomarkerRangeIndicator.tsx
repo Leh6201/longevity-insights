@@ -15,24 +15,40 @@ const BiomarkerRangeIndicator: React.FC<BiomarkerRangeIndicatorProps> = ({
 }) => {
   // Calculate proportional position within reference range
   const calculateProgress = (): number => {
-    if (
-      value === null || 
-      value === undefined || 
-      referenceMin === null || 
-      referenceMin === undefined || 
-      referenceMax === null || 
-      referenceMax === undefined ||
-      referenceMax === referenceMin
-    ) {
-      // Default to 50% if we can't calculate
-      return 50;
+    if (value === null || value === undefined) {
+      return 50; // Default if no value
     }
 
-    // Calculate: (value - min) / (max - min) * 100
-    const progress = ((value - referenceMin) / (referenceMax - referenceMin)) * 100;
-    
-    // Clamp between 0% and 100%
-    return Math.max(0, Math.min(100, progress));
+    const hasMin = referenceMin !== null && referenceMin !== undefined;
+    const hasMax = referenceMax !== null && referenceMax !== undefined;
+
+    // Case 1: Both min and max available
+    if (hasMin && hasMax && referenceMax !== referenceMin) {
+      const progress = ((value - referenceMin!) / (referenceMax! - referenceMin!)) * 100;
+      return Math.max(0, Math.min(100, progress));
+    }
+
+    // Case 2: Only min available (e.g., HDL > 40)
+    // Show progress as percentage of how far above the minimum
+    if (hasMin && !hasMax) {
+      // Assume a reasonable max as 2x the min for visualization
+      const assumedMax = referenceMin! * 2;
+      if (assumedMax === 0) return 50;
+      const progress = ((value - referenceMin!) / (assumedMax - referenceMin!)) * 100;
+      // For "greater than" markers, being above min is good - show proportionally
+      return Math.max(0, Math.min(100, 50 + progress * 0.5));
+    }
+
+    // Case 3: Only max available (e.g., LDL < 110)
+    // Show progress as percentage of the max
+    if (!hasMin && hasMax) {
+      if (referenceMax === 0) return 0;
+      const progress = (value / referenceMax!) * 100;
+      return Math.max(0, Math.min(100, progress));
+    }
+
+    // No reference range - default to 50%
+    return 50;
   };
 
   const progress = calculateProgress();
