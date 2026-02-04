@@ -273,6 +273,8 @@ const resources = {
       bioAgeNotAvailableDesc: "A idade biológica requer análise de múltiplos exames ao longo do tempo para uma estimativa precisa.",
       bioAgeMinimumExams: "Envie pelo menos 5 exames para calcular sua idade biológica",
       bioAgeProgress: "{{count}}/5 exames enviados",
+      bioAgeUnlocked: "🎉 Parabéns! Você desbloqueou sua Idade Biológica!",
+      bioAgeUnlockedDesc: "Com 5 exames analisados, agora podemos calcular sua idade biológica com precisão. Continue enviando exames para acompanhar sua evolução!",
       
       // Advanced Analysis Notice
       advancedAnalysisNotice: "Para calcular sua idade biológica e identificar tendências ao longo do tempo, precisamos de pelo menos 5 exames.",

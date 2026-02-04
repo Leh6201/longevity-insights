@@ -9,6 +9,7 @@ import { RefreshCw, Share2, Activity, Loader2, FolderOpen } from 'lucide-react';
 import HealthSummaryCards from '@/components/dashboard/HealthSummaryCards';
 import RiskProjectionCard from '@/components/dashboard/RiskProjectionCard';
 import AdvancedAnalysisNotice from '@/components/dashboard/AdvancedAnalysisNotice';
+import BioAgeUnlockCelebration from '@/components/dashboard/BioAgeUnlockCelebration';
 
 import TrendChartCard from '@/components/dashboard/TrendChartCard';
 import ExamsHistoryCard from '@/components/dashboard/ExamsHistoryCard';
@@ -16,6 +17,7 @@ import LabUploadCard from '@/components/dashboard/LabUploadCard';
 import DynamicBiomarkersList from '@/components/dashboard/DynamicBiomarkersList';
 import { useDynamicBiomarkers } from '@/hooks/useDynamicBiomarkers';
 import { useExamHistory } from '@/hooks/useExamHistory';
+import { useBioAgeUnlock } from '@/hooks/useBioAgeUnlock';
 import { translateBiomarkerName } from '@/lib/biomarkerLocalization';
 
 interface LabResult {
@@ -51,6 +53,9 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
   // Fetch exam history for advanced analysis display rules
   const { examCount, canShowAdvancedAnalysis } = useExamHistory();
 
+  // Bio age unlock celebration
+  const { showCelebration, markAsSeen } = useBioAgeUnlock(examCount, canShowAdvancedAnalysis);
+
   // Mock trend data for charts
   const trendData = [65, 72, 68, 80, 75, 82, 70, 78, 68];
 
@@ -61,11 +66,20 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
   );
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
-    >
+    <>
+      {/* Bio Age Unlock Celebration */}
+      {showCelebration && (
+        <BioAgeUnlockCelebration
+          biologicalAge={labResult.biological_age}
+          onComplete={markAsSeen}
+        />
+      )}
+
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-6"
+      >
       {/* Summary Cards */}
       <HealthSummaryCards
         biologicalAge={labResult.biological_age}
@@ -192,7 +206,8 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
           )}
         </CardContent>
       </Card>
-    </motion.div>
+      </motion.div>
+    </>
   );
 };
 
