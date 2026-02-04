@@ -46,6 +46,8 @@ export const useExamHistory = (): UseExamHistoryReturn => {
       }
 
       try {
+        console.log('[useExamHistory] Fetching exams for user:', user.id);
+        
         const { data, error } = await supabase
           .from('lab_results')
           .select('id, upload_date, biological_age')
@@ -53,6 +55,8 @@ export const useExamHistory = (): UseExamHistoryReturn => {
           .order('upload_date', { ascending: true });
 
         if (error) throw error;
+        
+        console.log('[useExamHistory] Found exams for this user:', data?.length || 0);
         setExams(data || []);
       } catch (error) {
         console.error('Error fetching exam history:', error);
