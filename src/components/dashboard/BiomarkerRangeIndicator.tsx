@@ -17,7 +17,7 @@ const BiomarkerRangeIndicator: React.FC<BiomarkerRangeIndicatorProps> = ({
   // Calculate position as percentage (clamped between 0 and 100)
   const range = max - min;
   const position = Math.min(Math.max((value - min) / range * 100, 0), 100);
-  return <div className="relative h-3 rounded-full overflow-hidden bg-gradient-to-r from-success via-warning to-destructive">
+  return <div className="relative h-3 rounded-full overflow-hidden bg-primary/20">
       {animate ? <motion.div initial={{
       left: "0%"
     }} whileInView={{
@@ -30,7 +30,7 @@ const BiomarkerRangeIndicator: React.FC<BiomarkerRangeIndicatorProps> = ({
       ease: "easeOut"
     }} style={{
       left: `${position}%`
-    }} className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-card border-2 rounded-full shadow-lg border-primary-foreground" /> : <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-card border-2 border-foreground rounded-full shadow-lg" style={{
+    }} className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-primary border-2 border-primary-foreground rounded-full shadow-lg" /> : <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-primary border-2 border-primary-foreground rounded-full shadow-lg" style={{
       left: `${position}%`
     }} />}
     </div>;
