@@ -536,9 +536,8 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ onboardingData, labResult, bi
     >
       {/* Smart Summary Card - First thing the user sees */}
       <SmartSummaryCard 
-        onboardingData={onboardingData}
-        labResult={labResult || null}
         biomarkers={biomarkers}
+        hasLabResult={!!labResult}
       />
       {/* Health Goals Section */}
       {onboardingData?.health_goals && onboardingData.health_goals.length > 0 && (
