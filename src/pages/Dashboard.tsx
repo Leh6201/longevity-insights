@@ -259,11 +259,11 @@ const Dashboard: React.FC = () => {
       const base64 = await base64Promise;
 
       // Call edge function to re-analyze
+      // Don't send userId - let server extract from JWT for security
       const { error: analyzeError } = await supabase.functions.invoke('analyze-lab-results', {
         body: { 
           fileBase64: base64,
           fileType: fileData.type,
-          userId: user.id,
           fileName: files[0].name,
           reanalyze: true,
           existingLabResultId: labResult.id,

@@ -77,10 +77,9 @@ const LabUploadCard: React.FC<LabUploadCardProps> = ({ onUploadComplete }) => {
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('lab-files')
-        .getPublicUrl(fileName);
-
+      // Store just the file path (not a URL) - we'll generate signed URLs when needed
+      // The path is stored as userId/timestamp.ext format
+      
       setUploading(false);
       setAnalyzing(true);
 
@@ -116,11 +115,11 @@ const LabUploadCard: React.FC<LabUploadCardProps> = ({ onUploadComplete }) => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
         
+        // Don't send userId - let server extract from JWT for security
         const { data, error } = await supabase.functions.invoke('analyze-lab-results', {
           body: { 
             fileBase64: base64,
             fileType: file.type,
-            userId: user.id,
             fileName: file.name,
           },
         });
