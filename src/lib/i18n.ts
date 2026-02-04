@@ -262,7 +262,7 @@ const resources = {
       // Trend/History Messages
       trendNotAvailable: "Gráfico de tendência",
       trendNotAvailableDesc: "Envie mais exames para acompanhar a evolução deste biomarcador ao longo do tempo.",
-      trendMinimumExams: "Mínimo de 3 exames necessários",
+      trendMinimumExams: "Mínimo de 5 exames necessários",
       comparisonWithPrevious: "Em comparação com o exame anterior",
       comparisonImproved: "Melhora",
       comparisonWorsened: "Atenção",
@@ -273,6 +273,10 @@ const resources = {
       bioAgeNotAvailableDesc: "A idade biológica requer análise de múltiplos exames ao longo do tempo para uma estimativa precisa.",
       bioAgeMinimumExams: "Envie pelo menos 5 exames para calcular sua idade biológica",
       bioAgeProgress: "{{count}}/5 exames enviados",
+      
+      // Advanced Analysis Notice
+      advancedAnalysisNotice: "Para calcular sua idade biológica e identificar tendências ao longo do tempo, precisamos de pelo menos 5 exames.",
+      examProgress: "Você já enviou {{current}}/{{total}}.",
       glucoseInfo: "Mede o nível de açúcar no sangue. Valores elevados podem indicar risco de diabetes. Manter níveis saudáveis ajuda a prevenir problemas de saúde.",
       cholesterolInfo: "Gordura essencial no sangue. Em excesso, pode se acumular nas artérias e aumentar o risco de doenças cardíacas.",
       hemoglobinInfo: "Proteína que transporta oxigênio no sangue. Níveis baixos podem indicar anemia, causando cansaço e fraqueza.",
