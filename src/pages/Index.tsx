@@ -440,10 +440,10 @@ const Index: React.FC = () => {
                     <span className="text-xs sm:text-sm text-muted-foreground">mg/dL</span>
                   </div>
                 </div>
-                <BiomarkerRangeIndicator value={92} min={70} max={126} animate={true} animationDelay={0.5} />
+                <BiomarkerRangeIndicator />
                 <div className="flex justify-between text-[10px] sm:text-xs text-muted-foreground mt-2">
                   <span>70 mg/dL</span>
-                  <span className="text-success font-medium">Normal</span>
+                  <span className="text-primary font-medium">Normal</span>
                   <span>126 mg/dL</span>
                 </div>
               </motion.div>
