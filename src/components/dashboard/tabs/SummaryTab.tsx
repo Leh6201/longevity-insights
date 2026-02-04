@@ -14,6 +14,7 @@ import ExamsHistoryCard from '@/components/dashboard/ExamsHistoryCard';
 import LabUploadCard from '@/components/dashboard/LabUploadCard';
 import DynamicBiomarkersList from '@/components/dashboard/DynamicBiomarkersList';
 import { useDynamicBiomarkers } from '@/hooks/useDynamicBiomarkers';
+import { useExamHistory } from '@/hooks/useExamHistory';
 import { translateBiomarkerName } from '@/lib/biomarkerLocalization';
 
 interface LabResult {
@@ -45,6 +46,9 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
   
   // Fetch dynamic biomarkers for this lab result
   const { biomarkers, loading: biomarkersLoading } = useDynamicBiomarkers(labResult?.id || null);
+  
+  // Fetch exam history for trend/biological age display rules
+  const { examCount, canShowTrend, canShowComparison, canShowBiologicalAge } = useExamHistory();
 
   // Mock trend data for charts
   const trendData = [65, 72, 68, 80, 75, 82, 70, 78, 68];
@@ -54,6 +58,13 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
     b.name.toLowerCase().includes('glicose') || 
     b.name.toLowerCase().includes('glucose')
   );
+
+  // Determine trend display mode based on exam count
+  const getTrendDisplayMode = (): 'full' | 'comparison' | 'none' => {
+    if (canShowTrend) return 'full';
+    if (canShowComparison) return 'comparison';
+    return 'none';
+  };
 
   return (
     <motion.div
@@ -66,6 +77,8 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
         biologicalAge={labResult.biological_age}
         riskLevel={labResult.metabolic_risk_score as 'low' | 'moderate' | 'high' | null}
         recommendationsCount={labResult.ai_recommendations?.length || 0}
+        canShowBiologicalAge={canShowBiologicalAge}
+        examCount={examCount}
       />
 
       {/* Dynamic Biomarkers List - Generated from uploaded exam */}
@@ -111,11 +124,13 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
       {/* Trend Chart - Show only if we have glucose data */}
       {glucoseBiomarker && (
         <TrendChartCard
-          title={`${t('trend')} ${translateBiomarkerName(glucoseBiomarker.name)}`}
+          title={translateBiomarkerName(glucoseBiomarker.name)}
           change={-15}
           data={trendData}
           delay={0.3}
           infoText={t('altTrendInfo')}
+          examCount={examCount}
+          displayMode={getTrendDisplayMode()}
         />
       )}
 
