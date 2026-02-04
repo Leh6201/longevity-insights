@@ -8,10 +8,11 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import BiomarkerRangeBar from './BiomarkerRangeBar';
+import BiomarkerProgressCard from './BiomarkerProgressCard';
 import DescriptiveBiomarkerCard from './DescriptiveBiomarkerCard';
 import {
   DetectedBiomarker,
+  calculateBiomarkerPercentage,
   isDescriptiveBiomarker,
   getBiomarkerDisplayValue,
   groupBiomarkersByCategory,
@@ -139,16 +140,16 @@ const DynamicBiomarkersList: React.FC<DynamicBiomarkersListProps> = ({
       );
     }
     
-    // Use range bar for numeric biomarkers - shows position in reference range
     return (
-      <BiomarkerRangeBar
+      <BiomarkerProgressCard
         key={biomarker.id}
         name={translateBiomarkerName(biomarker.name)}
-        value={biomarker.value}
+        percentage={calculateBiomarkerPercentage(
+          biomarker.value,
+          biomarker.reference_min,
+          biomarker.reference_max
+        )}
         displayValue={displayValue}
-        referenceMin={biomarker.reference_min}
-        referenceMax={biomarker.reference_max}
-        unit={biomarker.unit}
         isNormal={biomarker.is_normal}
         delay={baseDelay + index * 0.05}
         infoText={biomarker.explanation || formatNumericBiomarkerInfo(biomarker)}
