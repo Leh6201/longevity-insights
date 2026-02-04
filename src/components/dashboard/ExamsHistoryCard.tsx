@@ -66,7 +66,21 @@ const ExamsHistoryCard: React.FC<ExamsHistoryCardProps> = ({ onSelectExam, curre
 
   const handleDownload = async (fileUrl: string, fileName: string) => {
     try {
-      const response = await fetch(fileUrl);
+      // Extract file path from the stored URL or use directly if it's already a path
+      let filePath = fileUrl;
+      // If it's a full URL, extract just the path portion
+      if (fileUrl.includes('/storage/v1/object/')) {
+        filePath = fileUrl.replace(/.*\/storage\/v1\/object\/(?:public|sign)\/lab-files\//, '');
+      }
+      
+      // Generate a signed URL for secure download (1 minute expiry)
+      const { data: signedUrlData, error: signedError } = await supabase.storage
+        .from('lab-files')
+        .createSignedUrl(filePath, 60);
+      
+      if (signedError) throw signedError;
+      
+      const response = await fetch(signedUrlData.signedUrl);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');

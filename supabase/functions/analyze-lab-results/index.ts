@@ -126,14 +126,55 @@ serve(async (req) => {
   };
 
   try {
-    const { fileBase64, fileType, userId, fileName, reanalyze, existingLabResultId } = await req.json();
+    // SECURITY: Extract user from JWT token instead of trusting client input
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      console.error('Missing or invalid authorization header');
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    
+    // Create auth client to verify the user's JWT
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Verify user authentication using getClaims for efficiency
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+    
+    if (claimsError || !claimsData?.claims) {
+      console.error('Authentication failed:', claimsError);
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // SECURITY: Use the authenticated user's ID from JWT claims, NOT from client input
+    const userId = claimsData.claims.sub as string;
+    if (!userId) {
+      console.error('No user ID in JWT claims');
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Extract request data - DO NOT trust userId from client
+    const { fileBase64, fileType, fileName, reanalyze, existingLabResultId } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    console.log('Analyzing lab results for user:', userId);
+    console.log('Analyzing lab results for authenticated user:', userId);
     console.log('File type:', fileType);
 
 const systemPrompt = `Você é um assistente de análise de exames laboratoriais médicos especializado em extrair e interpretar biomarcadores.
@@ -336,15 +377,37 @@ Recomendações em português brasileiro, educacionais, sempre orientando consul
     console.log('Successfully parsed biomarkers count:', analysisResult.biomarkers?.length || 0);
     console.log('Biomarkers found:', analysisResult.biomarkers?.map((b: Biomarker) => `${b.name}: ${b.display_value} (normal: ${b.is_normal})`));
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    // Use service role key for database operations (safe since user is already authenticated above)
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     let labResult;
     
     if (reanalyze && existingLabResultId) {
-      // Update existing lab result
+      // SECURITY: Verify user owns the lab result before updating
       console.log('Reanalyzing existing lab result:', existingLabResultId);
+      
+      const { data: existingResult, error: verifyError } = await supabase
+        .from('lab_results')
+        .select('user_id')
+        .eq('id', existingLabResultId)
+        .single();
+      
+      if (verifyError || !existingResult) {
+        console.error('Lab result not found:', existingLabResultId);
+        return new Response(JSON.stringify({ error: 'Lab result not found' }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      if (existingResult.user_id !== userId) {
+        console.error('Unauthorized: User does not own this lab result');
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
       
       const { data: updatedLabResult, error: updateError } = await supabase
         .from('lab_results')
