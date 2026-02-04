@@ -202,9 +202,12 @@ const laymanTranslations: Record<string, {
 const translateBiomarkerToLayman = (biomarker: DetectedBiomarker): string => {
   const normalizedName = biomarker.name.toLowerCase().trim();
   
-  // Check for direct match in dictionary
-  for (const [key, translation] of Object.entries(laymanTranslations)) {
-    if (normalizedName.includes(key) || key.includes(normalizedName)) {
+  // Check for EXACT match first, then partial matches (prioritize longer keys)
+  const sortedKeys = Object.keys(laymanTranslations).sort((a, b) => b.length - a.length);
+  
+  for (const key of sortedKeys) {
+    if (normalizedName === key || normalizedName.includes(key)) {
+      const translation = laymanTranslations[key];
       const isLow = biomarker.value !== null && biomarker.reference_min !== null && 
                     biomarker.value < biomarker.reference_min;
       
@@ -253,9 +256,19 @@ const SmartSummaryCard: React.FC<SmartSummaryCardProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  // Get only altered biomarkers (is_normal = false), limited to 5
+  // Get only altered biomarkers (is_normal = false), deduplicate by normalized name, limited to 5
+  const seenNames = new Set<string>();
   const alteredBiomarkers = biomarkers
     .filter(b => !b.is_normal)
+    .filter(b => {
+      const normalizedName = b.name.toLowerCase().trim();
+      // Deduplicate by base name (e.g., "colesterol" and "colesterol total" -> only keep first)
+      const baseNames = ['colesterol', 'trigliceri', 'hemoglobina', 'glicose', 'insulina', 'tsh', 't3', 't4'];
+      const baseName = baseNames.find(base => normalizedName.includes(base)) || normalizedName;
+      if (seenNames.has(baseName)) return false;
+      seenNames.add(baseName);
+      return true;
+    })
     .slice(0, 5);
 
   // No lab result uploaded yet
