@@ -8,6 +8,7 @@ import { RefreshCw, Share2, Activity, Loader2, FolderOpen } from 'lucide-react';
 
 import HealthSummaryCards from '@/components/dashboard/HealthSummaryCards';
 import RiskProjectionCard from '@/components/dashboard/RiskProjectionCard';
+import AdvancedAnalysisNotice from '@/components/dashboard/AdvancedAnalysisNotice';
 
 import TrendChartCard from '@/components/dashboard/TrendChartCard';
 import ExamsHistoryCard from '@/components/dashboard/ExamsHistoryCard';
@@ -47,24 +48,17 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
   // Fetch dynamic biomarkers for this lab result
   const { biomarkers, loading: biomarkersLoading } = useDynamicBiomarkers(labResult?.id || null);
   
-  // Fetch exam history for trend/biological age display rules
-  const { examCount, canShowTrend, canShowComparison, canShowBiologicalAge } = useExamHistory();
+  // Fetch exam history for advanced analysis display rules
+  const { examCount, canShowAdvancedAnalysis } = useExamHistory();
 
   // Mock trend data for charts
   const trendData = [65, 72, 68, 80, 75, 82, 70, 78, 68];
 
-  // Get first detected glucose value for the range card (if exists)
+  // Get first detected glucose value for the trend chart (if exists)
   const glucoseBiomarker = biomarkers.find(b => 
     b.name.toLowerCase().includes('glicose') || 
     b.name.toLowerCase().includes('glucose')
   );
-
-  // Determine trend display mode based on exam count
-  const getTrendDisplayMode = (): 'full' | 'comparison' | 'none' => {
-    if (canShowTrend) return 'full';
-    if (canShowComparison) return 'comparison';
-    return 'none';
-  };
 
   return (
     <motion.div
@@ -77,9 +71,14 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
         biologicalAge={labResult.biological_age}
         riskLevel={labResult.metabolic_risk_score as 'low' | 'moderate' | 'high' | null}
         recommendationsCount={labResult.ai_recommendations?.length || 0}
-        canShowBiologicalAge={canShowBiologicalAge}
+        canShowBiologicalAge={canShowAdvancedAnalysis}
         examCount={examCount}
       />
+
+      {/* Advanced Analysis Notice - Show only when < 5 exams */}
+      {!canShowAdvancedAnalysis && examCount > 0 && (
+        <AdvancedAnalysisNotice examCount={examCount} />
+      )}
 
       {/* Dynamic Biomarkers List - Generated from uploaded exam */}
       <DynamicBiomarkersList 
@@ -121,8 +120,8 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
         </div>
       </div>
 
-      {/* Trend Chart - Show only if we have glucose data */}
-      {glucoseBiomarker && (
+      {/* Trend Chart - Show only with 5+ exams and glucose data */}
+      {canShowAdvancedAnalysis && glucoseBiomarker && (
         <TrendChartCard
           title={translateBiomarkerName(glucoseBiomarker.name)}
           change={-15}
@@ -130,7 +129,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
           delay={0.3}
           infoText={t('altTrendInfo')}
           examCount={examCount}
-          displayMode={getTrendDisplayMode()}
+          displayMode="full"
         />
       )}
 

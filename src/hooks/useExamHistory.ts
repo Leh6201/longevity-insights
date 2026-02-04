@@ -13,9 +13,7 @@ interface UseExamHistoryReturn {
   examCount: number;
   exams: ExamHistoryData[];
   loading: boolean;
-  canShowTrend: boolean; // 3+ exams
-  canShowComparison: boolean; // 2+ exams
-  canShowBiologicalAge: boolean; // 5+ exams
+  canShowAdvancedAnalysis: boolean; // 5+ exams for biological age and trends
 }
 
 export const useExamHistory = (): UseExamHistoryReturn => {
@@ -73,8 +71,6 @@ export const useExamHistory = (): UseExamHistoryReturn => {
     examCount,
     exams,
     loading,
-    canShowTrend: examCount >= 3,
-    canShowComparison: examCount >= 2,
-    canShowBiologicalAge: examCount >= 5,
+    canShowAdvancedAnalysis: examCount >= 5, // Both trend and biological age require 5+ exams
   };
 };
