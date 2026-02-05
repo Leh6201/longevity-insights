@@ -8,6 +8,9 @@ interface ExamHistoryData {
   upload_date: string;
   biological_age: number | null;
   file_name: string | null;
+  metabolic_risk_score?: string | null;
+  inflammation_score?: string | null;
+  ai_recommendations?: string[] | null;
 }
 
 interface UseExamHistoryReturn {
@@ -53,32 +56,63 @@ export const useExamHistory = (): UseExamHistoryReturn => {
         
         const { data, error } = await supabase
           .from('lab_results')
-          .select('id, upload_date, biological_age, file_name')
+            .select('id, upload_date, biological_age, file_name, metabolic_risk_score, inflammation_score, ai_recommendations')
           .eq('user_id', user.id)
           .order('upload_date', { ascending: true });
 
         if (error) throw error;
         
-        // Deduplicate by file_name to count unique uploads
-        // If same file was uploaded multiple times, count as 1 unique exam
-        const uniqueFileNames = new Set<string>();
-        const uniqueExams: ExamHistoryData[] = [];
-        
-        // Process in chronological order (oldest first), keep the most recent version of each unique file
-        const examsByFile = new Map<string, ExamHistoryData>();
-        
-        for (const exam of data || []) {
-          const key = exam.file_name || exam.id; // Use file_name as key, fallback to id for null file_names
-          examsByFile.set(key, exam); // Later entries (newer) overwrite older ones
+        // Treat "exam" as a real, user-uploaded lab exam that produced meaningful analysis.
+        // This avoids counting technical/failed uploads (e.g., non-lab images) toward the 5-exam unlock.
+        const isMeaningfulExam = (exam: ExamHistoryData) => {
+          const hasBioAge = exam.biological_age !== null && exam.biological_age !== undefined;
+          const hasRisk = exam.metabolic_risk_score !== null && exam.metabolic_risk_score !== undefined;
+          const hasInflammation = exam.inflammation_score !== null && exam.inflammation_score !== undefined;
+          const hasRecs = (exam.ai_recommendations?.length || 0) > 0;
+          return hasBioAge || hasRisk || hasInflammation || hasRecs;
+        };
+
+        // Deduplicate by file_name (unique upload). For each upload, keep the most recent
+        // meaningful analysis if available; otherwise keep the most recent record.
+        const grouped = new Map<
+          string,
+          {
+            latest: ExamHistoryData;
+            latestMeaningful?: ExamHistoryData;
+            anyMeaningful: boolean;
+          }
+        >();
+
+        for (const exam of (data || []) as ExamHistoryData[]) {
+          const key = exam.file_name || exam.id; // file_name = upload identity; fallback to id
+          const meaningful = isMeaningfulExam(exam);
+          const existing = grouped.get(key);
+
+          if (!existing) {
+            grouped.set(key, {
+              latest: exam,
+              latestMeaningful: meaningful ? exam : undefined,
+              anyMeaningful: meaningful,
+            });
+            continue;
+          }
+
+          // Data is ordered oldest -> newest, so overwrite latest every time.
+          existing.latest = exam;
+          if (meaningful) {
+            existing.latestMeaningful = exam;
+            existing.anyMeaningful = true;
+          }
+          grouped.set(key, existing);
         }
-        
-        // Convert back to array sorted by upload_date
-        const deduplicatedExams = Array.from(examsByFile.values()).sort(
-          (a, b) => new Date(a.upload_date).getTime() - new Date(b.upload_date).getTime()
-        );
+
+        const deduplicatedExams = Array.from(grouped.values())
+          .filter((g) => g.anyMeaningful)
+          .map((g) => g.latestMeaningful ?? g.latest)
+          .sort((a, b) => new Date(a.upload_date).getTime() - new Date(b.upload_date).getTime());
         
         console.log('[useExamHistory] Total records:', data?.length || 0);
-        console.log('[useExamHistory] Unique exams (by file_name):', deduplicatedExams.length);
+        console.log('[useExamHistory] Unique meaningful exams (by file_name):', deduplicatedExams.length);
         
         setExams(deduplicatedExams);
       } catch (error) {

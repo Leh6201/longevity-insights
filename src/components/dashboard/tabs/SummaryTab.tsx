@@ -51,7 +51,19 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
   const { biomarkers, loading: biomarkersLoading } = useDynamicBiomarkers(labResult?.id || null);
   
   // Fetch exam history for advanced analysis display rules
-  const { examCount, canShowAdvancedAnalysis } = useExamHistory();
+  const { examCount, canShowAdvancedAnalysis, exams } = useExamHistory();
+
+  // If the most recent lab result doesn't have biological_age yet, fall back to the
+  // latest available biological_age from the user's exam history (unique uploads).
+  const effectiveBiologicalAge = React.useMemo(() => {
+    if (labResult?.biological_age !== null && labResult?.biological_age !== undefined) {
+      return labResult.biological_age;
+    }
+    const lastWithBioAge = [...(exams || [])]
+      .reverse()
+      .find((e) => e.biological_age !== null && e.biological_age !== undefined);
+    return lastWithBioAge?.biological_age ?? null;
+  }, [labResult?.biological_age, exams]);
 
   // Bio age unlock celebration
   const { showCelebration, markAsSeen } = useBioAgeUnlock(examCount, canShowAdvancedAnalysis);
@@ -81,8 +93,8 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
         className="space-y-6"
       >
       {/* Summary Cards */}
-      <HealthSummaryCards
-        biologicalAge={labResult.biological_age}
+       <HealthSummaryCards
+        biologicalAge={effectiveBiologicalAge}
         riskLevel={labResult.metabolic_risk_score as 'low' | 'moderate' | 'high' | null}
         recommendationsCount={labResult.ai_recommendations?.length || 0}
         canShowBiologicalAge={canShowAdvancedAnalysis}
