@@ -8,7 +8,7 @@ import { RefreshCw, Share2, Activity, Loader2, FolderOpen } from 'lucide-react';
 
 import HealthSummaryCards from '@/components/dashboard/HealthSummaryCards';
 import RiskProjectionCard from '@/components/dashboard/RiskProjectionCard';
-import AdvancedAnalysisNotice from '@/components/dashboard/AdvancedAnalysisNotice';
+ import AdvancedAnalysisEducationalCard from '@/components/dashboard/AdvancedAnalysisEducationalCard';
 import BioAgeUnlockCelebration from '@/components/dashboard/BioAgeUnlockCelebration';
 
 import TrendChartCard from '@/components/dashboard/TrendChartCard';
@@ -103,7 +103,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
 
       {/* Advanced Analysis Notice - Show only when < 5 exams */}
       {!canShowAdvancedAnalysis && examCount > 0 && (
-        <AdvancedAnalysisNotice examCount={examCount} />
+         <AdvancedAnalysisEducationalCard examCount={examCount} />
       )}
 
       {/* Dynamic Biomarkers List - Generated from uploaded exam */}

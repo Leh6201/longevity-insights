@@ -278,6 +278,11 @@ const resources = {
       bioAgeOneMoreExam: "Falta apenas 1 exame para desbloquear sua idade biológica! Envie mais um exame e descubra como seu corpo está envelhecendo.",
       bioAgeExamsRemaining: "Envie mais {{count}} exames para desbloquear sua idade biológica e descobrir como seu corpo está envelhecendo.",
       bioAgeUnlockProgress: "Progresso para desbloquear análises avançadas",
+       advancedAnalysisTitle: "Análises Avançadas",
+       advancedAnalysisDescription: "Para calcular sua idade biológica e identificar tendências ao longo do tempo, precisamos de pelo menos 5 exames no seu histórico.",
+       advancedAnalysisProgress: "Seu progresso",
+       advancedAnalysisStartUploading: "Envie seu primeiro exame para começar!",
+       advancedAnalysisKeepGoing: "Continue enviando! Faltam {{remaining}} exames.",
       
       // Advanced Analysis Notice
       advancedAnalysisNotice: "Para calcular sua idade biológica e identificar tendências ao longo do tempo, precisamos de pelo menos 5 exames.",
