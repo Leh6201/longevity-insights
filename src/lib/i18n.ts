@@ -275,6 +275,9 @@ const resources = {
       bioAgeProgress: "{{count}}/5 exames enviados",
       bioAgeUnlocked: "🎉 Parabéns! Você desbloqueou sua Idade Biológica!",
       bioAgeUnlockedDesc: "Com 5 exames analisados, agora podemos calcular sua idade biológica com precisão. Continue enviando exames para acompanhar sua evolução!",
+      bioAgeOneMoreExam: "Falta apenas 1 exame para desbloquear sua idade biológica! Envie mais um exame e descubra como seu corpo está envelhecendo.",
+      bioAgeExamsRemaining: "Envie mais {{count}} exames para desbloquear sua idade biológica e descobrir como seu corpo está envelhecendo.",
+      bioAgeUnlockProgress: "Progresso para desbloquear análises avançadas",
       
       // Advanced Analysis Notice
       advancedAnalysisNotice: "Para calcular sua idade biológica e identificar tendências ao longo do tempo, precisamos de pelo menos 5 exames.",
