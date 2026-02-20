@@ -68,10 +68,10 @@ const BioAgeChecklist: React.FC<BioAgeChecklistProps> = ({ biomarkers, presentCo
                         <Circle className="w-4 h-4 text-muted-foreground shrink-0" />
                       )}
                       <span
-                        className={`text-sm underline-offset-2 decoration-dashed group-hover:underline ${
+                        className={`text-sm transition-colors ${
                           bm.present
                             ? 'text-foreground font-medium'
-                            : 'text-muted-foreground'
+                            : 'text-muted-foreground group-hover:text-foreground'
                         }`}
                       >
                         {bm.label}
