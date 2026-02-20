@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { RefreshCw, Share2, Activity, Loader2, FolderOpen } from 'lucide-react';
 
 import HealthSummaryCards from '@/components/dashboard/HealthSummaryCards';
-import AdvancedAnalysisEducationalCard from '@/components/dashboard/AdvancedAnalysisEducationalCard';
+import BioAgeChecklist from '@/components/dashboard/BioAgeChecklist';
 import BioAgeUnlockCelebration from '@/components/dashboard/BioAgeUnlockCelebration';
 import TrendChartCard from '@/components/dashboard/TrendChartCard';
 import ExamsHistoryCard from '@/components/dashboard/ExamsHistoryCard';
@@ -16,6 +16,7 @@ import DynamicBiomarkersList from '@/components/dashboard/DynamicBiomarkersList'
 import { useDynamicBiomarkers } from '@/hooks/useDynamicBiomarkers';
 import { useExamHistory } from '@/hooks/useExamHistory';
 import { useBioAgeUnlock } from '@/hooks/useBioAgeUnlock';
+import { useRequiredBiomarkers } from '@/hooks/useRequiredBiomarkers';
 import { translateBiomarkerName } from '@/lib/biomarkerLocalization';
 
 interface LabResult {
@@ -47,10 +48,10 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
   
   const { biomarkers, loading: biomarkersLoading } = useDynamicBiomarkers(labResult?.id || null);
   const { exams } = useExamHistory();
+  const { requiredBiomarkers, allPresent, presentCount } = useRequiredBiomarkers();
 
-  // Real exam count drives all unlock logic
-  const totalExams = exams.length;
-  const isLocked = totalExams < 5;
+  // Biological Age unlocks only when all 5 required biomarkers are present
+  const isLocked = !allPresent;
 
   // Fall back to latest available biological_age from exam history
   const effectiveBiologicalAge = React.useMemo(() => {
@@ -63,6 +64,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
     return lastWithBioAge?.biological_age ?? null;
   }, [labResult?.biological_age, exams]);
 
+  const totalExams = exams.length;
   const { showCelebration, markAsSeen } = useBioAgeUnlock(totalExams, !isLocked);
 
   // Mock trend data for charts
@@ -87,12 +89,15 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
         animate={{ opacity: 1, y: 0 }}
         className="space-y-6"
       >
-        {/* < 5 exams: show only progress card */}
+        {/* Missing required biomarkers: show checklist */}
         {isLocked && (
-          <AdvancedAnalysisEducationalCard examCount={totalExams} />
+          <BioAgeChecklist
+            biomarkers={requiredBiomarkers}
+            presentCount={presentCount}
+          />
         )}
 
-        {/* >= 5 exams: show Biological Age and charts */}
+        {/* All required biomarkers present: show Biological Age and charts */}
         {!isLocked && (
           <>
             <HealthSummaryCards
