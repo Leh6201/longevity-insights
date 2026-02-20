@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { RefreshCw, Share2, Activity, Loader2, FolderOpen } from 'lucide-react';
+import { RefreshCw, Share2, Activity, Loader2, FolderOpen, Lock, Info } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 import HealthSummaryCards from '@/components/dashboard/HealthSummaryCards';
 import RiskProjectionCard from '@/components/dashboard/RiskProjectionCard';
@@ -124,7 +125,25 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
 
       {/* Risk Projections — always visible, locked when totalExams < 5 */}
       <div className="space-y-3">
-        <h2 className="text-lg font-semibold text-foreground">{t('healthProjections')}</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-foreground">{t('healthProjections')}</h2>
+          {isProjectionLocked && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full cursor-help select-none">
+                    <Lock className="w-3 h-3" />
+                    {totalExams}/5
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="max-w-[200px] text-center text-xs leading-relaxed">
+                  <p className="font-medium mb-0.5">Envie {5 - totalExams} exame{5 - totalExams !== 1 ? 's' : ''} para desbloquear.</p>
+                  <p className="text-muted-foreground">As projeções de saúde requerem múltiplos biomarcadores ao longo do tempo.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
         <div className="grid gap-3">
           <RiskProjectionCard
             title={t('metabolicRisk')}
