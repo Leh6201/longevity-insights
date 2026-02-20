@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  User, Palette, Globe, Loader2, Sun, Moon, LogOut, Trash2, 
+  User, Palette, Globe, Loader2, LogOut, Trash2, 
   Diamond, MessageSquare, FileText, Shield, ChevronRight, KeyRound, Edit
 } from 'lucide-react';
 import { changeLanguage } from '@/lib/i18n';
@@ -24,7 +24,7 @@ const Settings: React.FC = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading, signOut } = useAuth();
   const { isGuest, exitGuestMode } = useGuest();
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   const { toast } = useToast();
 
   const [name, setName] = useState('');
@@ -71,9 +71,7 @@ const Settings: React.FC = () => {
         setLanguageState(data.language);
         i18n.changeLanguage(data.language);
       }
-      if (data.theme) {
-        setTheme(data.theme as 'light' | 'dark');
-      }
+      // Theme is always light — no-op
     }
   };
 
@@ -253,29 +251,6 @@ const Settings: React.FC = () => {
                     className="w-full text-sm"
                   >
                     Português
-                  </Button>
-                </div>
-              </div>
-
-              {/* Theme */}
-              <div className="space-y-3">
-                <Label>{t('theme')}</Label>
-                <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                  <Button
-                    variant={theme === 'light' ? 'default' : 'outline'}
-                    onClick={() => setTheme('light')}
-                    className="w-full text-sm flex items-center justify-center gap-1.5 min-w-0"
-                  >
-                    <Sun className="w-4 h-4 shrink-0" />
-                    <span>Claro</span>
-                  </Button>
-                  <Button
-                    variant={theme === 'dark' ? 'default' : 'outline'}
-                    onClick={() => setTheme('dark')}
-                    className="w-full text-sm flex items-center justify-center gap-1.5 min-w-0"
-                  >
-                    <Moon className="w-4 h-4 shrink-0" />
-                    <span>Escuro</span>
                   </Button>
                 </div>
               </div>

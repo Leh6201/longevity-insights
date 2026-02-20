@@ -22,6 +22,12 @@
   </head>
 
   <body>
+    <script>
+      // Force light mode before React loads — no dark mode ever
+      document.documentElement.classList.remove('dark');
+      localStorage.removeItem('longlife-theme');
+      sessionStorage.removeItem('longlife-theme-guest');
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
