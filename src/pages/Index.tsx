@@ -2,11 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
 const rotatingPhrases = [
-  { prefix: 'Descubra sua', highlight: 'Idade Biológica' },
-  { prefix: 'Descubra seus', highlight: 'Riscos de Saúde' },
-  { prefix: 'Descubra seu', highlight: 'Potencial de Longevidade' },
-  { prefix: 'Descubra sua', highlight: 'Saúde Metabólica' }
-];
+{ prefix: 'Descubra sua', highlight: 'Idade Biológica' },
+{ prefix: 'Descubra seus', highlight: 'Riscos de Saúde' },
+{ prefix: 'Descubra seu', highlight: 'Potencial de Longevidade' },
+{ prefix: 'Descubra sua', highlight: 'Saúde Metabólica' }];
+
 
 import { Button } from '@/components/ui/button';
 import BiomarkerRangeIndicator from '@/components/dashboard/BiomarkerRangeIndicator';
@@ -73,7 +73,7 @@ const Index: React.FC = () => {
 
     return () => {
       window.clearInterval(intervalId);
-      timeouts.forEach(id => window.clearTimeout(id));
+      timeouts.forEach((id) => window.clearTimeout(id));
     };
   }, [isMounted]);
 
@@ -137,26 +137,26 @@ const Index: React.FC = () => {
             </motion.div>
 
             <motion.h1 variants={fadeInUp} translate="no" className="notranslate text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-foreground leading-[1.15] tracking-tight px-2">
-              <span 
-                ref={prefixRef} 
-                className="block"
-                style={{ opacity: 1 }}
-              >
+              <span
+              ref={prefixRef}
+              className="block"
+              style={{ opacity: 1 }}>
+
                 {initialPrefix}
               </span>
               <span className="relative inline-block min-h-[1.2em]">
-                <span 
-                  ref={highlightRef} 
-                  className="text-gradient"
-                  style={{ opacity: 1 }}
-                >
+                <span
+                ref={highlightRef}
+                className="text-gradient"
+                style={{ opacity: 1 }}>
+
                   {initialHighlight}
                 </span>
-                <span 
-                  ref={underlineRef}
-                  className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-1 sm:h-1.5 bg-gradient-to-r from-primary via-accent to-primary rounded-full origin-left"
-                  style={{ transform: 'scaleX(1)' }}
-                />
+                <span
+                ref={underlineRef}
+                className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-1 sm:h-1.5 bg-gradient-to-r from-primary via-accent to-primary rounded-full origin-left"
+                style={{ transform: 'scaleX(1)' }} />
+
               </span>
             </motion.h1>
 
@@ -168,9 +168,9 @@ const Index: React.FC = () => {
 
             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center pt-6 px-4">
               <Button size="lg" onClick={() => navigate('/auth')} className="group relative overflow-hidden shadow-2xl shadow-primary/25 hover:shadow-primary/40 transition-all duration-500 w-full sm:w-auto">
-                <span className="relative z-10 flex items-center justify-center gap-2">
-                  Começar Agora
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <span className="relative z-10 flex items-center justify-center gap-2">Faça Seu Login
+
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </span>
               </Button>
               <Button size="lg" variant="glass" onClick={() => navigate('/auth?mode=register')} className="backdrop-blur-xl w-full sm:w-auto">
