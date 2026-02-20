@@ -23,12 +23,17 @@
 
   <body>
     <script>
-      // Apply saved theme before React loads to avoid flash
+      // Apply saved theme before React loads to avoid flash.
+      // Default is always 'light' if no preference has been saved yet.
       var saved = localStorage.getItem('longlife-theme');
       if (saved === 'dark') {
         document.documentElement.classList.add('dark');
       } else {
+        // Ensure 'light' is set as default so the auth listener won't override it
         document.documentElement.classList.remove('dark');
+        if (!saved) {
+          localStorage.setItem('longlife-theme', 'light');
+        }
       }
     </script>
     <div id="root"></div>
