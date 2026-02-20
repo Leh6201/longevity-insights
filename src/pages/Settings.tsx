@@ -13,11 +13,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  User, Palette, Globe, Loader2, Sun, Moon, LogOut, Trash2, 
+  User, Palette, Loader2, Sun, Moon, LogOut, Trash2, 
   Diamond, MessageSquare, FileText, Shield, ChevronRight, KeyRound, Edit
 } from 'lucide-react';
-import { changeLanguage } from '@/lib/i18n';
-import i18n from '@/lib/i18n';
 
 const Settings: React.FC = () => {
   const { t } = useTranslation();
@@ -29,20 +27,7 @@ const Settings: React.FC = () => {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [language, setLanguageState] = useState(i18n.language || 'en');
   const [saving, setSaving] = useState(false);
-
-  // Sync language state with i18n
-  useEffect(() => {
-    const handleLanguageChanged = (lng: string) => {
-      setLanguageState(lng);
-    };
-    
-    i18n.on('languageChanged', handleLanguageChanged);
-    return () => {
-      i18n.off('languageChanged', handleLanguageChanged);
-    };
-  }, []);
 
   useEffect(() => {
     if (!authLoading && !user && !isGuest) {
@@ -61,23 +46,13 @@ const Settings: React.FC = () => {
 
     const { data } = await supabase
       .from('profiles')
-      .select('name, language, theme')
+      .select('name, theme')
       .eq('user_id', user.id)
       .single();
 
     if (data) {
       setName(data.name || '');
-      if (data.language) {
-        setLanguageState(data.language);
-        i18n.changeLanguage(data.language);
-      }
-      // Theme is always light — no-op
     }
-  };
-
-  const handleLanguageChange = (lang: string) => {
-    setLanguageState(lang);
-    changeLanguage(lang, isGuest);
   };
 
   const handleSave = async () => {
@@ -89,7 +64,6 @@ const Settings: React.FC = () => {
         .from('profiles')
         .update({
           name,
-          language: language,
           theme,
           updated_at: new Date().toISOString(),
         })
@@ -230,31 +204,7 @@ const Settings: React.FC = () => {
                 {t('appPreferences')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Language */}
-              <div className="space-y-3">
-                <Label className="flex items-center gap-2">
-                  <Globe className="w-4 h-4" />
-                  {t('language')}
-                </Label>
-                <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                  <Button
-                    variant={language === 'en' ? 'default' : 'outline'}
-                    onClick={() => handleLanguageChange('en')}
-                    className="w-full text-sm"
-                  >
-                    English
-                  </Button>
-                  <Button
-                    variant={language === 'pt' ? 'default' : 'outline'}
-                    onClick={() => handleLanguageChange('pt')}
-                    className="w-full text-sm"
-                  >
-                    Português
-                  </Button>
-                </div>
-              </div>
-
+            <CardContent>
               {/* Theme */}
               <div className="space-y-3">
                 <Label className="flex items-center gap-2">
