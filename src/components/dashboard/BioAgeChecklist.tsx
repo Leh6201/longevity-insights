@@ -78,7 +78,7 @@ const BioAgeChecklist: React.FC<BioAgeChecklistProps> = ({ biomarkers, presentCo
                       </span>
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="right" className="max-w-[220px] text-xs leading-snug">
+                  <TooltipContent side="bottom" className="max-w-[260px] text-xs leading-snug">
                     {bm.description}
                   </TooltipContent>
                 </Tooltip>
