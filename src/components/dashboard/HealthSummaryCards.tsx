@@ -9,16 +9,17 @@ interface HealthSummaryCardsProps {
   biologicalAge: number | null;
   riskLevel: 'low' | 'moderate' | 'high' | null;
   recommendationsCount: number;
-  canShowBiologicalAge?: boolean;
-  examCount?: number;
+  /** true = lock bio age (totalExams < 5) */
+  isBiologicalAgeLocked?: boolean;
+  totalExams?: number;
 }
 
 const HealthSummaryCards: React.FC<HealthSummaryCardsProps> = ({
   biologicalAge,
   riskLevel,
   recommendationsCount,
-  canShowBiologicalAge = true,
-  examCount = 0,
+  isBiologicalAgeLocked = false,
+  totalExams = 0,
 }) => {
   const { t } = useTranslation();
 
@@ -43,7 +44,7 @@ const HealthSummaryCards: React.FC<HealthSummaryCardsProps> = ({
 
   // Biological age card with conditional display
   const renderBiologicalAgeCard = () => {
-    if (!canShowBiologicalAge) {
+    if (isBiologicalAgeLocked) {
       return (
         <TooltipProvider>
           <Tooltip>
