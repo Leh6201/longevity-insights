@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { RefreshCw, Share2, Activity, Loader2, FolderOpen, Lock, Info } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { RefreshCw, Share2, Activity, Loader2, FolderOpen } from 'lucide-react';
+
 
 import HealthSummaryCards from '@/components/dashboard/HealthSummaryCards';
 import RiskProjectionCard from '@/components/dashboard/RiskProjectionCard';
@@ -103,105 +103,75 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
         animate={{ opacity: 1, y: 0 }}
         className="space-y-6"
       >
-      {/* Summary Cards */}
-       <HealthSummaryCards
-        biologicalAge={effectiveBiologicalAge}
-        riskLevel={labResult.metabolic_risk_score as 'low' | 'moderate' | 'high' | null}
-        recommendationsCount={labResult.ai_recommendations?.length || 0}
-        isBiologicalAgeLocked={isBiologicalAgeLocked}
-        totalExams={totalExams}
-      />
-
-      {/* Advanced Analysis Notice - Show only when < 5 exams */}
-      {isBiologicalAgeLocked && totalExams > 0 && (
-         <AdvancedAnalysisEducationalCard examCount={totalExams} />
+      {/* Progress card — shown only when < 5 exams */}
+      {isBiologicalAgeLocked && (
+        <AdvancedAnalysisEducationalCard examCount={totalExams} />
       )}
 
-      {/* Dynamic Biomarkers List - Generated from uploaded exam */}
-      <DynamicBiomarkersList 
-        biomarkers={biomarkers} 
-        loading={biomarkersLoading} 
-      />
+      {/* Advanced sections — shown only when >= 5 exams */}
+      {!isBiologicalAgeLocked && (
+        <>
+          {/* Summary Cards */}
+          <HealthSummaryCards
+            biologicalAge={effectiveBiologicalAge}
+            riskLevel={labResult.metabolic_risk_score as 'low' | 'moderate' | 'high' | null}
+            recommendationsCount={labResult.ai_recommendations?.length || 0}
+          />
 
-      {/* Risk Projections — always visible, locked when totalExams < 5 */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <h2 className="text-lg font-semibold text-foreground">{t('healthProjections')}</h2>
-          {isProjectionLocked && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full cursor-help select-none">
-                    <Lock className="w-3 h-3" />
-                    {totalExams}/5
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side="right" className="max-w-[200px] text-center text-xs leading-relaxed">
-                  <p className="font-medium mb-0.5">Envie {5 - totalExams} exame{5 - totalExams !== 1 ? 's' : ''} para desbloquear.</p>
-                  <p className="text-muted-foreground">As projeções de saúde requerem múltiplos biomarcadores ao longo do tempo.</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+          {/* Health Projections */}
+          <div className="space-y-3">
+            <h2 className="text-lg font-semibold text-foreground">{t('healthProjections')}</h2>
+            <div className="grid gap-3">
+              <RiskProjectionCard
+                title={t('metabolicRisk')}
+                subtitle={t('projectionNext10Years')}
+                percentage={12}
+                monthlyChange={-3}
+                icon="metabolic"
+                delay={0}
+                infoText={t('metabolicRiskInfo')}
+              />
+              <RiskProjectionCard
+                title={t('cardiovascularHealth')}
+                subtitle={t('projectionNext10Years')}
+                percentage={18}
+                monthlyChange={-5}
+                icon="cardiovascular"
+                delay={0.1}
+                infoText={t('cardiovascularInfo')}
+              />
+              <RiskProjectionCard
+                title={t('inflammatoryMarkers')}
+                subtitle={t('projectionNext10Years')}
+                percentage={8}
+                monthlyChange={-2}
+                icon="inflammation"
+                delay={0.2}
+                infoText={t('inflammatoryInfo')}
+              />
+            </div>
+          </div>
+
+          {/* Trend Chart */}
+          {glucoseBiomarker && (
+            <TrendChartCard
+              title={translateBiomarkerName(glucoseBiomarker.name)}
+              change={-15}
+              data={trendData}
+              delay={0.3}
+              infoText={t('altTrendInfo')}
+              examCount={totalExams}
+              displayMode="full"
+            />
           )}
-        </div>
-        <div className="grid gap-3">
-          <RiskProjectionCard
-            title={t('metabolicRisk')}
-            subtitle={t('projectionNext10Years')}
-            percentage={12}
-            monthlyChange={-3}
-            icon="metabolic"
-            delay={0}
-            infoText={t('metabolicRiskInfo')}
-            locked={isProjectionLocked}
-          />
-          <RiskProjectionCard
-            title={t('cardiovascularHealth')}
-            subtitle={t('projectionNext10Years')}
-            percentage={18}
-            monthlyChange={-5}
-            icon="cardiovascular"
-            delay={0.1}
-            infoText={t('cardiovascularInfo')}
-            locked={isProjectionLocked}
-          />
-          <RiskProjectionCard
-            title={t('inflammatoryMarkers')}
-            subtitle={t('projectionNext10Years')}
-            percentage={8}
-            monthlyChange={-2}
-            icon="inflammation"
-            delay={0.2}
-            infoText={t('inflammatoryInfo')}
-            locked={isProjectionLocked}
-          />
-        </div>
-      </div>
-
-      {/* Trend Chart — always visible; locked (<3 entries) or full (3+) */}
-      {glucoseBiomarker && (
-        <TrendChartCard
-          title={translateBiomarkerName(glucoseBiomarker.name)}
-          change={-15}
-          data={trendData}
-          delay={0.3}
-          infoText={t('altTrendInfo')}
-          examCount={totalExams}
-          displayMode={canShowAdvancedAnalysis ? 'full' : 'none'}
-        />
+        </>
       )}
 
-      {/* Show locked trend chart placeholder even without glucose data when locked */}
-      {!glucoseBiomarker && (
-        <TrendChartCard
-          title="Glicose"
-          change={0}
-          data={trendData}
-          delay={0.3}
-          examCount={totalExams}
-          displayMode="none"
-        />
-      )}
+      {/* Dynamic Biomarkers List — always visible */}
+      <DynamicBiomarkersList
+        biomarkers={biomarkers}
+        loading={biomarkersLoading}
+      />
 
       {/* Upload Exam Card - Primary Action */}
       <LabUploadCard onUploadComplete={onUploadComplete} />

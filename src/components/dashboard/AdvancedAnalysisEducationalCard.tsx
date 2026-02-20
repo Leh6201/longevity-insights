@@ -48,12 +48,9 @@
            />
            
            {/* Helper text */}
-           <p className="text-xs text-muted-foreground mt-3">
-             {examCount === 0 
-               ? t('advancedAnalysisStartUploading')
-               : t('advancedAnalysisKeepGoing', { remaining: requiredExams - examCount })
-             }
-           </p>
+            <p className="text-xs text-muted-foreground mt-3">
+              Envie pelo menos 5 exames para desbloquear análises avançadas.
+            </p>
          </div>
        </CardContent>
      </Card>
