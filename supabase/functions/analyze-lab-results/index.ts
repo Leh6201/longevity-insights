@@ -177,6 +177,32 @@ serve(async (req) => {
     console.log('Analyzing lab results for authenticated user:', userId);
     console.log('File type:', fileType);
 
+// ─── PhenoAge calculation (Levine et al. 2018) ──────────────────────────────
+// Population reference statistics (NHANES III adults)
+interface BiomarkerRef { mean: number; sd: number; beta: number; }
+const PHENO_REFS: Record<string, BiomarkerRef> = {
+  glucose:      { mean: 98.0,  sd: 26.8, beta:  1.12 },
+  hdl:          { mean: 53.3,  sd: 15.0, beta: -0.95 },
+  ldl:          { mean: 119.0, sd: 36.5, beta:  0.48 },
+  triglycerides:{ mean: 131.5, sd: 88.0, beta:  0.75 },
+  crp:          { mean: 3.1,   sd: 5.4,  beta:  1.35 },
+};
+const zs = (v: number, r: BiomarkerRef) => (v - r.mean) / r.sd;
+
+interface PhenoInputs { chronologicalAge: number; glucose: number; hdl: number; ldl: number; triglycerides: number; crp: number; }
+function computePhenoAge(inputs: PhenoInputs): number | null {
+  const vals = [inputs.chronologicalAge, inputs.glucose, inputs.hdl, inputs.ldl, inputs.triglycerides, inputs.crp];
+  if (vals.some((v) => !Number.isFinite(v) || v <= 0)) return null;
+  const delta =
+    PHENO_REFS.glucose.beta       * zs(inputs.glucose,       PHENO_REFS.glucose)       +
+    PHENO_REFS.hdl.beta           * zs(inputs.hdl,           PHENO_REFS.hdl)           +
+    PHENO_REFS.ldl.beta           * zs(inputs.ldl,           PHENO_REFS.ldl)           +
+    PHENO_REFS.triglycerides.beta * zs(inputs.triglycerides, PHENO_REFS.triglycerides) +
+    PHENO_REFS.crp.beta           * zs(inputs.crp,           PHENO_REFS.crp);
+  return Math.round(inputs.chronologicalAge + delta);
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 const systemPrompt = `Você é um assistente de análise de exames laboratoriais médicos especializado em extrair e interpretar biomarcadores.
 
 ═══════════════════════════════════════════════════════════════════════════════
@@ -265,7 +291,6 @@ IMPORTANTE: Responda SOMENTE com JSON puro, SEM markdown.
       "category": "urina"
     }
   ],
-  "biological_age": null,
   "metabolic_risk_score": "low"|"moderate"|"high",
   "inflammation_score": "low"|"moderate"|"high",
   "recommendations": ["recomendação 1", "recomendação 2"]
@@ -349,7 +374,6 @@ Recomendações em português brasileiro, educacionais, sempre orientando consul
 
     let analysisResult: {
       biomarkers: Biomarker[];
-      biological_age: number | null;
       metabolic_risk_score: string | null;
       inflammation_score: string | null;
       recommendations: string[];
@@ -380,6 +404,55 @@ Recomendações em português brasileiro, educacionais, sempre orientando consul
     // Use service role key for database operations (safe since user is already authenticated above)
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // ── PhenoAge: extract numeric values from AI-parsed biomarkers ────────────
+    const normalise = (s: string) =>
+      s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+
+    const findValue = (aliases: string[]): number | null => {
+      const bm = (analysisResult.biomarkers || []).find((b: Biomarker) =>
+        aliases.some((a) => normalise(b.name).includes(normalise(a)))
+      );
+      if (!bm) return null;
+      const n = typeof bm.value === 'number' ? bm.value : parseFloat(String(bm.value ?? ''));
+      return Number.isFinite(n) && n > 0 ? n : null;
+    };
+
+    const glucoseVal      = findValue(['glicose', 'glucose']);
+    const hdlVal          = findValue(['hdl']);
+    const ldlVal          = findValue(['ldl']);
+    const trigVal         = findValue(['triglicerideo', 'triglicerideos', 'triglycerides']);
+    const crpVal          = findValue(['proteina c reativa', 'pcr', 'crp', 'c-reactive']);
+
+    // Fetch user's chronological age from onboarding_data
+    let chronologicalAge: number | null = null;
+    const { data: onboardingData } = await supabase
+      .from('onboarding_data')
+      .select('age')
+      .eq('user_id', userId)
+      .maybeSingle();
+    chronologicalAge = onboardingData?.age ?? null;
+
+    let computedBioAge: number | null = null;
+    if (
+      chronologicalAge &&
+      glucoseVal && hdlVal && ldlVal && trigVal && crpVal
+    ) {
+      computedBioAge = computePhenoAge({
+        chronologicalAge,
+        glucose: glucoseVal,
+        hdl: hdlVal,
+        ldl: ldlVal,
+        triglycerides: trigVal,
+        crp: crpVal,
+      });
+      console.log(`PhenoAge computed: ${computedBioAge} (chrono: ${chronologicalAge})`);
+    } else {
+      console.log('PhenoAge not computed: missing biomarkers or age', {
+        chronologicalAge, glucoseVal, hdlVal, ldlVal, trigVal, crpVal
+      });
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 
     let labResult;
     
@@ -412,7 +485,7 @@ Recomendações em português brasileiro, educacionais, sempre orientando consul
       const { data: updatedLabResult, error: updateError } = await supabase
         .from('lab_results')
         .update({
-          biological_age: analysisResult.biological_age,
+          biological_age: computedBioAge,
           metabolic_risk_score: analysisResult.metabolic_risk_score,
           inflammation_score: analysisResult.inflammation_score,
           ai_recommendations: analysisResult.recommendations,
@@ -436,7 +509,7 @@ Recomendações em português brasileiro, educacionais, sempre orientando consul
         .insert({
           user_id: userId,
           file_name: fileName,
-          biological_age: analysisResult.biological_age,
+          biological_age: computedBioAge,
           metabolic_risk_score: analysisResult.metabolic_risk_score,
           inflammation_score: analysisResult.inflammation_score,
           ai_recommendations: analysisResult.recommendations,
