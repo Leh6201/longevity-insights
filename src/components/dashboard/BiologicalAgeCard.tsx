@@ -2,13 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
-import { Dna, TrendingDown, TrendingUp, Info } from 'lucide-react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Dna, TrendingDown, TrendingUp } from 'lucide-react';
 
 interface BiologicalAgeCardProps {
   biologicalAge: number;
@@ -32,40 +26,15 @@ const BiologicalAgeCard: React.FC<BiologicalAgeCardProps> = ({ biologicalAge, ac
             <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
               <Dna className="w-5 h-5 text-primary" />
             </div>
-            <div>
+           <div>
               <p className="text-sm font-semibold text-foreground leading-tight">
                 Idade Biológica
               </p>
               <p className="text-xs text-muted-foreground leading-tight">
-                Modelo PhenoAge (Levine et al., 2018)
+                Baseada em biomarcadores metabólicos e inflamatórios
               </p>
             </div>
           </div>
-
-          <TooltipProvider delayDuration={200}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  aria-label="Sobre o método PhenoAge"
-                  className="text-muted-foreground hover:text-foreground transition-colors mt-0.5"
-                >
-                  <Info className="w-4 h-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="left" className="max-w-[260px] text-xs leading-snug space-y-1.5">
-                <p className="font-medium">Sobre o PhenoAge</p>
-                <p>
-                  Método científico validado que estima a idade biológica
-                  a partir de biomarcadores clínicos (Glicose, HDL, LDL,
-                  Triglicerídeos e PCR).
-                </p>
-                <p className="text-muted-foreground">
-                  Referência: Levine ME et al., Aging Cell, 2018; 17(4): e12765.
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
         </div>
 
         {/* Age value */}
@@ -80,7 +49,7 @@ const BiologicalAgeCard: React.FC<BiologicalAgeCardProps> = ({ biologicalAge, ac
               {biologicalAge}
             </motion.div>
             <p className="text-sm text-muted-foreground mt-1.5">
-              Estimativa baseada em biomarcadores clínicos validados.
+              Estimativa baseada em biomarcadores metabólicos e inflamatórios.
             </p>
           </div>
 
@@ -129,8 +98,8 @@ const BiologicalAgeCard: React.FC<BiologicalAgeCardProps> = ({ biologicalAge, ac
 
         {/* Disclaimer */}
         <p className="text-[11px] text-muted-foreground mt-3 leading-snug">
-          ⚠ Esta é uma estimativa baseada em modelos científicos publicados. Não constitui
-          diagnóstico clínico. Consulte um profissional de saúde.
+          ⚠ Este é um modelo de estimativa de saúde. Não constitui diagnóstico clínico.
+          Consulte um profissional de saúde.
         </p>
       </CardContent>
     </Card>

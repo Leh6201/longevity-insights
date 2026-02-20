@@ -177,29 +177,32 @@ serve(async (req) => {
     console.log('Analyzing lab results for authenticated user:', userId);
     console.log('File type:', fileType);
 
-// ─── PhenoAge calculation (Levine et al. 2018) ──────────────────────────────
-// Population reference statistics (NHANES III adults)
-interface BiomarkerRef { mean: number; sd: number; beta: number; }
-const PHENO_REFS: Record<string, BiomarkerRef> = {
-  glucose:      { mean: 98.0,  sd: 26.8, beta:  1.12 },
-  hdl:          { mean: 53.3,  sd: 15.0, beta: -0.95 },
-  ldl:          { mean: 119.0, sd: 36.5, beta:  0.48 },
-  triglycerides:{ mean: 131.5, sd: 88.0, beta:  0.75 },
-  crp:          { mean: 3.1,   sd: 5.4,  beta:  1.35 },
+// ─── Metabolic Biological Age (proprietary model v1) ────────────────────────
+interface BiomarkerCfg { optimal: number; range: number; weight: number; }
+const META_CFG: Record<string, BiomarkerCfg> = {
+  glucose:      { optimal: 90,  range: 25,  weight:  0.22 },
+  hdl:          { optimal: 60,  range: 15,  weight: -0.20 },
+  ldl:          { optimal: 100, range: 35,  weight:  0.15 },
+  triglycerides:{ optimal: 100, range: 60,  weight:  0.18 },
+  crp:          { optimal: 1.0, range: 3.0, weight:  0.25 },
 };
-const zs = (v: number, r: BiomarkerRef) => (v - r.mean) / r.sd;
+const ADJUSTMENT_FACTOR = 2.8;
+const MAX_DELTA = 10;
+const nd = (v: number, c: BiomarkerCfg) => (v - c.optimal) / c.range;
 
-interface PhenoInputs { chronologicalAge: number; glucose: number; hdl: number; ldl: number; triglycerides: number; crp: number; }
-function computePhenoAge(inputs: PhenoInputs): number | null {
+interface MetaInputs { chronologicalAge: number; glucose: number; hdl: number; ldl: number; triglycerides: number; crp: number; }
+function computeMetabolicAge(inputs: MetaInputs): number | null {
   const vals = [inputs.chronologicalAge, inputs.glucose, inputs.hdl, inputs.ldl, inputs.triglycerides, inputs.crp];
   if (vals.some((v) => !Number.isFinite(v) || v <= 0)) return null;
-  const delta =
-    PHENO_REFS.glucose.beta       * zs(inputs.glucose,       PHENO_REFS.glucose)       +
-    PHENO_REFS.hdl.beta           * zs(inputs.hdl,           PHENO_REFS.hdl)           +
-    PHENO_REFS.ldl.beta           * zs(inputs.ldl,           PHENO_REFS.ldl)           +
-    PHENO_REFS.triglycerides.beta * zs(inputs.triglycerides, PHENO_REFS.triglycerides) +
-    PHENO_REFS.crp.beta           * zs(inputs.crp,           PHENO_REFS.crp);
-  return Math.round(inputs.chronologicalAge + delta);
+  const score =
+    META_CFG.glucose.weight       * nd(inputs.glucose,       META_CFG.glucose)       +
+    META_CFG.hdl.weight           * nd(inputs.hdl,           META_CFG.hdl)           +
+    META_CFG.ldl.weight           * nd(inputs.ldl,           META_CFG.ldl)           +
+    META_CFG.triglycerides.weight * nd(inputs.triglycerides, META_CFG.triglycerides) +
+    META_CFG.crp.weight           * nd(inputs.crp,           META_CFG.crp);
+  const rawDelta = score * ADJUSTMENT_FACTOR;
+  const clamped = Math.max(-MAX_DELTA, Math.min(MAX_DELTA, rawDelta));
+  return Math.round(inputs.chronologicalAge + clamped);
 }
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -438,7 +441,7 @@ Recomendações em português brasileiro, educacionais, sempre orientando consul
       chronologicalAge &&
       glucoseVal && hdlVal && ldlVal && trigVal && crpVal
     ) {
-      computedBioAge = computePhenoAge({
+      computedBioAge = computeMetabolicAge({
         chronologicalAge,
         glucose: glucoseVal,
         hdl: hdlVal,
@@ -446,9 +449,9 @@ Recomendações em português brasileiro, educacionais, sempre orientando consul
         triglycerides: trigVal,
         crp: crpVal,
       });
-      console.log(`PhenoAge computed: ${computedBioAge} (chrono: ${chronologicalAge})`);
+      console.log(`MetabolicAge computed: ${computedBioAge} (chrono: ${chronologicalAge})`);
     } else {
-      console.log('PhenoAge not computed: missing biomarkers or age', {
+      console.log('MetabolicAge not computed: missing biomarkers or age', {
         chronologicalAge, glucoseVal, hdlVal, ldlVal, trigVal, crpVal
       });
     }
