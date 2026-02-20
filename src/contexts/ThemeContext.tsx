@@ -18,23 +18,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Get initial theme on mount
   useEffect(() => {
     const initTheme = () => {
-      // Check sessionStorage for guest
-      const sessionTheme = sessionStorage.getItem('longlife-theme-guest') as Theme;
-      if (sessionTheme) {
-        setThemeState(sessionTheme);
-        document.documentElement.classList.toggle('dark', sessionTheme === 'dark');
-        return;
-      }
-      
-      // Fallback to localStorage
-      const savedTheme = localStorage.getItem('longlife-theme') as Theme;
-      if (savedTheme) {
-        setThemeState(savedTheme);
-        document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-      } else {
-        // Default to light
-        document.documentElement.classList.remove('dark');
-      }
+      // Always start with light theme
+      setThemeState('light');
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('longlife-theme', 'light');
+      sessionStorage.removeItem('longlife-theme-guest');
     };
 
     initTheme();
