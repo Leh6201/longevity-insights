@@ -1,8 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Activity, ShieldCheck, Lightbulb, HelpCircle } from 'lucide-react';
+import { Activity, ShieldCheck, Lightbulb, HelpCircle, Lock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface HealthSummaryCardsProps {
   biologicalAge: number | null;
@@ -44,35 +45,30 @@ const HealthSummaryCards: React.FC<HealthSummaryCardsProps> = ({
   const renderBiologicalAgeCard = () => {
     if (!canShowBiologicalAge) {
       return (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0 }}
-          className="bg-muted/50 rounded-xl px-6 py-3 flex flex-col items-center justify-center relative"
-        >
-          <Popover>
-            <PopoverTrigger asChild>
-              <button className="absolute top-1 right-1 p-1 rounded-full hover:bg-muted/80 transition-colors">
-                <HelpCircle className="w-3.5 h-3.5 text-muted-foreground" />
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-64 p-3" align="center" side="top">
-              <p className="text-xs font-medium text-foreground mb-1">{t('bioAgeNotAvailable')}</p>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {t('bioAgeNotAvailableDesc')}
-              </p>
-              <p className="text-xs text-primary mt-2 font-medium">
-                {t('bioAgeProgress', { count: examCount })}
-              </p>
-            </PopoverContent>
-          </Popover>
-          <div className="text-xl font-bold text-muted-foreground whitespace-nowrap leading-tight">
-            --
-          </div>
-          <div className="text-xs text-muted-foreground whitespace-nowrap leading-tight mt-0.5">
-            {t('bioAge')}
-          </div>
-        </motion.div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0 }}
+                className="bg-muted/50 rounded-xl px-6 py-3 flex flex-col items-center justify-center relative cursor-help"
+              >
+                <Lock className="absolute top-1.5 right-1.5 w-3 h-3 text-muted-foreground" />
+                <div className="text-xl font-bold text-muted-foreground whitespace-nowrap leading-tight">
+                  --
+                </div>
+                <div className="text-xs text-muted-foreground whitespace-nowrap leading-tight mt-0.5">
+                  {t('bioAge')}
+                </div>
+              </motion.div>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-[220px] text-center text-xs leading-relaxed">
+              <p className="font-medium mb-1">Envie pelo menos 5 exames para desbloquear sua Idade Biológica.</p>
+              <p className="text-muted-foreground">A idade biológica é calculada usando múltiplos marcadores laboratoriais. Mais dados aumentam a precisão.</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       );
     }
 

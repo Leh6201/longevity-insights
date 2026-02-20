@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown, HelpCircle, Minus, BarChart3 } from 'lucide-react';
+import { TrendingUp, TrendingDown, HelpCircle, Minus, BarChart3, Lock } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 type TrendDisplayMode = 'full' | 'comparison' | 'none';
@@ -34,16 +34,20 @@ const TrendChartCard: React.FC<TrendChartCardProps> = ({
   const maxValue = Math.max(...data);
   const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set'];
 
-  // Mode: Not enough exams to show anything meaningful
-  if (displayMode === 'none' || examCount < 2) {
+  // Mode: Not enough exams to show anything meaningful — show locked blurred chart
+  if (displayMode === 'none' || examCount < 3) {
+    // Fake data to blur behind the lock
+    const fakeData = [60, 75, 65, 80, 70, 85, 65];
+    const fakeMax = Math.max(...fakeData);
+
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay }}
-        className="bg-card rounded-2xl p-5 shadow-card"
+        className="bg-card rounded-2xl p-5 shadow-card relative overflow-hidden"
       >
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center">
               <BarChart3 className="w-5 h-5 text-muted-foreground" />
@@ -51,14 +55,30 @@ const TrendChartCard: React.FC<TrendChartCardProps> = ({
             <span className="font-semibold text-foreground">{title}</span>
           </div>
         </div>
-        
-        <div className="flex flex-col items-center justify-center py-6 text-center">
-          <p className="text-sm text-muted-foreground mb-2">
-            {t('trendNotAvailableDesc')}
-          </p>
-          <p className="text-xs text-primary font-medium">
-            {t('trendMinimumExams')}
-          </p>
+
+        {/* Blurred fake chart */}
+        <div className="relative">
+          <div className="flex items-end justify-between gap-1 h-24 mb-3 blur-sm opacity-40 pointer-events-none select-none">
+            {fakeData.map((value, index) => (
+              <div
+                key={index}
+                style={{ height: `${(value / fakeMax) * 100}%` }}
+                className="flex-1 bg-gradient-to-t from-primary to-primary/60 rounded-t-md min-h-[4px]"
+              />
+            ))}
+          </div>
+          <div className="flex justify-between text-xs text-muted-foreground blur-sm opacity-40 pointer-events-none select-none mb-3">
+            <span>Jan</span>
+            <span>Set</span>
+          </div>
+
+          {/* Lock overlay */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+            <Lock className="w-6 h-6 text-muted-foreground" />
+            <p className="text-xs font-medium text-foreground text-center px-4">
+              Envie pelo menos 3 resultados para ver tendências.
+            </p>
+          </div>
         </div>
       </motion.div>
     );

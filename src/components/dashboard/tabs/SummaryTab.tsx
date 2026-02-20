@@ -112,7 +112,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
         loading={biomarkersLoading} 
       />
 
-      {/* Risk Projections */}
+      {/* Risk Projections - always visible, locked when < 5 exams */}
       <div className="space-y-3">
         <h2 className="text-lg font-semibold text-foreground">{t('healthProjections')}</h2>
         <div className="grid gap-3">
@@ -124,6 +124,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
             icon="metabolic"
             delay={0}
             infoText={t('metabolicRiskInfo')}
+            locked={!canShowAdvancedAnalysis}
           />
           <RiskProjectionCard
             title={t('cardiovascularHealth')}
@@ -133,6 +134,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
             icon="cardiovascular"
             delay={0.1}
             infoText={t('cardiovascularInfo')}
+            locked={!canShowAdvancedAnalysis}
           />
           <RiskProjectionCard
             title={t('inflammatoryMarkers')}
@@ -142,12 +144,13 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
             icon="inflammation"
             delay={0.2}
             infoText={t('inflammatoryInfo')}
+            locked={!canShowAdvancedAnalysis}
           />
         </div>
       </div>
 
-      {/* Trend Chart - Show only with 5+ exams and glucose data */}
-      {canShowAdvancedAnalysis && glucoseBiomarker && (
+      {/* Trend Chart - always visible; locked (<3 entries) or full (3+) */}
+      {glucoseBiomarker && (
         <TrendChartCard
           title={translateBiomarkerName(glucoseBiomarker.name)}
           change={-15}
@@ -155,7 +158,19 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
           delay={0.3}
           infoText={t('altTrendInfo')}
           examCount={examCount}
-          displayMode="full"
+          displayMode={canShowAdvancedAnalysis ? 'full' : 'none'}
+        />
+      )}
+
+      {/* Show locked trend chart placeholder even without glucose data when locked */}
+      {!glucoseBiomarker && (
+        <TrendChartCard
+          title="Glicose"
+          change={0}
+          data={trendData}
+          delay={0.3}
+          examCount={examCount}
+          displayMode="none"
         />
       )}
 
