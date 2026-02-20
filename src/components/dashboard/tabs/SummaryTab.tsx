@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { RefreshCw, Share2, Activity, Loader2, FolderOpen } from 'lucide-react';
 
-import HealthSummaryCards from '@/components/dashboard/HealthSummaryCards';
+import BiologicalAgeCard from '@/components/dashboard/BiologicalAgeCard';
 import BioAgeChecklist from '@/components/dashboard/BioAgeChecklist';
 import BioAgeUnlockCelebration from '@/components/dashboard/BioAgeUnlockCelebration';
 import TrendChartCard from '@/components/dashboard/TrendChartCard';
@@ -18,6 +18,8 @@ import { useExamHistory } from '@/hooks/useExamHistory';
 import { useBioAgeUnlock } from '@/hooks/useBioAgeUnlock';
 import { useRequiredBiomarkers } from '@/hooks/useRequiredBiomarkers';
 import { translateBiomarkerName } from '@/lib/biomarkerLocalization';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface LabResult {
   id: string;
@@ -45,10 +47,25 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
   onUploadComplete
 }) => {
   const { t } = useTranslation();
-  
+  const { user } = useAuth();
+
   const { biomarkers, loading: biomarkersLoading } = useDynamicBiomarkers(labResult?.id || null);
   const { exams } = useExamHistory();
   const { requiredBiomarkers, allPresent, presentCount } = useRequiredBiomarkers();
+
+  // Fetch chronological age from onboarding data
+  const [chronologicalAge, setChronologicalAge] = React.useState<number | null>(null);
+  React.useEffect(() => {
+    if (!user) return;
+    supabase
+      .from('onboarding_data')
+      .select('age')
+      .eq('user_id', user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.age) setChronologicalAge(data.age);
+      });
+  }, [user]);
 
   // Biological Age unlocks only when all 5 required biomarkers are present
   const isLocked = !allPresent;
@@ -98,12 +115,11 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
         )}
 
         {/* All required biomarkers present: show Biological Age and charts */}
-        {!isLocked && (
+        {!isLocked && effectiveBiologicalAge !== null && (
           <>
-            <HealthSummaryCards
+            <BiologicalAgeCard
               biologicalAge={effectiveBiologicalAge}
-              riskLevel={labResult.metabolic_risk_score as 'low' | 'moderate' | 'high' | null}
-              recommendationsCount={labResult.ai_recommendations?.length || 0}
+              actualAge={chronologicalAge}
             />
 
             {glucoseBiomarker && (
