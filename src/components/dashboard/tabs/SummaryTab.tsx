@@ -50,8 +50,18 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
   // Fetch dynamic biomarkers for this lab result
   const { biomarkers, loading: biomarkersLoading } = useDynamicBiomarkers(labResult?.id || null);
   
-  // Fetch exam history for advanced analysis display rules
-  const { examCount, canShowAdvancedAnalysis, exams } = useExamHistory();
+  // Fetch exam history — this is the REAL data source for all locking logic
+  const { exams, loading: examsLoading } = useExamHistory();
+
+  // Total unique meaningful exams — drives ALL progressive unlock conditions
+  const totalExams = exams.length;
+
+  // Locking conditions derived from the real exam count
+  const isBiologicalAgeLocked = totalExams < 5;
+  const isProjectionLocked = totalExams < 5;
+  const canShowAdvancedAnalysis = totalExams >= 5;
+
+  console.log('[SummaryTab] totalExams:', totalExams, '| isBiologicalAgeLocked:', isBiologicalAgeLocked, '| isProjectionLocked:', isProjectionLocked);
 
   // If the most recent lab result doesn't have biological_age yet, fall back to the
   // latest available biological_age from the user's exam history (unique uploads).
@@ -66,7 +76,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
   }, [labResult?.biological_age, exams]);
 
   // Bio age unlock celebration
-  const { showCelebration, markAsSeen } = useBioAgeUnlock(examCount, canShowAdvancedAnalysis);
+  const { showCelebration, markAsSeen } = useBioAgeUnlock(totalExams, canShowAdvancedAnalysis);
 
   // Mock trend data for charts
   const trendData = [65, 72, 68, 80, 75, 82, 70, 78, 68];
@@ -97,13 +107,13 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
         biologicalAge={effectiveBiologicalAge}
         riskLevel={labResult.metabolic_risk_score as 'low' | 'moderate' | 'high' | null}
         recommendationsCount={labResult.ai_recommendations?.length || 0}
-        canShowBiologicalAge={canShowAdvancedAnalysis}
-        examCount={examCount}
+        isBiologicalAgeLocked={isBiologicalAgeLocked}
+        totalExams={totalExams}
       />
 
       {/* Advanced Analysis Notice - Show only when < 5 exams */}
-      {!canShowAdvancedAnalysis && examCount > 0 && (
-         <AdvancedAnalysisEducationalCard examCount={examCount} />
+      {isBiologicalAgeLocked && totalExams > 0 && (
+         <AdvancedAnalysisEducationalCard examCount={totalExams} />
       )}
 
       {/* Dynamic Biomarkers List - Generated from uploaded exam */}
@@ -112,7 +122,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
         loading={biomarkersLoading} 
       />
 
-      {/* Risk Projections - always visible, locked when < 5 exams */}
+      {/* Risk Projections — always visible, locked when totalExams < 5 */}
       <div className="space-y-3">
         <h2 className="text-lg font-semibold text-foreground">{t('healthProjections')}</h2>
         <div className="grid gap-3">
@@ -124,7 +134,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
             icon="metabolic"
             delay={0}
             infoText={t('metabolicRiskInfo')}
-            locked={!canShowAdvancedAnalysis}
+            locked={isProjectionLocked}
           />
           <RiskProjectionCard
             title={t('cardiovascularHealth')}
@@ -134,7 +144,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
             icon="cardiovascular"
             delay={0.1}
             infoText={t('cardiovascularInfo')}
-            locked={!canShowAdvancedAnalysis}
+            locked={isProjectionLocked}
           />
           <RiskProjectionCard
             title={t('inflammatoryMarkers')}
@@ -144,12 +154,12 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
             icon="inflammation"
             delay={0.2}
             infoText={t('inflammatoryInfo')}
-            locked={!canShowAdvancedAnalysis}
+            locked={isProjectionLocked}
           />
         </div>
       </div>
 
-      {/* Trend Chart - always visible; locked (<3 entries) or full (3+) */}
+      {/* Trend Chart — always visible; locked (<3 entries) or full (3+) */}
       {glucoseBiomarker && (
         <TrendChartCard
           title={translateBiomarkerName(glucoseBiomarker.name)}
@@ -157,7 +167,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
           data={trendData}
           delay={0.3}
           infoText={t('altTrendInfo')}
-          examCount={examCount}
+          examCount={totalExams}
           displayMode={canShowAdvancedAnalysis ? 'full' : 'none'}
         />
       )}
@@ -169,7 +179,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
           change={0}
           data={trendData}
           delay={0.3}
-          examCount={examCount}
+          examCount={totalExams}
           displayMode="none"
         />
       )}
