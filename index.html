@@ -23,10 +23,13 @@
 
   <body>
     <script>
-      // Force light mode before React loads — no dark mode ever
-      document.documentElement.classList.remove('dark');
-      localStorage.removeItem('longlife-theme');
-      sessionStorage.removeItem('longlife-theme-guest');
+      // Apply saved theme before React loads to avoid flash
+      var saved = localStorage.getItem('longlife-theme');
+      if (saved === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
     </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
