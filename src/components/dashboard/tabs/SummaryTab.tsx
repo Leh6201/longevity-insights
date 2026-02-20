@@ -6,12 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { RefreshCw, Share2, Activity, Loader2, FolderOpen } from 'lucide-react';
 
-
 import HealthSummaryCards from '@/components/dashboard/HealthSummaryCards';
-import RiskProjectionCard from '@/components/dashboard/RiskProjectionCard';
- import AdvancedAnalysisEducationalCard from '@/components/dashboard/AdvancedAnalysisEducationalCard';
+import AdvancedAnalysisEducationalCard from '@/components/dashboard/AdvancedAnalysisEducationalCard';
 import BioAgeUnlockCelebration from '@/components/dashboard/BioAgeUnlockCelebration';
-
 import TrendChartCard from '@/components/dashboard/TrendChartCard';
 import ExamsHistoryCard from '@/components/dashboard/ExamsHistoryCard';
 import LabUploadCard from '@/components/dashboard/LabUploadCard';
@@ -48,24 +45,14 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
 }) => {
   const { t } = useTranslation();
   
-  // Fetch dynamic biomarkers for this lab result
   const { biomarkers, loading: biomarkersLoading } = useDynamicBiomarkers(labResult?.id || null);
-  
-  // Fetch exam history — this is the REAL data source for all locking logic
-  const { exams, loading: examsLoading } = useExamHistory();
+  const { exams } = useExamHistory();
 
-  // Total unique meaningful exams — drives ALL progressive unlock conditions
+  // Real exam count drives all unlock logic
   const totalExams = exams.length;
+  const isLocked = totalExams < 5;
 
-  // Locking conditions derived from the real exam count
-  const isBiologicalAgeLocked = totalExams < 5;
-  const isProjectionLocked = totalExams < 5;
-  const canShowAdvancedAnalysis = totalExams >= 5;
-
-  console.log('[SummaryTab] totalExams:', totalExams, '| isBiologicalAgeLocked:', isBiologicalAgeLocked, '| isProjectionLocked:', isProjectionLocked);
-
-  // If the most recent lab result doesn't have biological_age yet, fall back to the
-  // latest available biological_age from the user's exam history (unique uploads).
+  // Fall back to latest available biological_age from exam history
   const effectiveBiologicalAge = React.useMemo(() => {
     if (labResult?.biological_age !== null && labResult?.biological_age !== undefined) {
       return labResult.biological_age;
@@ -76,13 +63,11 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
     return lastWithBioAge?.biological_age ?? null;
   }, [labResult?.biological_age, exams]);
 
-  // Bio age unlock celebration
-  const { showCelebration, markAsSeen } = useBioAgeUnlock(totalExams, canShowAdvancedAnalysis);
+  const { showCelebration, markAsSeen } = useBioAgeUnlock(totalExams, !isLocked);
 
   // Mock trend data for charts
   const trendData = [65, 72, 68, 80, 75, 82, 70, 78, 68];
 
-  // Get first detected glucose value for the trend chart (if exists)
   const glucoseBiomarker = biomarkers.find(b => 
     b.name.toLowerCase().includes('glicose') || 
     b.name.toLowerCase().includes('glucose')
@@ -90,7 +75,6 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
 
   return (
     <>
-      {/* Bio Age Unlock Celebration */}
       {showCelebration && (
         <BioAgeUnlockCelebration
           biologicalAge={labResult.biological_age}
@@ -103,135 +87,99 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
         animate={{ opacity: 1, y: 0 }}
         className="space-y-6"
       >
-      {/* Progress card — shown only when < 5 exams */}
-      {isBiologicalAgeLocked && (
-        <AdvancedAnalysisEducationalCard examCount={totalExams} />
-      )}
+        {/* < 5 exams: show only progress card */}
+        {isLocked && (
+          <AdvancedAnalysisEducationalCard examCount={totalExams} />
+        )}
 
-      {/* Advanced sections — shown only when >= 5 exams */}
-      {!isBiologicalAgeLocked && (
-        <>
-          {/* Summary Cards */}
-          <HealthSummaryCards
-            biologicalAge={effectiveBiologicalAge}
-            riskLevel={labResult.metabolic_risk_score as 'low' | 'moderate' | 'high' | null}
-            recommendationsCount={labResult.ai_recommendations?.length || 0}
-          />
-
-          {/* Health Projections */}
-          <div className="space-y-3">
-            <h2 className="text-lg font-semibold text-foreground">{t('healthProjections')}</h2>
-            <div className="grid gap-3">
-              <RiskProjectionCard
-                title={t('metabolicRisk')}
-                subtitle={t('projectionNext10Years')}
-                percentage={12}
-                monthlyChange={-3}
-                icon="metabolic"
-                delay={0}
-                infoText={t('metabolicRiskInfo')}
-              />
-              <RiskProjectionCard
-                title={t('cardiovascularHealth')}
-                subtitle={t('projectionNext10Years')}
-                percentage={18}
-                monthlyChange={-5}
-                icon="cardiovascular"
-                delay={0.1}
-                infoText={t('cardiovascularInfo')}
-              />
-              <RiskProjectionCard
-                title={t('inflammatoryMarkers')}
-                subtitle={t('projectionNext10Years')}
-                percentage={8}
-                monthlyChange={-2}
-                icon="inflammation"
-                delay={0.2}
-                infoText={t('inflammatoryInfo')}
-              />
-            </div>
-          </div>
-
-          {/* Trend Chart */}
-          {glucoseBiomarker && (
-            <TrendChartCard
-              title={translateBiomarkerName(glucoseBiomarker.name)}
-              change={-15}
-              data={trendData}
-              delay={0.3}
-              infoText={t('altTrendInfo')}
-              examCount={totalExams}
-              displayMode="full"
+        {/* >= 5 exams: show Biological Age and charts */}
+        {!isLocked && (
+          <>
+            <HealthSummaryCards
+              biologicalAge={effectiveBiologicalAge}
+              riskLevel={labResult.metabolic_risk_score as 'low' | 'moderate' | 'high' | null}
+              recommendationsCount={labResult.ai_recommendations?.length || 0}
             />
-          )}
-        </>
-      )}
 
-      {/* Dynamic Biomarkers List — always visible */}
-      <DynamicBiomarkersList
-        biomarkers={biomarkers}
-        loading={biomarkersLoading}
-      />
+            {glucoseBiomarker && (
+              <TrendChartCard
+                title={translateBiomarkerName(glucoseBiomarker.name)}
+                change={-15}
+                data={trendData}
+                delay={0.1}
+                infoText={t('altTrendInfo')}
+                examCount={totalExams}
+                displayMode="full"
+              />
+            )}
+          </>
+        )}
 
-      {/* Upload Exam Card - Primary Action */}
-      <LabUploadCard onUploadComplete={onUploadComplete} />
+        {/* Biomarkers list — always visible */}
+        <DynamicBiomarkersList
+          biomarkers={biomarkers}
+          loading={biomarkersLoading}
+        />
 
-      {/* Actions Section - Secondary/Management Actions */}
-      <Card className="rounded-2xl shadow-card">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Activity className="w-5 h-5" />
-            {t('actions')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-3">
-            <Button 
-              variant="outline"
-              onClick={onReanalyze}
-              disabled={reanalyzing}
-            >
-              {reanalyzing ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <RefreshCw className="w-4 h-4 mr-2" />
-              )}
-              {t('reanalyze')}
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={onShare}
-            >
-              <Share2 className="w-4 h-4 mr-2" />
-              {t('shareWithDoctor')}
-            </Button>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline">
-                  <FolderOpen className="w-4 h-4 mr-2" />
-                  {t('examsHistory')}
-                </Button>
-              </SheetTrigger>
-              <SheetContent className="w-full sm:max-w-md">
-                <SheetHeader>
-                  <SheetTitle className="flex items-center gap-2">
-                    <FolderOpen className="w-5 h-5" />
+        {/* Upload Exam Card */}
+        <LabUploadCard onUploadComplete={onUploadComplete} />
+
+        {/* Actions */}
+        <Card className="rounded-2xl shadow-card">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Activity className="w-5 h-5" />
+              {t('actions')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-3">
+              <Button 
+                variant="outline"
+                onClick={onReanalyze}
+                disabled={reanalyzing}
+              >
+                {reanalyzing ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                )}
+                {t('reanalyze')}
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={onShare}
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                {t('shareWithDoctor')}
+              </Button>
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline">
+                    <FolderOpen className="w-4 h-4 mr-2" />
                     {t('examsHistory')}
-                  </SheetTitle>
-                </SheetHeader>
-                <div className="mt-6">
-                  <ExamsHistoryCard currentExamId={labResult?.id} />
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-          {labResult.upload_date && (
-            <p className="text-xs text-muted-foreground mt-3">
-              {t('lastAnalysis')}: {new Date(labResult.upload_date).toLocaleDateString()}
-            </p>
-          )}
-        </CardContent>
-      </Card>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="w-full sm:max-w-md">
+                  <SheetHeader>
+                    <SheetTitle className="flex items-center gap-2">
+                      <FolderOpen className="w-5 h-5" />
+                      {t('examsHistory')}
+                    </SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-6">
+                    <ExamsHistoryCard currentExamId={labResult?.id} />
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+            {labResult.upload_date && (
+              <p className="text-xs text-muted-foreground mt-3">
+                {t('lastAnalysis')}: {new Date(labResult.upload_date).toLocaleDateString()}
+              </p>
+            )}
+          </CardContent>
+        </Card>
       </motion.div>
     </>
   );
