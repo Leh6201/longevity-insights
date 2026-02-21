@@ -40,20 +40,6 @@ const REQUIRED_BIOMARKERS: Omit<RequiredBiomarker, 'present'>[] = [
       'Tipo de gordura no sangue. Níveis elevados estão associados a risco cardíaco e síndrome metabólica.',
     aliases: ['triglicerídeos', 'triglicerideos', 'triglycerides', 'triglicérides', 'triglicerideo'],
   },
-  {
-    key: 'crp',
-    label: 'Proteína C Reativa (PCR)',
-    description:
-      'Marcador de inflamação no organismo. Valores altos indicam processos inflamatórios ou infecções.',
-    aliases: [
-      'proteína c reativa',
-      'proteina c reativa',
-      'pcr',
-      'crp',
-      'c-reactive protein',
-      'proteína c-reativa',
-    ],
-  },
 ];
 
 const normalise = (s: string) =>

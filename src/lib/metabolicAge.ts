@@ -11,7 +11,6 @@
  * • HDL Cholesterol   (mg/dL)
  * • LDL Cholesterol   (mg/dL)
  * • Triglycerides     (mg/dL)
- * • CRP              (mg/L)
  *
  * ─────────────────────────────────────────────────────────────────────────
  * METHOD
@@ -21,7 +20,7 @@
  * 3. Apply physiologically-motivated weights.
  * 4. Sum into a MetabolicScore.
  * 5. BiologicalAge = ChronologicalAge + MetabolicScore × AdjustmentFactor
- * 6. Clamp the delta to [-10, +10] years to avoid extreme outputs.
+ * 6. Clamp the delta to [-5, +5] years to avoid extreme outputs.
  */
 
 export interface MetabolicAgeInputs {
@@ -35,8 +34,6 @@ export interface MetabolicAgeInputs {
   ldl: number;
   /** Triglycerides in mg/dL */
   triglycerides: number;
-  /** C-reactive protein in mg/L */
-  crp: number;
 }
 
 export interface MetabolicAgeResult {
@@ -62,22 +59,20 @@ interface BiomarkerConfig {
 
 const BIOMARKERS: Record<string, BiomarkerConfig> = {
   // Glucose: optimal ~90 mg/dL; higher accelerates aging
-  glucose:       { optimal: 90,  range: 25, weight:  0.22 },
+  glucose:       { optimal: 90,  range: 25, weight:  0.28 },
   // HDL: optimal ~60 mg/dL; higher is protective (negative weight)
-  hdl:           { optimal: 60,  range: 15, weight: -0.20 },
+  hdl:           { optimal: 60,  range: 15, weight: -0.25 },
   // LDL: optimal ~100 mg/dL; higher accelerates aging
-  ldl:           { optimal: 100, range: 35, weight:  0.15 },
+  ldl:           { optimal: 100, range: 35, weight:  0.20 },
   // Triglycerides: optimal ~100 mg/dL; higher accelerates aging
-  triglycerides: { optimal: 100, range: 60, weight:  0.18 },
-  // CRP: optimal ~1.0 mg/L; strong inflammatory aging signal
-  crp:           { optimal: 1.0, range: 3.0, weight: 0.25 },
+  triglycerides: { optimal: 100, range: 60, weight:  0.27 },
 };
 
 /** Global scaling factor to map metabolic score → years */
-const ADJUSTMENT_FACTOR = 2.8;
+const ADJUSTMENT_FACTOR = 2.5;
 
 /** Maximum absolute delta (years) */
-const MAX_DELTA = 10;
+const MAX_DELTA = 5;
 
 /**
  * Compute deviation from optimal, normalised by range.
@@ -92,10 +87,10 @@ const normalisedDeviation = (value: number, cfg: BiomarkerConfig): number =>
  * Returns null if any required input is invalid (NaN, negative, or zero).
  */
 export const calculateMetabolicAge = (inputs: MetabolicAgeInputs): MetabolicAgeResult | null => {
-  const { chronologicalAge, glucose, hdl, ldl, triglycerides, crp } = inputs;
+  const { chronologicalAge, glucose, hdl, ldl, triglycerides } = inputs;
 
   // Guard: all values must be positive finite numbers
-  const values = [chronologicalAge, glucose, hdl, ldl, triglycerides, crp];
+  const values = [chronologicalAge, glucose, hdl, ldl, triglycerides];
   if (values.some((v) => !Number.isFinite(v) || v <= 0)) {
     return null;
   }
@@ -105,8 +100,7 @@ export const calculateMetabolicAge = (inputs: MetabolicAgeInputs): MetabolicAgeR
     BIOMARKERS.glucose.weight       * normalisedDeviation(glucose, BIOMARKERS.glucose) +
     BIOMARKERS.hdl.weight           * normalisedDeviation(hdl, BIOMARKERS.hdl) +
     BIOMARKERS.ldl.weight           * normalisedDeviation(ldl, BIOMARKERS.ldl) +
-    BIOMARKERS.triglycerides.weight * normalisedDeviation(triglycerides, BIOMARKERS.triglycerides) +
-    BIOMARKERS.crp.weight           * normalisedDeviation(crp, BIOMARKERS.crp);
+    BIOMARKERS.triglycerides.weight * normalisedDeviation(triglycerides, BIOMARKERS.triglycerides);
 
   // Scale to years and clamp
   const rawDelta = metabolicScore * ADJUSTMENT_FACTOR;

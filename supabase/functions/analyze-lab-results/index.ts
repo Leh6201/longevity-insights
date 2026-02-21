@@ -180,26 +180,24 @@ serve(async (req) => {
 // ─── Metabolic Biological Age (proprietary model v1) ────────────────────────
 interface BiomarkerCfg { optimal: number; range: number; weight: number; }
 const META_CFG: Record<string, BiomarkerCfg> = {
-  glucose:      { optimal: 90,  range: 25,  weight:  0.22 },
-  hdl:          { optimal: 60,  range: 15,  weight: -0.20 },
-  ldl:          { optimal: 100, range: 35,  weight:  0.15 },
-  triglycerides:{ optimal: 100, range: 60,  weight:  0.18 },
-  crp:          { optimal: 1.0, range: 3.0, weight:  0.25 },
+  glucose:      { optimal: 90,  range: 25,  weight:  0.28 },
+  hdl:          { optimal: 60,  range: 15,  weight: -0.25 },
+  ldl:          { optimal: 100, range: 35,  weight:  0.20 },
+  triglycerides:{ optimal: 100, range: 60,  weight:  0.27 },
 };
-const ADJUSTMENT_FACTOR = 2.8;
-const MAX_DELTA = 10;
+const ADJUSTMENT_FACTOR = 2.5;
+const MAX_DELTA = 5;
 const nd = (v: number, c: BiomarkerCfg) => (v - c.optimal) / c.range;
 
-interface MetaInputs { chronologicalAge: number; glucose: number; hdl: number; ldl: number; triglycerides: number; crp: number; }
+interface MetaInputs { chronologicalAge: number; glucose: number; hdl: number; ldl: number; triglycerides: number; }
 function computeMetabolicAge(inputs: MetaInputs): number | null {
-  const vals = [inputs.chronologicalAge, inputs.glucose, inputs.hdl, inputs.ldl, inputs.triglycerides, inputs.crp];
+  const vals = [inputs.chronologicalAge, inputs.glucose, inputs.hdl, inputs.ldl, inputs.triglycerides];
   if (vals.some((v) => !Number.isFinite(v) || v <= 0)) return null;
   const score =
     META_CFG.glucose.weight       * nd(inputs.glucose,       META_CFG.glucose)       +
     META_CFG.hdl.weight           * nd(inputs.hdl,           META_CFG.hdl)           +
     META_CFG.ldl.weight           * nd(inputs.ldl,           META_CFG.ldl)           +
-    META_CFG.triglycerides.weight * nd(inputs.triglycerides, META_CFG.triglycerides) +
-    META_CFG.crp.weight           * nd(inputs.crp,           META_CFG.crp);
+    META_CFG.triglycerides.weight * nd(inputs.triglycerides, META_CFG.triglycerides);
   const rawDelta = score * ADJUSTMENT_FACTOR;
   const clamped = Math.max(-MAX_DELTA, Math.min(MAX_DELTA, rawDelta));
   return Math.round(inputs.chronologicalAge + clamped);
@@ -425,7 +423,6 @@ Recomendações em português brasileiro, educacionais, sempre orientando consul
     const hdlVal          = findValue(['hdl']);
     const ldlVal          = findValue(['ldl']);
     const trigVal         = findValue(['triglicerideo', 'triglicerideos', 'triglycerides']);
-    const crpVal          = findValue(['proteina c reativa', 'pcr', 'crp', 'c-reactive']);
 
     // Fetch user's chronological age from onboarding_data
     let chronologicalAge: number | null = null;
@@ -439,7 +436,7 @@ Recomendações em português brasileiro, educacionais, sempre orientando consul
     let computedBioAge: number | null = null;
     if (
       chronologicalAge &&
-      glucoseVal && hdlVal && ldlVal && trigVal && crpVal
+      glucoseVal && hdlVal && ldlVal && trigVal
     ) {
       computedBioAge = computeMetabolicAge({
         chronologicalAge,
@@ -447,12 +444,11 @@ Recomendações em português brasileiro, educacionais, sempre orientando consul
         hdl: hdlVal,
         ldl: ldlVal,
         triglycerides: trigVal,
-        crp: crpVal,
       });
       console.log(`MetabolicAge computed: ${computedBioAge} (chrono: ${chronologicalAge})`);
     } else {
       console.log('MetabolicAge not computed: missing biomarkers or age', {
-        chronologicalAge, glucoseVal, hdlVal, ldlVal, trigVal, crpVal
+        chronologicalAge, glucoseVal, hdlVal, ldlVal, trigVal
       });
     }
     // ─────────────────────────────────────────────────────────────────────────
