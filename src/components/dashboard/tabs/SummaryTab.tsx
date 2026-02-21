@@ -101,8 +101,30 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
       return null;
     }
 
+    // Raw calculation breakdown for debugging
+    const gDev = (glucose - 90) / 25;
+    const hDev = (hdl - 60) / 15;
+    const lDev = (ldl - 100) / 35;
+    const tDev = (triglycerides - 100) / 60;
+    const metabolicScore = 0.28 * gDev + (-0.25) * hDev + 0.20 * lDev + 0.27 * tDev;
+    const rawDelta = metabolicScore * 2.5;
+    const clampedDelta = Math.max(-5, Math.min(5, rawDelta));
+
+    console.log('[BioAge] Normalized deviations:', {
+      glucose: gDev.toFixed(4),
+      hdl: hDev.toFixed(4),
+      ldl: lDev.toFixed(4),
+      triglycerides: tDev.toFixed(4),
+    });
+    console.log('[BioAge] MetabolicScore:', metabolicScore.toFixed(6));
+    console.log('[BioAge] AdjustmentFactor: 2.5');
+    console.log('[BioAge] RawDelta (MetabolicScore × 2.5):', rawDelta.toFixed(6));
+    console.log('[BioAge] ClampedDelta (±5 max):', clampedDelta.toFixed(6));
+    console.log('[BioAge] Raw BiologicalAge (before rounding):', (chronologicalAge + clampedDelta).toFixed(6));
+
     const result = calculateMetabolicAge({ chronologicalAge, glucose, hdl, ldl, triglycerides });
-    console.log('[BioAge] Calculation result:', result);
+    console.log('[BioAge] Final result:', result);
+    console.log('[BioAge] Delta sign: ageDelta =', result?.ageDelta, '(positive = younger than chrono, negative = older)');
 
     if (!result || !Number.isFinite(result.biologicalAge)) {
       console.warn('[BioAge] Calculation returned invalid result');
