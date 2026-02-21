@@ -422,7 +422,7 @@ Recomendações em português brasileiro, educacionais, sempre orientando consul
     const glucoseVal      = findValue(['glicose', 'glucose']);
     const hdlVal          = findValue(['hdl']);
     const ldlVal          = findValue(['ldl']);
-    const trigVal         = findValue(['triglicerideo', 'triglicerideos', 'triglycerides']);
+    const trigVal         = findValue(['triglicerideo', 'triglicerideos', 'triglycerides', 'triglicerides']);
 
     // Fetch user's chronological age from onboarding_data
     let chronologicalAge: number | null = null;

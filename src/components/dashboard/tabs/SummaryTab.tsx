@@ -67,7 +67,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
       });
   }, [user]);
 
-  // Biological Age unlocks only when all 5 required biomarkers are present
+  // Biological Age unlocks only when all 4 required biomarkers are present
   const isLocked = !allPresent;
 
   // Fall back to latest available biological_age from exam history
