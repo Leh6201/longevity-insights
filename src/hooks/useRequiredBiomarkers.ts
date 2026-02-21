@@ -38,7 +38,7 @@ const REQUIRED_BIOMARKERS: Omit<RequiredBiomarker, 'present'>[] = [
     label: 'Triglicerídeos',
     description:
       'Tipo de gordura no sangue. Níveis elevados estão associados a risco cardíaco e síndrome metabólica.',
-    aliases: ['triglicerídeos', 'triglicerideos', 'triglycerides', 'triglicérides', 'triglicerideo'],
+    aliases: ['triglicerídeos', 'triglicerideos', 'triglycerides', 'triglicérides', 'triglicerideo', 'triglicerides'],
   },
 ];
 
