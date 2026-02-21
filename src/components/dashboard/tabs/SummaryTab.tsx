@@ -18,6 +18,7 @@ import { useExamHistory } from '@/hooks/useExamHistory';
 import { useBioAgeUnlock } from '@/hooks/useBioAgeUnlock';
 import { useRequiredBiomarkers } from '@/hooks/useRequiredBiomarkers';
 import { translateBiomarkerName } from '@/lib/biomarkerLocalization';
+import { calculateMetabolicAge } from '@/lib/metabolicAge';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -70,16 +71,47 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
   // Biological Age unlocks only when all 4 required biomarkers are present
   const isLocked = !allPresent;
 
-  // Fall back to latest available biological_age from exam history
-  const effectiveBiologicalAge = React.useMemo(() => {
-    if (labResult?.biological_age !== null && labResult?.biological_age !== undefined) {
-      return labResult.biological_age;
+  // Helper to find numeric value from detected biomarkers by alias
+  const findBiomarkerValue = (aliases: string[]): number | null => {
+    const normalise = (s: string) =>
+      s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+    for (const bm of biomarkers) {
+      const n = normalise(bm.name);
+      if (aliases.some((a) => n.includes(normalise(a))) && bm.value != null) {
+        return bm.value;
+      }
     }
-    const lastWithBioAge = [...(exams || [])]
-      .reverse()
-      .find((e) => e.biological_age !== null && e.biological_age !== undefined);
-    return lastWithBioAge?.biological_age ?? null;
-  }, [labResult?.biological_age, exams]);
+    return null;
+  };
+
+  // Calculate biological age on-the-fly from detected biomarkers
+  const calculatedBiologicalAge = React.useMemo(() => {
+    if (!allPresent || !chronologicalAge) return null;
+
+    const glucose = findBiomarkerValue(['glicose', 'glucose']);
+    const hdl = findBiomarkerValue(['hdl']);
+    const ldl = findBiomarkerValue(['ldl']);
+    const triglycerides = findBiomarkerValue(['triglicerídeos', 'triglicerideos', 'triglycerides', 'triglicerides']);
+
+    console.log('[BioAge] Detected biomarker values:', { glucose, hdl, ldl, triglycerides });
+    console.log('[BioAge] Chronological age:', chronologicalAge);
+
+    if (glucose == null || hdl == null || ldl == null || triglycerides == null) {
+      console.warn('[BioAge] Missing numeric value for one or more biomarkers');
+      return null;
+    }
+
+    const result = calculateMetabolicAge({ chronologicalAge, glucose, hdl, ldl, triglycerides });
+    console.log('[BioAge] Calculation result:', result);
+
+    if (!result || !Number.isFinite(result.biologicalAge)) {
+      console.warn('[BioAge] Calculation returned invalid result');
+      return null;
+    }
+
+    return result.biologicalAge;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allPresent, chronologicalAge, biomarkers]);
 
   const totalExams = exams.length;
   const { showCelebration, markAsSeen } = useBioAgeUnlock(totalExams, !isLocked);
@@ -96,7 +128,7 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
     <>
       {showCelebration && (
         <BioAgeUnlockCelebration
-          biologicalAge={labResult.biological_age}
+          biologicalAge={calculatedBiologicalAge}
           onComplete={markAsSeen}
         />
       )}
@@ -115,10 +147,10 @@ const SummaryTab: React.FC<SummaryTabProps> = ({
         )}
 
         {/* All required biomarkers present: show Biological Age and charts */}
-        {!isLocked && effectiveBiologicalAge !== null && (
+        {!isLocked && calculatedBiologicalAge !== null && (
           <>
             <BiologicalAgeCard
-              biologicalAge={effectiveBiologicalAge}
+              biologicalAge={calculatedBiologicalAge}
               actualAge={chronologicalAge}
             />
 
